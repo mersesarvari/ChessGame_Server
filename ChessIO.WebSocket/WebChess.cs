@@ -12,7 +12,7 @@ namespace ChessIO.ws
     public class WebChess : WebSocketBehavior
     {
         public static void CreateGames()
-        {
+        {/*
             while (true)
             {
                 //Basing matching mechanish
@@ -32,13 +32,14 @@ namespace ChessIO.ws
                 }
                 Thread.Sleep(3000);
             }
+            */
         }
         protected override void OnOpen()
         {
             Console.WriteLine("[Connected]: " + ID);
             var currentid = ID;
-            DataManager.players.Add(new Player(currentid));
-            SendMessage(currentid, "Üdv:" + currentid);
+            Server.players.Add(new Player(currentid));
+            Server.SendMessage(currentid, "Üdv:" + currentid);
 
         }
         protected override void OnMessage(MessageEventArgs e)
@@ -61,16 +62,12 @@ namespace ChessIO.ws
                 Console.WriteLine(item);
             }
         }
-
-        public void SendMessage(string id, string message)
-        {
-            Sessions.SendTo(message,id);
-        }
+       
 
         protected override void OnClose(CloseEventArgs e)
         {
             Console.WriteLine("[Disconnected] :" + ID);
-            DataManager.players.Remove(DataManager.players.FirstOrDefault(x => x.Id == ID));
+            Server.players.Remove(Server.players.FirstOrDefault(x => x.Id == ID));
 
         }
 
