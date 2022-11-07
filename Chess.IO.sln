@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32901.215
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessIO.Server.Old", "Server\ChessIO.Server.Old.csproj", "{1AE2C991-9999-45AF-83B9-23452D6FF4AB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessIO.ws", "ChessIO.WebSocket\ChessIO.ws.csproj", "{1BC54949-9E28-4D5B-9F33-01ED47A4A96F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1AE2C991-9999-45AF-83B9-23452D6FF4AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1AE2C991-9999-45AF-83B9-23452D6FF4AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1AE2C991-9999-45AF-83B9-23452D6FF4AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1AE2C991-9999-45AF-83B9-23452D6FF4AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BC54949-9E28-4D5B-9F33-01ED47A4A96F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BC54949-9E28-4D5B-9F33-01ED47A4A96F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BC54949-9E28-4D5B-9F33-01ED47A4A96F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BC54949-9E28-4D5B-9F33-01ED47A4A96F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {938653DD-F1C8-41C3-A0A6-AFE459EE5834}
+	EndGlobalSection
+EndGlobal
