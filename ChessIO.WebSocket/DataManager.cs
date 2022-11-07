@@ -8,6 +8,6 @@ namespace ChessIO.ws
 {
     public static class DataManager
     {
-        public static List<Player> players = new List<Player>();
+        public static List<Player> players = new List<Player>();        
     }
 }

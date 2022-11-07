@@ -9,12 +9,20 @@ using System.Threading.Tasks;
 
 namespace ChessIO.ws
 {
+    public enum PlayerState
+    {
+        Lobby=0,
+        //Search=1,
+        Game=2,
+    }
     public class Player
     {
         public string Id { get; set; }
         public string Username { get; set; }
-
+        public PlayerState PlayerState{get;set;}
         public string Color { get; set; }
+
+        public int Rating { get; set; }
         /*
         public Player(Socket client)
         {
@@ -34,6 +42,12 @@ namespace ChessIO.ws
         {
             Id = id;
             Username = "default";
+            PlayerState = PlayerState.Lobby;
+            Rating = 300;
+        }
+
+        public void SearchGame() {
+            this.PlayerState = PlayerState.Game;
         }
     }
 }

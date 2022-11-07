@@ -1,4 +1,5 @@
 ﻿using System.Net.NetworkInformation;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -13,8 +14,23 @@ namespace ChessIO.ws
             WebSocketServer server = new WebSocketServer("ws://localhost:5000");
             server.AddWebSocketService<ChessServer>("/chess");
             server.Start();
+            
             Console.WriteLine("Server started on ws://localhost:5000");
-            Console.ReadKey();
+            //Ha két player van akkor kiküldünk egy gamet
+            while (true)
+            {
+                //Basing matching mechanish
+                Console.WriteLine("Online players:");
+                var playersinlobby = DataManager.players.FindAll(x => x.PlayerState == PlayerState.Lobby);
+                if (playersinlobby.Count >= 2)
+                {
+                    //Matching two player
+                    playersinlobby[0].PlayerState = PlayerState.Game;
+                    playersinlobby[1].PlayerState = PlayerState.Game;
+                }
+                Thread.Sleep(3000);
+            }
+            
             server.Stop();
         }
     }
@@ -22,8 +38,7 @@ namespace ChessIO.ws
     {
         protected override void OnOpen()
         {
-            Console.WriteLine("Client connected");
-            Console.WriteLine("Active clients:");
+            Console.WriteLine("[Connected]: "+ID);
             var currentid = ID;
             DataManager.players.Add(new Player(currentid));
             SendMessage(currentid, "Üdv:"+currentid);
@@ -58,11 +73,8 @@ namespace ChessIO.ws
 
         protected override void OnClose(CloseEventArgs e)
         {
-            Console.WriteLine("Active clients:");
-            foreach (var item in Sessions.Sessions)
-            {
-                Console.WriteLine(item.ID + ": " + item.State);
-            }
+            Console.WriteLine("[Disconnected] :"+ID);
+            DataManager.players.Remove(DataManager.players.FirstOrDefault(x=>x.Id==ID));
             
         }
         
