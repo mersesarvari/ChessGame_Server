@@ -14,7 +14,6 @@ namespace ChessIO.ws
         {
             server.Start();
             Console.WriteLine("Server started on ws://localhost:5000");
-            WebChess chess = new WebChess();
             server.AddWebSocketService<WebChess>("/chess");
             while (true)
             {
@@ -26,8 +25,8 @@ namespace ChessIO.ws
                     //Matching two player
                     playersinlobby[0].PlayerState = PlayerState.Game;
                     playersinlobby[1].PlayerState = PlayerState.Game;
-                    chess.SendMessage(playersinlobby[0].Id,"You found a game");
-                    chess.SendMessage(playersinlobby[1].Id, "You found a game");
+                    //chess.SendMessage(playersinlobby[0].Id,"You found a game");
+                    //chess.SendMessage(playersinlobby[1].Id, "You found a game");
 
                 }
                 else
