@@ -22,6 +22,8 @@ namespace ChessIO.ws
         public PlayerState PlayerState{get;set;}
         public string Color { get; set; }
 
+        public string GameId { get; set; }
+
         public int Rating { get; set; }
         /*
         public Player(Socket client)
@@ -48,6 +50,16 @@ namespace ChessIO.ws
 
         public void SearchGame() {
             this.PlayerState = PlayerState.Game;
+        }
+
+        public void SendMessage(string message) 
+        {
+            Server.SendMessage(this.Id, message);
+        }
+
+        public static Player FindPlayer(string id)
+        {
+            return Server.Players.FirstOrDefault(x => x.Id == id);
         }
     }
 }

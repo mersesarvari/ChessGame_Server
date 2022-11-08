@@ -11,34 +11,11 @@ namespace ChessIO.ws
 {
     public class WebChess : WebSocketBehavior
     {
-        public static void CreateGames()
-        {/*
-            while (true)
-            {
-                //Basing matching mechanish
-                //Console.WriteLine("Online players:");
-                var playersinlobby = DataManager.players.FindAll(x => x.PlayerState == PlayerState.Lobby);
-                if (playersinlobby.Count >= 2)
-                {
-                    //Matching two player
-                    playersinlobby[0].PlayerState = PlayerState.Game;
-                    playersinlobby[1].PlayerState = PlayerState.Game;
-
-
-                }
-                else
-                {
-                    Console.WriteLine("Players in lobby:" + playersinlobby.Count);
-                }
-                Thread.Sleep(3000);
-            }
-            */
-        }
         protected override void OnOpen()
         {
             Console.WriteLine("[Connected]: " + ID);
             var currentid = ID;
-            Server.players.Add(new Player(currentid));
+            Server.Players.Add(new Player(currentid));
             Server.SendMessage(currentid, "Üdv:" + currentid);
 
         }
@@ -67,7 +44,7 @@ namespace ChessIO.ws
         protected override void OnClose(CloseEventArgs e)
         {
             Console.WriteLine("[Disconnected] :" + ID);
-            Server.players.Remove(Server.players.FirstOrDefault(x => x.Id == ID));
+            Server.Players.Remove(Server.Players.FirstOrDefault(x => x.Id == ID));
 
         }
 
