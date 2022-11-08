@@ -42,7 +42,7 @@ namespace ChessIO.ws
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
             Board = new string[8,8]; 
             Id = Guid.NewGuid().ToString() ;
-            Fenstring = "rnbqkbnr/pppppppp/8/8/1P/P4N/2PPPPPP/RNBQKB1R";
+            Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
             //PlayerList = new List<Player>();
 
             //Elosion = elosion;

@@ -1,5 +1,4 @@
-﻿using ChessIO.ws.Logic;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -36,8 +35,8 @@ namespace ChessIO.ws
         public static void MatchPlayers() 
         {
             //Testing pahse
-            PieceLogic pl = new PieceLogic();
-            char[,] brd = pl.ConvertFromFEN("rnbqkbnr/pppppppp/8/8/1P6/P4N2/2PPPPPP/RNBQKB1R");
+            //Logic.Logic pl = new Logic.Logic();
+            char[,] brd = Logic.ConvertFromFen("rnbqkbnr/pppppppp/p1pppppp/8/k7/8/PPPPPPPP/RNBQKBNR");
             for (int i = 0; i < brd.GetLength(0); i++)
             {
                 for (int j = 0; j < brd.GetLength(1); j++)
@@ -46,7 +45,14 @@ namespace ChessIO.ws
                 }
                 Console.WriteLine();
             }
-            Console.WriteLine(pl.ConvertToFen(brd));
+            Console.WriteLine(Logic.ConvertToFen(brd));
+            Console.WriteLine("--------------- Testing ---------------");
+            var legitmovements = Logic.PawnMovement(1, 1, "black", brd);
+            foreach (var legitmovement in legitmovements)
+            {
+                Console.WriteLine("Move:"+legitmovement.X+"|" +legitmovement.Y);
+            }
+
             while (true)
             {
                 //Getting players in the lobby
@@ -57,9 +63,6 @@ namespace ChessIO.ws
 
                     playersinlobby[0].PlayerState = PlayerState.Game;
                     playersinlobby[1].PlayerState = PlayerState.Game;
-                    //Server.SendMessage(playersinlobby[0].Id, "You found a game");
-                    //Server.SendMessage(playersinlobby[1].Id, "You found a game");
-                    //Server.Broadcast("Welcome");
                     //Basic 10minute game
                     ChessGame currentgame = new ChessGame(playersinlobby[0], playersinlobby[1], 600000);
                     Server.Games.Add(currentgame);
