@@ -120,12 +120,12 @@ namespace ChessIO.ws
 
         }
 
-        public static Position[] PawnMovement(int x, int y, string color, char[,]board)
+        public static Position[] PawnMovement(int x, int y, char[,]board)
         {
             Console.WriteLine($"Current character:  [{board[x,y]}] on coordinate [{x},{y}]");
             List<Position> possiblemoves = new List<Position>();
             //Check that the coordinate is valid
-            if (color == "white" && board[x, y] == 'P')
+            if (board[x, y] == 'P')
             {   
                 //Ha a király sakkban van akkor nem történhet semmi
                 possiblemoves = new List<Position>();
@@ -156,7 +156,7 @@ namespace ChessIO.ws
 
                 }
             }
-            else if (color == "black" && board[x, y] == 'p')
+            else if (board[x, y] == 'p')
             {
                 //Ha a király sakkban van akkor nem történhet semmi
                 possiblemoves = new List<Position>();
@@ -188,11 +188,33 @@ namespace ChessIO.ws
                 }
             }
             else {
-                throw new Exception("[ERROR]: This pawn doestn exists");
+                throw new Exception("[ERROR]: This pawn doesnt exists");
             }
             return possiblemoves.ToArray();
 
 
+        }
+
+        public static Position[] BishopMovement(int x, int y, char[,] board)
+        {
+            Console.WriteLine($"Current character:  [{board[x, y]}] on coordinate [{x},{y}]");
+            List<Position> possiblemoves = new List<Position>();
+            //Check that the coordinate is valid
+            if (board[x, y] == 'b')
+            {
+                for (int x = 0; x < 0; x++)
+                {
+
+                }
+            }
+            else if (board[x, y] == 'B')
+            {
+
+            }
+            else
+            {
+                throw new Exception("[ERROR]: This bishop doesnt exists");
+            }
         }
     }
 }

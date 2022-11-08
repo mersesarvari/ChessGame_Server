@@ -46,12 +46,8 @@ namespace ChessIO.ws
                 Console.WriteLine();
             }
             Console.WriteLine(Logic.ConvertToFen(brd));
-            Console.WriteLine("--------------- Testing ---------------");
-            var legitmovements = Logic.PawnMovement(1, 1, "black", brd);
-            foreach (var legitmovement in legitmovements)
-            {
-                Console.WriteLine("Move:"+legitmovement.X+"|" +legitmovement.Y);
-            }
+            Tester tester = new Tester();
+            
 
             while (true)
             {
