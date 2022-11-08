@@ -39,12 +39,14 @@ namespace ChessIO.ws
         [JsonConstructor]
         public ChessGame(Player _p1, Player _p2, int timer)
         {
+            Board = new string[8,8]; 
             Id = Guid.NewGuid().ToString() ;
             Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
             //PlayerList = new List<Player>();
 
             //Elosion = elosion;
-            if (r.Next(0, 9) % 2 == 0)
+            var whiteblack = r.Next(0, 99);
+            if (whiteblack % 2 == 1)
             {
                 White = _p1.Id;
                 Black = _p2.Id;
@@ -64,10 +66,17 @@ namespace ChessIO.ws
 
         public void StartGame()
         {
-            var msg = new Message<ChessGame>(4, this);
+            var msg = new Message() { Opcode=4, Game=this};
             Server.SendMessage(White, JsonConvert.SerializeObject(msg));
             Server.SendMessage(Black, JsonConvert.SerializeObject(msg));
 
+        }
+
+
+        public void BroadcastMessage(Message message) 
+        {
+            Server.SendMessage(White, JsonConvert.SerializeObject(message));
+            Server.SendMessage(Black, JsonConvert.SerializeObject(message));
         }
     }
 }

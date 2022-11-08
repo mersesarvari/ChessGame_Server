@@ -7,16 +7,21 @@ using Newtonsoft;
 
 namespace ChessIO.ws
 {
-    public class Message<T>
+    public class Message
     {
+        public string Gameid { get; set; }
+        public string Playerid { get; set; }
         public int Opcode { get; set; }
-
-        public T message { get; set; }
-
+        public string Fen { get; set; }
+        public ChessGame Game { get; set; }
+        //public object message { get; set; }
+        /*
         public Message(int opcode, T message)
         {
             Opcode = opcode;
             this.message = message;
         }
+        */
+
     }
 }
