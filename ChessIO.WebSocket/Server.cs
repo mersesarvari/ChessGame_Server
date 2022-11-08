@@ -37,15 +37,16 @@ namespace ChessIO.ws
         {
             //Testing pahse
             PieceLogic pl = new PieceLogic();
-            char[][] brd = pl.ConvertFromFEN("rnbqkbnr/pppppppp/8/8/1P6/P4N2/2PPPPPP/RNBQKB1R");
-            for (int i = 0; i < brd.Length; i++)
+            char[,] brd = pl.ConvertFromFEN("rnbqkbnr/pppppppp/8/8/1P6/P4N2/2PPPPPP/RNBQKB1R");
+            for (int i = 0; i < brd.GetLength(0); i++)
             {
-                for (int j = 0; j < brd[i].Length; j++)
+                for (int j = 0; j < brd.GetLength(1); j++)
                 {
-                    Console.Write(brd[i][j] + " ");
+                    Console.Write(brd[i,j] + " ");
                 }
                 Console.WriteLine();
             }
+            Console.WriteLine(pl.ConvertToFen(brd));
             while (true)
             {
                 //Getting players in the lobby

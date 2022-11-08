@@ -15,31 +15,35 @@ namespace ChessIO.ws.Logic
         {
         }
 
-        public string ConvertToFen(string[] board)
+        public string ConvertToFen(char[,] board)
         {
-            var current = board;
             var fenstring = "";
-            var numbercounter = 0;
-            for (int i = 0; i < 8; i++)
+            int zerocounter = 0;
+            for (int i = 0; i < board.GetLength(0); i++)
             {
-                for (int j = 0; j < 8; j++)
+                zerocounter = 0;
+                for (int j = 0; j < board.GetLength(1); j++)
                 {
-                    numbercounter = 0;
+                    //Ha 0 jön akkor nő a változó
+                    if (board[i, j] == '0')
+                    {
+                        zerocounter++;
+                    }
+                    if (zerocounter == 8)
+                    {
+                        fenstring += zerocounter;
+                    }
+                    if (board[i, j] != '0')
+                    {
+                        if (zerocounter > 0)
+                        {
+                            fenstring += zerocounter;
+                            zerocounter = 0;
+                        }
 
-                    while (current[i][j] == '0')
-                    {
-                        numbercounter++;
-                        j++;
+                        fenstring += board[i, j];
                     }
-                    if (numbercounter > 0)
-                    {
-                        fenstring += numbercounter;
-                    }
-                    if (current[i][j] != '0')
-                    {
-                        //console.log("Current: " + current[i][j])
-                        fenstring += current[i][j];
-                    }
+                    
                 }
                 if (i < 7)
                 {
@@ -50,10 +54,10 @@ namespace ChessIO.ws.Logic
             return fenstring;
         }
 
-        public char[][] ConvertFromFEN(string fenstring)
+        public char[,] ConvertFromFEN(string fenstring)
         {
             //Többi beállítás hiányzik logic kell ide
-            char[][] baseboard = new char[8][];
+            char[,] baseboard = new char[8,8];
             //Alapvető állás konverzió
             fenstring = fenstring.Split(' ')[0];
             var _board = baseboard;
@@ -91,7 +95,11 @@ namespace ChessIO.ws.Logic
 
                 };
                 //console.log("Line: " + line.toString());
-                _board[i] = line.ToArray();
+                //_board[i] = line.ToArray();
+                for (int k = 0; k < line.Length; k++)
+                {
+                    _board[i, k] = line[k];
+                }
             };
             return _board;
 
