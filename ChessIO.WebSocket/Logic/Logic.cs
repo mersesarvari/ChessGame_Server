@@ -45,6 +45,7 @@ namespace ChessIO.ws
                 case "n":
                     break;
                 case "b":
+                    validmoves = BishopMovement(oldpos.X, oldpos.Y, board).ToList();
                     break;
                 case "q":
                     break;
@@ -164,10 +165,10 @@ namespace ChessIO.ws
 
         }
 
+        // Working mellélépés nincsen implementálva
         public static Position[] PawnMovement(int x, int y, char[,]board)
         {
             var possiblemoves = new List<Position>();
-            //Console.WriteLine($"Current character:  [{board[x,y]}] on coordinate [{x},{y}]");
             //Check that the coordinate is valid
             if (board[x, y] == 'P')
             {   
@@ -238,7 +239,7 @@ namespace ChessIO.ws
 
 
         }
-        
+        // Teljesen implementálva
         public static Position[] BishopMovement(int x, int y, char[,] board)
         {
             List<Position> possiblemoves = new List<Position>();
