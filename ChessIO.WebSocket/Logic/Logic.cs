@@ -44,27 +44,26 @@ namespace ChessIO.ws
                     validmoves = RookMovement(oldpos.X, oldpos.Y,'r', board).ToList();
                     break;
                 case "n":
+                    validmoves = KnightMovement(oldpos.X, oldpos.Y, 'n', board).ToList();
                     break;
                 case "b":
                     validmoves = BishopMovement(oldpos.X, oldpos.Y,'b', board).ToList();
                     break;
                 case "q":
-                    validmoves = QueenMovement(oldpos.X, oldpos.Y, board).ToList();
+                    validmoves = QueenMovement(oldpos.X, oldpos.Y,'q', board).ToList();
                     break;
                 case "k":
                     break;
                 default:
                     throw new Exception("Error when try to get the logic of the current character");
+
+                    
             }
+
             #region printvalidmoves
             //Checking the valid moves
-            //Console.WriteLine($"Valid moves from {oldpos.X},{oldpos.Y}");
-            /*
-            foreach (var item in validmoves)
-            {
-                Console.WriteLine($"{item.X},{item.Y}");
-            }
-            */
+            
+            
             #endregion
             if (validmoves.FirstOrDefault(x => x.X == newpos.X && x.Y == newpos.Y) != null)
             {
@@ -73,6 +72,11 @@ namespace ChessIO.ws
             }
             else
             {
+                Console.WriteLine($"Valid moves from {oldpos.X},{oldpos.Y}");
+                foreach (var item in validmoves)
+                {
+                    Console.WriteLine($"{item.X},{item.Y}");
+                }
                 Console.WriteLine($"[Invalid-Move] : From [{oldpos.X}|{oldpos.Y}] to [{newpos.X}|{newpos.Y}]");
                 return false;
             }
@@ -507,13 +511,13 @@ namespace ChessIO.ws
             }
         }
         // Teljesen implementálva a Rook és Bishop alapján
-        public static Position[] QueenMovement(int x, int y, char[,] board) 
+        public static Position[] QueenMovement(int x, int y,char chartype, char[,] board) 
         {
             List<Position> possiblemovesall = new List<Position>();
             List<Position> rookmoves = new List<Position>();
-            rookmoves = RookMovement(x, y,'q', board).ToList();
+            rookmoves = RookMovement(x, y,chartype, board).ToList();
             List<Position> bishopmoves = new List<Position>();
-            bishopmoves = BishopMovement(x, y,'q', board).ToList();
+            bishopmoves = BishopMovement(x, y,chartype, board).ToList();
             foreach (var item in rookmoves)
             {
                 possiblemovesall.Add(item);
@@ -523,6 +527,96 @@ namespace ChessIO.ws
                 possiblemovesall.Add(item);
             }
             return possiblemovesall.ToArray();
+        }
+
+        public static Position[] KnightMovement(int x, int y, char chartype, char[,] board)
+        {
+            List<Position> possiblemoves = new List<Position>();
+            //Kilépünk kettőt x vagy y irányba és a cellának mindkét x vagy y menti szomszédos oldala jó
+            var originalX = x;
+            var originalY = y;
+            if (board[x, y] == chartype.ToString().ToLower()[0] || board[x, y] == chartype.ToString().ToUpper()[0])
+            {
+                //Felfele mozgás
+                if (x - 2 >= 0)
+                {
+                    if (y - 1 >= 0)
+                    {
+                        possiblemoves.Add(new Position(x - 2, y-1));
+                    }
+                    if (y + 1 <= 7)
+                    {
+                        possiblemoves.Add(new Position(x - 2, y+1));
+                    }
+                }
+                // Lefele
+                if (x + 2 <= 7)
+                {
+                    if (y - 1 >= 0)
+                    {
+                        possiblemoves.Add(new Position(x + 2, y - 1));
+                    }
+                    if (y + 1 <= 7)
+                    {
+                        possiblemoves.Add(new Position(x + 2, y + 1));
+                    }
+                }
+
+                // Left side movement
+                if (y - 2 >=0)
+                {
+                    if (x - 1 >= 0)
+                    {
+                        possiblemoves.Add(new Position(x +1, y - 2));
+                    }
+                    if (y + 1 <= 7)
+                    {
+                        possiblemoves.Add(new Position(x - 1, y -2));
+                    }
+                }
+
+                // Jobbra mozgás
+                if (y + 2 >=7)
+                {
+                    if (x - 1 >= 0)
+                    {
+                        possiblemoves.Add(new Position(x - 1, y + 2));
+                    }
+                    if (y + 1 <= 7)
+                    {
+                        possiblemoves.Add(new Position(x + 1, y + 2));
+                    }
+                }
+                var p = possiblemoves;
+                List<Position> filteredpossiblemoves = new List<Position>();
+                Console.WriteLine("Valid knight movements:");
+                //filteredpossiblemoves = possiblemoves;
+                foreach (var item in possiblemoves)
+                {
+                    Console.WriteLine(item.X+"|"+item.Y);
+                    if (
+                        Char.IsLower(board[item.X, item.Y]) && 
+                        !Char.IsLower(board[originalX, originalY]))
+                    {
+                        filteredpossiblemoves.Add(item);
+                    }
+                    else if (
+                        !Char.IsLower(board[item.X, item.Y]) && 
+                        Char.IsLower(board[originalX, originalY]))                    
+                    {
+                        filteredpossiblemoves.Add(item);
+                    }
+                    if(board[item.X, item.Y] == '0'){
+                        filteredpossiblemoves.Add(item);
+                    }
+                }
+                return filteredpossiblemoves.ToArray();
+            }
+            else
+            {
+                throw new Exception("[ERROR]: This rook doesnt exists");
+            }
+
         }
     }
 }
