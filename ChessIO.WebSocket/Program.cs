@@ -17,7 +17,12 @@ namespace ChessIO.ws
             Server.Instance.Start();
             Console.WriteLine("Server started on ws://localhost:5000");
             Server.Instance.AddWebSocketService<WebChess>("/chess");
-            Server.MatchPlayers();
+            //Server.MatchPlayers();
+
+            //Tasting
+            
+            Tester.TestBishop("8/8/2B5/3b4/4b3/8/8/8",3,3);
+            Console.ReadKey();
             Server.Instance.Stop();
         }
     }

@@ -24,21 +24,11 @@ namespace ChessIO.ws
         }
         protected override void OnMessage(MessageEventArgs e)
         {
-            Console.WriteLine("Recieved message: " + e.Data);
-            //SendToAll(e.Data);
-            
+            //Console.WriteLine("Recieved message: " + e.Data);
             var d = JsonConvert.DeserializeObject<Message>(e.Data);
             if (d.Opcode == 5)
             {
-                Console.WriteLine("[Moved]: ");
-                Console.WriteLine("PlayerId: " + d.Playerid);
-                Console.WriteLine("GameId: " + d.Gameid);
-                Console.WriteLine($"From:  [X:{d.OldcoordX}|Y:{d.OldcoordY}]");
-                Console.WriteLine($"To:  [X:{d.NewcoordX}|Y:{d.NewcoordY}]");
-
-                //Have to add logic to check that the move vas legal
-                // !!! Generate new Fenstring with the logic !!! //
-                
+                //Have to add logic to check that the move vas legal                
                 var currentgame = Server.Games.FirstOrDefault(x => x.Id == d.Gameid);
                 //Checking the current moves validity
                 var oldpos = new Position(d.OldcoordX, d.OldcoordY);
@@ -52,8 +42,8 @@ namespace ChessIO.ws
                     currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
                 }
                 else
-                { 
-                    
+                {
+                    Console.WriteLine("Invalid movement happened");
                 }
                 
             }

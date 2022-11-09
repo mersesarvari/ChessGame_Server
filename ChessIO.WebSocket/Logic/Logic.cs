@@ -35,21 +35,34 @@ namespace ChessIO.ws
             List<Position> validmoves = new List<Position>();
             //if the current element is a pawn
             var currentchar = board[oldpos.X, oldpos.Y].ToString();
-            if (currentchar.ToLower() == "p")
+            switch (currentchar.ToLower())
             {
-                validmoves =  PawnMovement(oldpos.X,oldpos.Y,board).ToList();
+                case "p":
+                    validmoves = PawnMovement(oldpos.X, oldpos.Y, board).ToList();
+                    break;
+                case "r":
+                    break;
+                case "n":
+                    break;
+                case "b":
+                    break;
+                case "q":
+                    break;
+                case "k":
+                    break;
+                default:
+                    throw new Exception("Error when try to get the logic of the current character");
             }
-            else
-            {
-                throw new Exception("Error when try to get the logic of the current character");
-            }
-
+            #region printvalidmoves
             //Checking the valid moves
-            Console.WriteLine($"Valid moves from {oldpos.X},{oldpos.Y}");
+            //Console.WriteLine($"Valid moves from {oldpos.X},{oldpos.Y}");
+            /*
             foreach (var item in validmoves)
             {
                 Console.WriteLine($"{item.X},{item.Y}");
             }
+            */
+            #endregion
             if (validmoves.FirstOrDefault(x=>x.X== newpos.X && x.Y == newpos.Y)!=null)
             {
                 Console.WriteLine($"[Valid-Move] : From [{oldpos.X}|{oldpos.Y}] to [{newpos.X}|{newpos.Y}]");
@@ -154,7 +167,7 @@ namespace ChessIO.ws
         public static Position[] PawnMovement(int x, int y, char[,]board)
         {
             var possiblemoves = new List<Position>();
-            Console.WriteLine($"Current character:  [{board[x,y]}] on coordinate [{x},{y}]");
+            //Console.WriteLine($"Current character:  [{board[x,y]}] on coordinate [{x},{y}]");
             //Check that the coordinate is valid
             if (board[x, y] == 'P')
             {   
@@ -225,29 +238,139 @@ namespace ChessIO.ws
 
 
         }
-        /*
+        
         public static Position[] BishopMovement(int x, int y, char[,] board)
         {
-            Console.WriteLine($"Current character:  [{board[x, y]}] on coordinate [{x},{y}]");
             List<Position> possiblemoves = new List<Position>();
             //Check that the coordinate is valid
-            if (board[x, y] == 'b')
+            var originalX = x;
+            var originalY = y;
+            if (board[x, y] == 'b' || board[x, y] == 'B')
             {
-                for (int x = 0; x < 0; x++)
+                /* X+ Y+ -Vagy ha barátságos karakter jön */ 
+                while (x < 7 && y < 7)
                 {
+                    x++;
+                    y++;
+                    if (board[x, y] == '0')
+                    {
+                        possiblemoves.Add(new Position(x, y));
+                    }
+                    else if (
+                        //Ha mindkét karakter azonos színű
+                        (Char.IsLower(board[x, y]) && board[originalX, originalY] == 'b')||
+                        (!Char.IsLower(board[x, y]) && board[originalX, originalY] == 'B')
+                        )
+                    {
+                        break;
+                    }
 
+                    else if (
+                        //Ha Mindkét karakter különböző színű
+                        !Char.IsLower(board[x, y]) && board[originalX, originalY] == 'b'||
+                        Char.IsLower(board[x, y]) && board[originalX, originalY] == 'B')
+                    {
+                        possiblemoves.Add(new Position(x, y));
+                        break;
+                    }
+                    
                 }
-            }
-            else if (board[x, y] == 'B')
-            {
+                // Resetting X and Y data
+                x = originalX;
+                y = originalY;
+                while (x >0 && y > 0)
+                {
+                    x--;
+                    y--;
+                    if (board[x, y] == '0')
+                    {
+                        possiblemoves.Add(new Position(x, y));
+                    }
+                    else if (
+                        //Ha mindkét karakter azonos színű
+                        (Char.IsLower(board[x, y]) && board[originalX, originalY] == 'b') ||
+                        (!Char.IsLower(board[x, y]) && board[originalX, originalY] == 'B')
+                        )
+                    {
+                        break;
+                    }
 
+                    else if (
+                        //Ha Mindkét karakter különböző színű
+                        !Char.IsLower(board[x, y]) && board[originalX, originalY] == 'b' ||
+                        Char.IsLower(board[x, y]) && board[originalX, originalY] == 'B')
+                    {
+                        possiblemoves.Add(new Position(x, y));
+                        break;
+                    }
+                }
+                // Resetting X and Y data
+                x = originalX;
+                y = originalY;
+                while (x > 0 && y < 7)
+                {
+                    x--;
+                    y++;
+                    if (board[x, y] == '0')
+                    {
+                        possiblemoves.Add(new Position(x, y));
+                    }
+                    else if (
+                        //Ha mindkét karakter azonos színű
+                        (Char.IsLower(board[x, y]) && board[originalX, originalY] == 'b') ||
+                        (!Char.IsLower(board[x, y]) && board[originalX, originalY] == 'B')
+                        )
+                    {
+                        break;
+                    }
+
+                    else if (
+                        //Ha Mindkét karakter különböző színű
+                        !Char.IsLower(board[x, y]) && board[originalX, originalY] == 'b' ||
+                        Char.IsLower(board[x, y]) && board[originalX, originalY] == 'B')
+                    {
+                        possiblemoves.Add(new Position(x, y));
+                        break;
+                    }
+                }
+                // Resetting X and Y data
+                x = originalX;
+                y = originalY;
+                while (x <7 && y > 0)
+                {
+                    x++;
+                    y--;
+                    if (board[x, y] == '0')
+                    {
+                        possiblemoves.Add(new Position(x, y));
+                    }
+                    else if (
+                        //Ha mindkét karakter azonos színű
+                        (Char.IsLower(board[x, y]) && board[originalX, originalY] == 'b') ||
+                        (!Char.IsLower(board[x, y]) && board[originalX, originalY] == 'B')
+                        )
+                    {
+                        break;
+                    }
+
+                    else if (
+                        //Ha Mindkét karakter különböző színű
+                        !Char.IsLower(board[x, y]) && board[originalX, originalY] == 'b' ||
+                        Char.IsLower(board[x, y]) && board[originalX, originalY] == 'B')
+                    {
+                        possiblemoves.Add(new Position(x, y));
+                        break;
+                    }
+                }
+
+                return possiblemoves.ToArray();
             }
             else
             {
                 throw new Exception("[ERROR]: This bishop doesnt exists");
             }
         }
-        */
+        
     }
 }
 
