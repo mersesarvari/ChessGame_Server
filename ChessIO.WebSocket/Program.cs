@@ -19,9 +19,9 @@ namespace ChessIO.ws
             Server.Instance.AddWebSocketService<WebChess>("/chess");
             Server.MatchPlayers();
 
-            //Tasting
-            
-            //Tester.TestBishop("8/8/2B5/3b4/4b3/8/8/8",3,3);
+            //Testing
+            //Console.WriteLine($"Character pos:[{4},{3}]");
+            //Tester.TestRook("8/8/8/3R4/3R4/8/8/8",4,3);
             Console.ReadKey();
             Server.Instance.Stop();
         }

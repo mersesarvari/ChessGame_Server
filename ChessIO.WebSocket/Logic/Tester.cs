@@ -28,10 +28,10 @@ namespace ChessIO.ws
             }
         }
 
-        public static void TestNight(string str, int x, int y)
+        public static void TestRook(string str, int x, int y)
         {
             var brd = Logic.ConvertFromFen(str);
-            Console.WriteLine("--------------- Testing Bishop movement---------------");
+            Console.WriteLine("--------------- Testing Rook movement---------------");
             for (int i = 0; i < brd.GetLength(0); i++)
             {
                 for (int j = 0; j < brd.GetLength(1); j++)
@@ -40,7 +40,7 @@ namespace ChessIO.ws
                 }
                 Console.WriteLine();
             }
-            var legitmovements = Logic.BishopMovement(x, y, brd);
+            var legitmovements = Logic.RookMovement(x, y, brd);
             foreach (var legitmovement in legitmovements)
             {
                 Console.WriteLine("Move:" + legitmovement.X + "|" + legitmovement.Y);

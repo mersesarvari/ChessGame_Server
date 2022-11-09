@@ -41,6 +41,7 @@ namespace ChessIO.ws
                     validmoves = PawnMovement(oldpos.X, oldpos.Y, board).ToList();
                     break;
                 case "r":
+                    validmoves = RookMovement(oldpos.X, oldpos.Y, board).ToList();
                     break;
                 case "n":
                     break;
@@ -165,7 +166,7 @@ namespace ChessIO.ws
 
         }
 
-        // Working mellélépés nincsen implementálva
+        // Working mellélépés nincsen implementálva- Not tested
         public static Position[] PawnMovement(int x, int y, char[,]board)
         {
             var possiblemoves = new List<Position>();
@@ -239,7 +240,7 @@ namespace ChessIO.ws
 
 
         }
-        // Teljesen implementálva
+        // Teljesen implementálva - Not tested
         public static Position[] BishopMovement(int x, int y, char[,] board)
         {
             List<Position> possiblemoves = new List<Position>();
@@ -259,22 +260,22 @@ namespace ChessIO.ws
                     }
                     else if (
                         //Ha mindkét karakter azonos színű
-                        (Char.IsLower(board[x, y]) && board[originalX, originalY] == 'b')||
-                        (!Char.IsLower(board[x, y]) && board[originalX, originalY] == 'B')
+                        (Char.IsLower(board[x, y]) && Char.IsLower(board[originalX, originalY])) ||
+                        (!Char.IsLower(board[x, y]) && !Char.IsLower(board[originalX, originalY]))
                         )
                     {
                         break;
                     }
-
                     else if (
                         //Ha Mindkét karakter különböző színű
-                        !Char.IsLower(board[x, y]) && board[originalX, originalY] == 'b'||
-                        Char.IsLower(board[x, y]) && board[originalX, originalY] == 'B')
+                        !Char.IsLower(board[x, y]) && Char.IsLower(board[originalX, originalY]) ||
+                        Char.IsLower(board[x, y]) && !Char.IsLower(board[originalX, originalY])
+                        )
                     {
                         possiblemoves.Add(new Position(x, y));
                         break;
                     }
-                    
+
                 }
                 // Resetting X and Y data
                 x = originalX;
@@ -289,17 +290,17 @@ namespace ChessIO.ws
                     }
                     else if (
                         //Ha mindkét karakter azonos színű
-                        (Char.IsLower(board[x, y]) && board[originalX, originalY] == 'b') ||
-                        (!Char.IsLower(board[x, y]) && board[originalX, originalY] == 'B')
+                        (Char.IsLower(board[x, y]) && Char.IsLower(board[originalX, originalY])) ||
+                        (!Char.IsLower(board[x, y]) && !Char.IsLower(board[originalX, originalY]))
                         )
                     {
                         break;
                     }
-
                     else if (
                         //Ha Mindkét karakter különböző színű
-                        !Char.IsLower(board[x, y]) && board[originalX, originalY] == 'b' ||
-                        Char.IsLower(board[x, y]) && board[originalX, originalY] == 'B')
+                        !Char.IsLower(board[x, y]) && Char.IsLower(board[originalX, originalY]) ||
+                        Char.IsLower(board[x, y]) && !Char.IsLower(board[originalX, originalY])
+                        )
                     {
                         possiblemoves.Add(new Position(x, y));
                         break;
@@ -318,17 +319,17 @@ namespace ChessIO.ws
                     }
                     else if (
                         //Ha mindkét karakter azonos színű
-                        (Char.IsLower(board[x, y]) && board[originalX, originalY] == 'b') ||
-                        (!Char.IsLower(board[x, y]) && board[originalX, originalY] == 'B')
+                        (Char.IsLower(board[x, y]) && Char.IsLower(board[originalX, originalY])) ||
+                        (!Char.IsLower(board[x, y]) && !Char.IsLower(board[originalX, originalY]))
                         )
                     {
                         break;
                     }
-
                     else if (
                         //Ha Mindkét karakter különböző színű
-                        !Char.IsLower(board[x, y]) && board[originalX, originalY] == 'b' ||
-                        Char.IsLower(board[x, y]) && board[originalX, originalY] == 'B')
+                        !Char.IsLower(board[x, y]) && Char.IsLower(board[originalX, originalY]) ||
+                        Char.IsLower(board[x, y]) && !Char.IsLower(board[originalX, originalY])
+                        )
                     {
                         possiblemoves.Add(new Position(x, y));
                         break;
@@ -347,17 +348,17 @@ namespace ChessIO.ws
                     }
                     else if (
                         //Ha mindkét karakter azonos színű
-                        (Char.IsLower(board[x, y]) && board[originalX, originalY] == 'b') ||
-                        (!Char.IsLower(board[x, y]) && board[originalX, originalY] == 'B')
+                        (Char.IsLower(board[x, y]) && Char.IsLower(board[originalX, originalY])) ||
+                        (!Char.IsLower(board[x, y]) && !Char.IsLower(board[originalX, originalY]))
                         )
                     {
                         break;
                     }
-
                     else if (
                         //Ha Mindkét karakter különböző színű
-                        !Char.IsLower(board[x, y]) && board[originalX, originalY] == 'b' ||
-                        Char.IsLower(board[x, y]) && board[originalX, originalY] == 'B')
+                        !Char.IsLower(board[x, y]) && Char.IsLower(board[originalX, originalY]) ||
+                        Char.IsLower(board[x, y]) && !Char.IsLower(board[originalX, originalY])
+                        )
                     {
                         possiblemoves.Add(new Position(x, y));
                         break;
@@ -371,7 +372,137 @@ namespace ChessIO.ws
                 throw new Exception("[ERROR]: This bishop doesnt exists");
             }
         }
-        
+        // Teljesen implementálva - Not tested
+        public static Position[] RookMovement(int x, int y, char[,] board)
+        {
+            List<Position> possiblemoves = new List<Position>();
+            //Check that the coordinate is valid
+            var originalX = x;
+            var originalY = y;
+            if (board[x, y] == 'r' || board[x, y] == 'R')
+            {
+                //Felfele mozgás
+                while (x>0)
+                {
+                    x--;
+                    if (board[x, y] == '0')
+                    {
+                        possiblemoves.Add(new Position(x, y));
+                    }
+                    else if (
+                        //Ha mindkét karakter azonos színű
+                        (Char.IsLower(board[x, y]) && Char.IsLower(board[originalX, originalY])) ||
+                        (!Char.IsLower(board[x, y]) && !Char.IsLower(board[originalX, originalY]))
+                        )
+                    {
+                        break;
+                    }
+                    else if (
+                        //Ha Mindkét karakter különböző színű
+                        !Char.IsLower(board[x, y]) && Char.IsLower(board[originalX, originalY]) ||
+                        Char.IsLower(board[x, y]) && !Char.IsLower(board[originalX, originalY])
+                        )
+                    {
+                        possiblemoves.Add(new Position(x, y));
+                        break;
+                    }
+
+                }
+                // Lefele
+                x = originalX;
+                y=originalY;
+                while (x <7)
+                {
+                    x++;
+                    if (board[x, y] == '0')
+                    {
+                        possiblemoves.Add(new Position(x, y));
+                    }
+                    else if (
+                        //Ha mindkét karakter azonos színű
+                        (Char.IsLower(board[x, y]) && Char.IsLower(board[originalX, originalY])) ||
+                        (!Char.IsLower(board[x, y]) && !Char.IsLower(board[originalX, originalY]))
+                        )
+                    {
+                        break;
+                    }
+                    else if (
+                        //Ha Mindkét karakter különböző színű
+                        !Char.IsLower(board[x, y]) && Char.IsLower(board[originalX, originalY]) ||
+                        Char.IsLower(board[x, y]) && !Char.IsLower(board[originalX, originalY])
+                        )
+                    {
+                        possiblemoves.Add(new Position(x, y));
+                        break;
+                    }
+                }
+                // Left side movement
+                x = originalX;
+                y = originalY;
+                while (y>0)
+                {
+                    y--;
+                    if (board[x, y] == '0')
+                    {
+                        possiblemoves.Add(new Position(x, y));
+                    }
+                    else if (
+                        //Ha mindkét karakter azonos színű
+                        (Char.IsLower(board[x, y]) && Char.IsLower(board[originalX, originalY])) ||
+                        (!Char.IsLower(board[x, y]) && !Char.IsLower(board[originalX, originalY]))
+                        )
+                    {
+                        break;
+                    }
+                    else if (
+                        //Ha Mindkét karakter különböző színű
+                        !Char.IsLower(board[x, y]) && Char.IsLower(board[originalX, originalY]) ||
+                        Char.IsLower(board[x, y]) && !Char.IsLower(board[originalX, originalY])
+                        )
+                    {
+                        possiblemoves.Add(new Position(x, y));
+                        break;
+                    }
+
+                }
+                // Jobbra mozgás
+                x = originalX;
+                y = originalY;
+                while (y<7)
+                {
+                    y++;
+                    if (board[x, y] == '0')
+                    {
+                        possiblemoves.Add(new Position(x, y));
+                    }
+                    else if (
+                        //Ha mindkét karakter azonos színű
+                        (Char.IsLower(board[x, y]) && Char.IsLower(board[originalX, originalY])) ||
+                        (!Char.IsLower(board[x, y]) && !Char.IsLower(board[originalX, originalY]))
+                        )
+                    {
+                        break;
+                    }
+                    else if (
+                        //Ha Mindkét karakter különböző színű
+                        !Char.IsLower(board[x, y]) && Char.IsLower(board[originalX, originalY]) ||
+                        Char.IsLower(board[x, y]) && !Char.IsLower(board[originalX, originalY])
+                        )
+                    {
+                        possiblemoves.Add(new Position(x, y));
+                        break;
+                    }
+
+                }
+
+                return possiblemoves.ToArray();
+            }
+            else
+            {
+                throw new Exception("[ERROR]: This rook doesnt exists");
+            }
+        }
+
     }
 }
 
