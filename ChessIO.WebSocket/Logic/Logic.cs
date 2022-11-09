@@ -567,22 +567,22 @@ namespace ChessIO.ws
                 {
                     if (x - 1 >= 0)
                     {
-                        possiblemoves.Add(new Position(x +1, y - 2));
+                        possiblemoves.Add(new Position(x -1, y - 2));
                     }
-                    if (y + 1 <= 7)
+                    if (x + 1 <= 7)
                     {
-                        possiblemoves.Add(new Position(x - 1, y -2));
+                        possiblemoves.Add(new Position(x + 1, y -2));
                     }
                 }
 
                 // Jobbra mozgás
-                if (y + 2 >=7)
+                if (y + 2 <=7)
                 {
                     if (x - 1 >= 0)
                     {
                         possiblemoves.Add(new Position(x - 1, y + 2));
                     }
-                    if (y + 1 <= 7)
+                    if (x + 1 <= 7)
                     {
                         possiblemoves.Add(new Position(x + 1, y + 2));
                     }
