@@ -24,7 +24,7 @@ namespace ChessIO.ws
     // Black Pawn is tested and working
     public class Logic
     {
-        
+
         public static readonly char[,] startingboard = Logic.ConvertFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         //public string Fen { get; set; }
         public Logic()
@@ -38,17 +38,18 @@ namespace ChessIO.ws
             switch (currentchar.ToLower())
             {
                 case "p":
-                    validmoves = PawnMovement(oldpos.X, oldpos.Y, board).ToList();
+                    validmoves = PawnMovement(oldpos.X, oldpos.Y,'p', board).ToList();
                     break;
                 case "r":
-                    validmoves = RookMovement(oldpos.X, oldpos.Y, board).ToList();
+                    validmoves = RookMovement(oldpos.X, oldpos.Y,'r', board).ToList();
                     break;
                 case "n":
                     break;
                 case "b":
-                    validmoves = BishopMovement(oldpos.X, oldpos.Y, board).ToList();
+                    validmoves = BishopMovement(oldpos.X, oldpos.Y,'b', board).ToList();
                     break;
                 case "q":
+                    validmoves = QueenMovement(oldpos.X, oldpos.Y, board).ToList();
                     break;
                 case "k":
                     break;
@@ -65,15 +66,15 @@ namespace ChessIO.ws
             }
             */
             #endregion
-            if (validmoves.FirstOrDefault(x=>x.X== newpos.X && x.Y == newpos.Y)!=null)
+            if (validmoves.FirstOrDefault(x => x.X == newpos.X && x.Y == newpos.Y) != null)
             {
                 Console.WriteLine($"[Valid-Move] : From [{oldpos.X}|{oldpos.Y}] to [{newpos.X}|{newpos.Y}]");
                 return true;
             }
-            else 
+            else
             {
                 Console.WriteLine($"[Invalid-Move] : From [{oldpos.X}|{oldpos.Y}] to [{newpos.X}|{newpos.Y}]");
-                return false; 
+                return false;
             }
         }
         public static string ConvertToFen(char[,] board)
@@ -90,8 +91,8 @@ namespace ChessIO.ws
                     //Ha 0 jön akkor nő a változó
                     if (board[i, j] == '0')
                     {
-                        zerocounter++;                      
-                    }                   
+                        zerocounter++;
+                    }
                     else if (board[i, j] != '0')
                     {
                         emptyrow = false;
@@ -107,7 +108,7 @@ namespace ChessIO.ws
                     if (j == 7 && emptyrow)
                     {
                         fenstring += zerocounter;
-                        
+
                     }
                     emptyrow = true;
                 }
@@ -119,11 +120,10 @@ namespace ChessIO.ws
             //this.Fen = fenstring;
             return fenstring;
         }
-
         public static char[,] ConvertFromFen(string fenstring)
         {
             //Többi beállítás hiányzik logic kell ide
-            char[,] baseboard = new char[8,8];
+            char[,] baseboard = new char[8, 8];
             //Alapvető állás konverzió
             fenstring = fenstring.Split(' ')[0];
             var _board = baseboard;
@@ -146,13 +146,13 @@ namespace ChessIO.ws
                     {
                         for (int szorzo = 0; szorzo < int.Parse(current.ToString()); szorzo++)
                         {
-                            line+=('0'.ToString());
+                            line += ('0'.ToString());
                         }
                     }
                     //Checking valid piececodes
                     else if ("rnbqkpRNBQKP".Contains(current.ToString().ToLower()))
                     {
-                        line+=(current.ToString());
+                        line += (current.ToString());
                     }
                     else
                     {
@@ -170,36 +170,35 @@ namespace ChessIO.ws
             return _board;
 
         }
-
         // Working mellélépés nincsen implementálva- Not tested
-        public static Position[] PawnMovement(int x, int y, char[,]board)
+        public static Position[] PawnMovement(int x, int y, char chartype,char[,] board)
         {
             var possiblemoves = new List<Position>();
             //Check that the coordinate is valid
-            if (board[x, y] == 'P')
-            {   
+            if (board[x, y] == chartype.ToString().ToUpper()[0])
+            {
                 //Ha a király sakkban van akkor nem történhet semmi
                 possiblemoves = new List<Position>();
                 //Ha nincsenek előtte
-                if (board[x - 1, y] == '0' && x-1 >=0)
+                if (board[x - 1, y] == '0' && x - 1 >= 0)
                 {
-                    possiblemoves.Add(new Position(x-1, y));
+                    possiblemoves.Add(new Position(x - 1, y));
                     //Ha kezdőhelyen van, kettőt léphet, ha üres az adott mező
-                    if (x == 6 && board[x-2,y]=='0')
+                    if (x == 6 && board[x - 2, y] == '0')
                     {
                         possiblemoves.Add(new Position(x - 2, y));
                     }
                 }
-                
+
                 //Ha Balra lehet ütni ellenséges babút
-                if (y!=0 && x!=0  && board[x - 1, y - 1] != '0' && Char.IsLower(board[x - 1, y - 1])) 
+                if (y != 0 && x != 0 && board[x - 1, y - 1] != '0' && Char.IsLower(board[x - 1, y - 1]))
                 {
-                    possiblemoves.Add(new Position(x-1, y -1));
+                    possiblemoves.Add(new Position(x - 1, y - 1));
                 }
                 //Ha Jobbra lehet ütni
-                if (y!=7 && x!=0 && board[x - 1, y + 1] != '0' && Char.IsLower(board[x - 1, y + 1]) )
+                if (y != 7 && x != 0 && board[x - 1, y + 1] != '0' && Char.IsLower(board[x - 1, y + 1]))
                 {
-                    possiblemoves.Add(new Position(x -1, y +1));
+                    possiblemoves.Add(new Position(x - 1, y + 1));
                 }
                 //Ha mellé lépett egy paraszt
                 if (true)
@@ -207,12 +206,12 @@ namespace ChessIO.ws
 
                 }
             }
-            else if (board[x, y] == 'p')
+            else if (board[x, y] == chartype.ToString().ToLower()[0])
             {
                 //Ha a király sakkban van akkor nem történhet semmi
 
                 //Ha nincsenek előtte
-                if (x!= 7 && board[x + 1, y] == '0')
+                if (x != 7 && board[x + 1, y] == '0')
                 {
                     possiblemoves.Add(new Position(x + 1, y));
                     //Ha kezdőhelyen van, kettőt léphet, ha üres az adott mező
@@ -223,7 +222,7 @@ namespace ChessIO.ws
                 }
 
                 //Ha Balra lehet ütni ellenséges babút
-                if (x!=7 && y!=0 && board[x + 1, y -1] != '0' && Char.IsLower(board[x + 1, y - 1]))
+                if (x != 7 && y != 0 && board[x + 1, y - 1] != '0' && Char.IsLower(board[x + 1, y - 1]))
                 {
                     possiblemoves.Add(new Position(x + 1, y - 1));
                 }
@@ -246,15 +245,15 @@ namespace ChessIO.ws
 
         }
         // Teljesen implementálva - Not tested
-        public static Position[] BishopMovement(int x, int y, char[,] board)
+        public static Position[] BishopMovement(int x, int y,char chartype, char[,] board)
         {
             List<Position> possiblemoves = new List<Position>();
             //Check that the coordinate is valid
             var originalX = x;
             var originalY = y;
-            if (board[x, y] == 'b' || board[x, y] == 'B')
+            if (board[x, y] == chartype.ToString().ToLower()[0] || board[x, y] == chartype.ToString().ToUpper()[0])
             {
-                /* X+ Y+ -Vagy ha barátságos karakter jön */ 
+                /* X+ Y+ -Vagy ha barátságos karakter jön */
                 while (x < 7 && y < 7)
                 {
                     x++;
@@ -285,7 +284,7 @@ namespace ChessIO.ws
                 // Resetting X and Y data
                 x = originalX;
                 y = originalY;
-                while (x >0 && y > 0)
+                while (x > 0 && y > 0)
                 {
                     x--;
                     y--;
@@ -343,7 +342,7 @@ namespace ChessIO.ws
                 // Resetting X and Y data
                 x = originalX;
                 y = originalY;
-                while (x <7 && y > 0)
+                while (x < 7 && y > 0)
                 {
                     x++;
                     y--;
@@ -378,16 +377,16 @@ namespace ChessIO.ws
             }
         }
         // Teljesen implementálva - Not tested
-        public static Position[] RookMovement(int x, int y, char[,] board)
+        public static Position[] RookMovement(int x, int y,char chartype, char[,] board)
         {
             List<Position> possiblemoves = new List<Position>();
             //Check that the coordinate is valid
             var originalX = x;
             var originalY = y;
-            if (board[x, y] == 'r' || board[x, y] == 'R')
+            if (board[x, y] == chartype.ToString().ToLower()[0] || board[x, y] == chartype.ToString().ToUpper()[0])
             {
                 //Felfele mozgás
-                while (x>0)
+                while (x > 0)
                 {
                     x--;
                     if (board[x, y] == '0')
@@ -415,8 +414,8 @@ namespace ChessIO.ws
                 }
                 // Lefele
                 x = originalX;
-                y=originalY;
-                while (x <7)
+                y = originalY;
+                while (x < 7)
                 {
                     x++;
                     if (board[x, y] == '0')
@@ -444,7 +443,7 @@ namespace ChessIO.ws
                 // Left side movement
                 x = originalX;
                 y = originalY;
-                while (y>0)
+                while (y > 0)
                 {
                     y--;
                     if (board[x, y] == '0')
@@ -473,7 +472,7 @@ namespace ChessIO.ws
                 // Jobbra mozgás
                 x = originalX;
                 y = originalY;
-                while (y<7)
+                while (y < 7)
                 {
                     y++;
                     if (board[x, y] == '0')
@@ -507,7 +506,24 @@ namespace ChessIO.ws
                 throw new Exception("[ERROR]: This rook doesnt exists");
             }
         }
-
+        // Teljesen implementálva a Rook és Bishop alapján
+        public static Position[] QueenMovement(int x, int y, char[,] board) 
+        {
+            List<Position> possiblemovesall = new List<Position>();
+            List<Position> rookmoves = new List<Position>();
+            rookmoves = RookMovement(x, y,'q', board).ToList();
+            List<Position> bishopmoves = new List<Position>();
+            bishopmoves = BishopMovement(x, y,'q', board).ToList();
+            foreach (var item in rookmoves)
+            {
+                possiblemovesall.Add(item);
+            }
+            foreach (var item in bishopmoves)
+            {
+                possiblemovesall.Add(item);
+            }
+            return possiblemovesall.ToArray();
+        }
     }
 }
 

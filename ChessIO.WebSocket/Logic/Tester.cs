@@ -21,7 +21,7 @@ namespace ChessIO.ws
                 }
                 Console.WriteLine();
             }
-            var legitmovements = Logic.BishopMovement(x, y, brd);
+            var legitmovements = Logic.BishopMovement(x, y,'b', brd);
             foreach (var legitmovement in legitmovements)
             {
                 Console.WriteLine("Move:" + legitmovement.X + "|" + legitmovement.Y);
@@ -40,7 +40,7 @@ namespace ChessIO.ws
                 }
                 Console.WriteLine();
             }
-            var legitmovements = Logic.RookMovement(x, y, brd);
+            var legitmovements = Logic.RookMovement(x, y,'r', brd);
             foreach (var legitmovement in legitmovements)
             {
                 Console.WriteLine("Move:" + legitmovement.X + "|" + legitmovement.Y);
