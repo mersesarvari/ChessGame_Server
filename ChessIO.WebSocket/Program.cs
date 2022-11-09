@@ -18,7 +18,8 @@ namespace ChessIO.ws
             Console.WriteLine("Server started on ws://localhost:5000");
             Server.Instance.AddWebSocketService<WebChess>("/chess");
             Server.MatchPlayers();
-
+            var board = Logic.ConvertFromFen("8/8/8/3R4/3R4/8/8/8");
+            //Logic.ConvertToFen();
             //Testing
             //Console.WriteLine($"Character pos:[{4},{3}]");
             //Tester.TestRook("8/8/8/3R4/3R4/8/8/8",4,3);

@@ -88,11 +88,23 @@ namespace ChessIO.ws
                     //Ha 0 jön akkor nő a változó
                     if (board[i, j] == '0')
                     {
-                        zerocounter++;
+                        if (j == 7)
+                        {
+                            if (zerocounter != 8)
+                            {
+                                zerocounter++;
+                                fenstring += zerocounter;
+                            }                            
+                        }
+                        else
+                        {
+                            zerocounter++;
+                        }                        
                     }
                     if (zerocounter == 8)
                     {
                         fenstring += zerocounter;
+                        break;
                     }
                     if (board[i, j] != '0')
                     {

@@ -39,6 +39,7 @@ namespace ChessIO.ws
                 {
                     currentgame.MovePiece(oldpos, newpos);
                     currentgame.DrawBoard();
+                    Console.WriteLine("Sending players this: "+currentgame.Fenstring);
                     currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
                 }
                 else
