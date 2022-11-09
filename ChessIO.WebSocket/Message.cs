@@ -13,7 +13,12 @@ namespace ChessIO.ws
         public string Playerid { get; set; }
         public int Opcode { get; set; }
         public string Fen { get; set; }
-        public ChessGame Game { get; set; }
+        public Game Game { get; set; }
+
+        public int OldcoordX { get; set; }
+        public int OldcoordY { get; set; }
+        public int NewcoordX { get; set; }
+        public int NewcoordY { get; set; }
         //public object message { get; set; }
         /*
         public Message(int opcode, T message)

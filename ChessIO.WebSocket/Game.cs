@@ -15,7 +15,7 @@ namespace ChessIO.ws
         Started,
         Ended
     }
-    public class ChessGame
+    public class Game
     {
         Random r = new Random();
         public string Id { get; set; }
@@ -31,18 +31,19 @@ namespace ChessIO.ws
         //In Millisecnds
         public int TimerWhite { get; set; }
 
-        public string[,] Board { get; set; }
+        public char[,] Board { get; set; }
 
         public string Fenstring { get; set; }
 
 
         [JsonConstructor]
-        public ChessGame(Player _p1, Player _p2, int timer)
+        public Game(Player _p1, Player _p2, int timer)
         {
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-            Board = new string[8,8]; 
+            Board = new char[8,8]; 
             Id = Guid.NewGuid().ToString() ;
-            Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+            Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+            Board = Logic.ConvertFromFen(Fenstring);
             //PlayerList = new List<Player>();
 
             //Elosion = elosion;
@@ -78,6 +79,25 @@ namespace ChessIO.ws
         {
             Server.SendMessage(White, JsonConvert.SerializeObject(message));
             Server.SendMessage(Black, JsonConvert.SerializeObject(message));
+        }
+
+        public void MovePiece(Position oldpos, Position newpos)
+        {
+            //Checking logic
+            Board[newpos.X, newpos.Y] = Board[oldpos.X, oldpos.Y];
+            Board[oldpos.X, oldpos.Y] = '0';
+            Fenstring = Logic.ConvertToFen(Board);
+        }
+        public void DrawBoard()
+        {
+            for (int i = 0; i < Board.GetLength(0); i++)
+            {
+                for (int j = 0; j < Board.GetLength(1); j++)
+                {
+                    Console.Write(Board[i, j] + " ");
+                }
+                Console.WriteLine();
+            }
         }
     }
 }

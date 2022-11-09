@@ -30,18 +30,32 @@ namespace ChessIO.ws
             var d = JsonConvert.DeserializeObject<Message>(e.Data);
             if (d.Opcode == 5)
             {
-                Console.WriteLine("Client moved: message from client");
-                Console.WriteLine("Fen: "+ d.Fen);
+                Console.WriteLine("[Moved]: ");
                 Console.WriteLine("PlayerId: " + d.Playerid);
                 Console.WriteLine("GameId: " + d.Gameid);
-                foreach (var item in Server.Games)
+                Console.WriteLine($"From:  [X:{d.OldcoordX}|Y:{d.OldcoordY}]");
+                Console.WriteLine($"To:  [X:{d.NewcoordX}|Y:{d.NewcoordY}]");
+
+                //Have to add logic to check that the move vas legal
+                // !!! Generate new Fenstring with the logic !!! //
+                
+                var currentgame = Server.Games.FirstOrDefault(x => x.Id == d.Gameid);
+                //Checking the current moves validity
+                var oldpos = new Position(d.OldcoordX, d.OldcoordY);
+                var newpos = new Position(d.NewcoordX, d.NewcoordY);
+                var valid = Logic.IsValidMove(oldpos, newpos,currentgame.Board);
+                //If move is valid we have to set the board
+                if (valid)
                 {
-                    if (item.Id == d.Gameid)
-                    {
-                        Console.WriteLine(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = d.Fen });
-                        item.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = d.Fen });
-                    }
+                    currentgame.MovePiece(oldpos, newpos);
+                    currentgame.DrawBoard();
+                    currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
                 }
+                else
+                { 
+                    
+                }
+                
             }
             
         }

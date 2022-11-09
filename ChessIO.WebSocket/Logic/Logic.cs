@@ -10,26 +10,57 @@ using System.Xml.Linq;
 
 namespace ChessIO.ws
 {
+    public class Position
+    {
+        public int X { get; set; }
+        public int Y { get; set; }
+        public Position(int x, int y)
+        {
+            this.X = x;
+            this.Y = y;
+        }
+    }
     // White Pawn is tested and working
     // Black Pawn is tested and working
     public class Logic
     {
-        public class Position
-        {
-            public int X { get; set; }
-            public int Y { get; set; }
-            public Position(int x, int y)
-            {
-                this.X = x;
-                this.Y = y;
-            }
-        }
+        
         public static readonly char[,] startingboard = Logic.ConvertFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         //public string Fen { get; set; }
         public Logic()
         {
         }
+        public static bool IsValidMove(Position oldpos, Position newpos, char[,] board)
+        {
+            List<Position> validmoves = new List<Position>();
+            //if the current element is a pawn
+            var currentchar = board[oldpos.X, oldpos.Y].ToString();
+            if (currentchar.ToLower() == "p")
+            {
+                validmoves =  PawnMovement(oldpos.X,oldpos.Y,board).ToList();
+            }
+            else
+            {
+                throw new Exception("Error when try to get the logic of the current character");
+            }
 
+            //Checking the valid moves
+            Console.WriteLine($"Valid moves from {oldpos.X},{oldpos.Y}");
+            foreach (var item in validmoves)
+            {
+                Console.WriteLine($"{item.X},{item.Y}");
+            }
+            if (validmoves.FirstOrDefault(x=>x.X== newpos.X && x.Y == newpos.Y)!=null)
+            {
+                Console.WriteLine($"[Valid-Move] : From [{oldpos.X}|{oldpos.Y}] to [{newpos.X}|{newpos.Y}]");
+                return true;
+            }
+            else 
+            {
+                Console.WriteLine($"[Invalid-Move] : From [{oldpos.X}|{oldpos.Y}] to [{newpos.X}|{newpos.Y}]");
+                return false; 
+            }
+        }
         public static string ConvertToFen(char[,] board)
         {
             var fenstring = "";
@@ -122,8 +153,8 @@ namespace ChessIO.ws
 
         public static Position[] PawnMovement(int x, int y, char[,]board)
         {
+            var possiblemoves = new List<Position>();
             Console.WriteLine($"Current character:  [{board[x,y]}] on coordinate [{x},{y}]");
-            List<Position> possiblemoves = new List<Position>();
             //Check that the coordinate is valid
             if (board[x, y] == 'P')
             {   
@@ -159,7 +190,7 @@ namespace ChessIO.ws
             else if (board[x, y] == 'p')
             {
                 //Ha a király sakkban van akkor nem történhet semmi
-                possiblemoves = new List<Position>();
+
                 //Ha nincsenek előtte
                 if (x!= 7 && board[x + 1, y] == '0')
                 {
@@ -194,7 +225,7 @@ namespace ChessIO.ws
 
 
         }
-
+        /*
         public static Position[] BishopMovement(int x, int y, char[,] board)
         {
             Console.WriteLine($"Current character:  [{board[x, y]}] on coordinate [{x},{y}]");
@@ -216,6 +247,7 @@ namespace ChessIO.ws
                 throw new Exception("[ERROR]: This bishop doesnt exists");
             }
         }
+        */
     }
 }
 

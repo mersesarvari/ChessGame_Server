@@ -13,7 +13,7 @@ namespace ChessIO.ws
         public static WebSocketServer Instance = new WebSocketServer("ws://localhost:5000");
         public static List<Player> Players = new List<Player>();
         public static List<IWebSocketSession> Sessions = new List<IWebSocketSession>();
-        public static List<ChessGame> Games = new List<ChessGame>();
+        public static List<Game> Games = new List<Game>();
         
 
         public static void SendMessage(string id, string message)
@@ -34,21 +34,7 @@ namespace ChessIO.ws
 
         public static void MatchPlayers() 
         {
-            //Testing pahse
-            //Logic.Logic pl = new Logic.Logic();
-            char[,] brd = Logic.ConvertFromFen("rnbqkbnr/pppppppp/p1pppppp/8/k7/8/PPPPPPPP/RNBQKBNR");
-            for (int i = 0; i < brd.GetLength(0); i++)
-            {
-                for (int j = 0; j < brd.GetLength(1); j++)
-                {
-                    Console.Write(brd[i,j] + " ");
-                }
-                Console.WriteLine();
-            }
-            Console.WriteLine(Logic.ConvertToFen(brd));
-            Tester tester = new Tester();
             
-
             while (true)
             {
                 //Getting players in the lobby
@@ -60,7 +46,7 @@ namespace ChessIO.ws
                     playersinlobby[0].PlayerState = PlayerState.Game;
                     playersinlobby[1].PlayerState = PlayerState.Game;
                     //Basic 10minute game
-                    ChessGame currentgame = new ChessGame(playersinlobby[0], playersinlobby[1], 600000);
+                    Game currentgame = new Game(playersinlobby[0], playersinlobby[1], 600000);
                     Server.Games.Add(currentgame);
                     currentgame.StartGame();
                 }
