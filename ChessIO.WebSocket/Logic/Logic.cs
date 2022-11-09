@@ -82,41 +82,34 @@ namespace ChessIO.ws
             int zerocounter = 0;
             for (int i = 0; i < board.GetLength(0); i++)
             {
+                //Kezdődik a sor elemeinek megnézése
                 zerocounter = 0;
+                bool emptyrow = true;
                 for (int j = 0; j < board.GetLength(1); j++)
                 {
                     //Ha 0 jön akkor nő a változó
                     if (board[i, j] == '0')
                     {
-                        if (j == 7)
-                        {
-                            if (zerocounter != 8)
-                            {
-                                zerocounter++;
-                                fenstring += zerocounter;
-                            }                            
-                        }
-                        else
-                        {
-                            zerocounter++;
-                        }                        
-                    }
-                    if (zerocounter == 8)
+                        zerocounter++;                      
+                    }                   
+                    else if (board[i, j] != '0')
                     {
-                        fenstring += zerocounter;
-                        break;
-                    }
-                    if (board[i, j] != '0')
-                    {
+                        emptyrow = false;
                         if (zerocounter > 0)
                         {
                             fenstring += zerocounter;
                             zerocounter = 0;
                         }
-
                         fenstring += board[i, j];
                     }
-                    
+
+                    //checking at the end of the row
+                    if (j == 7 && emptyrow)
+                    {
+                        fenstring += zerocounter;
+                        
+                    }
+                    emptyrow = true;
                 }
                 if (i < 7)
                 {
