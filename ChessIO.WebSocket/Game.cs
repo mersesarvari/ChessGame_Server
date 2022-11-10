@@ -15,6 +15,11 @@ namespace ChessIO.ws
         Started,
         Ended
     }
+    public enum PieceColors
+    { 
+        White,
+        Black
+    }
     public class Game
     {
         Random r = new Random();
@@ -22,9 +27,7 @@ namespace ChessIO.ws
         public GameState State { get; set; }
         //public List<Player> PlayerList { get; set; }
         public int Elosion { get; set; }
-
         public string White { get; set; }
-
         public string Black { get; set; }
         //In Millisecnds
         public int TimerBlack { get; set; }
@@ -35,6 +38,9 @@ namespace ChessIO.ws
 
         public string Fenstring { get; set; }
 
+        public PieceColors ActiveColor { get; set; }
+        public string ActivePlayerId { get; set; }
+
 
         [JsonConstructor]
         public Game(Player _p1, Player _p2, int timer)
@@ -42,7 +48,7 @@ namespace ChessIO.ws
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
             Board = new char[8,8]; 
             Id = Guid.NewGuid().ToString() ;
-            Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+            Fenstring = "rnbqkbnr/8/8/8/8/8/8/RNBQKBNR";
             Board = Logic.ConvertFromFen(Fenstring);
             //PlayerList = new List<Player>();
 
@@ -62,7 +68,9 @@ namespace ChessIO.ws
             //PlayerList.Add(_p2);
             TimerBlack = timer;
             TimerWhite = timer;
-            State = GameState.None;   
+            State = GameState.None;
+            ActiveColor = PieceColors.White;
+            ActivePlayerId = White;
             
         }
 
@@ -80,16 +88,37 @@ namespace ChessIO.ws
             Server.SendMessage(White, JsonConvert.SerializeObject(message));
             Server.SendMessage(Black, JsonConvert.SerializeObject(message));
         }
-
+        /*
         public void MovePiece(Position oldpos, Position newpos)
         {
             //Checking logic
-            Board[newpos.X, newpos.Y] = Board[oldpos.X, oldpos.Y];
-            Board[oldpos.X, oldpos.Y] = '0';
-            Fenstring = Logic.ConvertToFen(Board);
+            
         }
-        public void DrawBoard()
+        */
+        public void MovePiece(Position oldpos, Position newpos)
         {
+            var pboard = Board;
+            pboard[newpos.X, newpos.Y] = Board[oldpos.X, oldpos.Y];
+            pboard[oldpos.X, oldpos.Y] = '0';
+            if (!Logic.IsCheck(pboard))
+            {
+                //Board[newpos.X, newpos.Y] = Board[oldpos.X, oldpos.Y];
+                //Board[oldpos.X, oldpos.Y] = '0';
+                Board = pboard;
+                //DrawBoard(Board);
+                Fenstring = Logic.ConvertToFen(Board);
+            }
+            else
+            {
+                Console.WriteLine($"{ActiveColor} gave a check for the opposite");
+                Board = pboard;
+                DrawBoard(Board);
+                Fenstring = Logic.ConvertToFen(Board);
+            }
+        }
+        public static void DrawBoard(char[,]Board)
+        {
+            Console.WriteLine("------------------ BOARD ------------------");
             for (int i = 0; i < Board.GetLength(0); i++)
             {
                 for (int j = 0; j < Board.GetLength(1); j++)
@@ -97,6 +126,20 @@ namespace ChessIO.ws
                     Console.Write(Board[i, j] + " ");
                 }
                 Console.WriteLine();
+            }
+        }
+
+        public void TurnChanger()
+        {
+            if (ActiveColor == PieceColors.White)
+            {
+                ActiveColor = PieceColors.Black;
+                ActivePlayerId = Black;
+            }
+            else
+            {
+                ActiveColor = PieceColors.White;
+                ActivePlayerId = White;
             }
         }
     }

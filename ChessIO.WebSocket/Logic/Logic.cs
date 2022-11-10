@@ -30,57 +30,93 @@ namespace ChessIO.ws
         public Logic()
         {
         }
-        public static bool IsValidMove(Position oldpos, Position newpos, char[,] board)
+        public static List<Position> GetValidMoves(Position oldpos, char[,] board)
         {
             List<Position> validmoves = new List<Position>();
-            //if the current element is a pawn
-            var currentchar = board[oldpos.X, oldpos.Y].ToString();
-            switch (currentchar.ToLower())
+            //Have to check here the color
+
+            var currentPiece = board[oldpos.X, oldpos.Y];
+            if (currentPiece != '0')
             {
-                case "p":
-                    validmoves = PawnMovement(oldpos.X, oldpos.Y,'p', board).ToList();
-                    break;
-                case "r":
-                    validmoves = RookMovement(oldpos.X, oldpos.Y,'r', board).ToList();
-                    break;
-                case "n":
-                    validmoves = KnightMovement(oldpos.X, oldpos.Y, 'n', board).ToList();
-                    break;
-                case "b":
-                    validmoves = BishopMovement(oldpos.X, oldpos.Y,'b', board).ToList();
-                    break;
-                case "q":
-                    validmoves = QueenMovement(oldpos.X, oldpos.Y,'q', board).ToList();
-                    break;
-                case "k":
-                    break;
-                default:
-                    throw new Exception("Error when try to get the logic of the current character");
-
-                    
+                //Possible moves for the black
+                if (Char.IsLower(currentPiece))
+                {
+                    switch (currentPiece)
+                    {
+                        case 'p':
+                            validmoves = PawnMovement(oldpos.X, oldpos.Y, 'p', board).ToList();
+                            break;
+                        case 'r':
+                            validmoves = RookMovement(oldpos.X, oldpos.Y, 'r', board).ToList();
+                            break;
+                        case 'n':
+                            validmoves = KnightMovement(oldpos.X, oldpos.Y, 'n', board).ToList();
+                            break;
+                        case 'b':
+                            validmoves = BishopMovement(oldpos.X, oldpos.Y, 'b', board).ToList();
+                            break;
+                        case 'q':
+                            validmoves = QueenMovement(oldpos.X, oldpos.Y, 'q', board).ToList();
+                            break;
+                        case 'k':
+                            validmoves = KingMovement(oldpos.X, oldpos.Y, 'q', board).ToList();
+                            break;
+                        default:
+                            throw new Exception("Error when try to get the logic of the current character");
+                    }
+                }
+                //Possible moves for the white
+                else
+                {
+                    switch (currentPiece)
+                    {
+                        case 'P':
+                            validmoves = PawnMovement(oldpos.X, oldpos.Y, 'P', board).ToList();
+                            break;
+                        case 'R':
+                            validmoves = RookMovement(oldpos.X, oldpos.Y, 'R', board).ToList();
+                            break;
+                        case 'N':
+                            validmoves = KnightMovement(oldpos.X, oldpos.Y, 'N', board).ToList();
+                            break;
+                        case 'B':
+                            validmoves = BishopMovement(oldpos.X, oldpos.Y, 'B', board).ToList();
+                            break;
+                        case 'Q':
+                            validmoves = QueenMovement(oldpos.X, oldpos.Y, 'Q', board).ToList();
+                            break;
+                        case 'K':
+                            validmoves = KingMovement(oldpos.X, oldpos.Y, 'K', board).ToList();
+                            break;
+                        default:
+                            throw new Exception("Error when try to get the logic of the current character");
+                    }
+                }
             }
-
-            #region printvalidmoves
-            //Checking the valid moves
             
-            
-            #endregion
+            return validmoves;
+        }
+        public static bool IsValidMove(Position oldpos, Position newpos, char[,] board)
+        {
+            List<Position> validmoves = GetValidMoves(oldpos, board);
             if (validmoves.FirstOrDefault(x => x.X == newpos.X && x.Y == newpos.Y) != null)
             {
-                Console.WriteLine($"[Valid-Move] : From [{oldpos.X}|{oldpos.Y}] to [{newpos.X}|{newpos.Y}]");
+                //Console.WriteLine($"[Valid-Move] : From [{oldpos.X}|{oldpos.Y}] to [{newpos.X}|{newpos.Y}]");
                 return true;
             }
             else
             {
-                Console.WriteLine($"Valid moves from {oldpos.X},{oldpos.Y}");
+                //Console.WriteLine($"Valid moves from {oldpos.X},{oldpos.Y}");
                 foreach (var item in validmoves)
                 {
                     Console.WriteLine($"{item.X},{item.Y}");
                 }
-                Console.WriteLine($"[Invalid-Move] : From [{oldpos.X}|{oldpos.Y}] to [{newpos.X}|{newpos.Y}]");
+                //Console.WriteLine($"[Invalid-Move] : From [{oldpos.X}|{oldpos.Y}] to [{newpos.X}|{newpos.Y}]");
                 return false;
             }
         }
+            
+        
         public static string ConvertToFen(char[,] board)
         {
             var fenstring = "";
@@ -174,7 +210,7 @@ namespace ChessIO.ws
             return _board;
 
         }
-        // Working mellélépés nincsen implementálva- Not tested
+        // Not fully working
         public static Position[] PawnMovement(int x, int y, char chartype,char[,] board)
         {
             var possiblemoves = new List<Position>();
@@ -248,7 +284,6 @@ namespace ChessIO.ws
 
 
         }
-        // Teljesen implementálva - Not tested
         public static Position[] BishopMovement(int x, int y,char chartype, char[,] board)
         {
             List<Position> possiblemoves = new List<Position>();
@@ -380,7 +415,6 @@ namespace ChessIO.ws
                 throw new Exception("[ERROR]: This bishop doesnt exists");
             }
         }
-        // Teljesen implementálva - Not tested
         public static Position[] RookMovement(int x, int y,char chartype, char[,] board)
         {
             List<Position> possiblemoves = new List<Position>();
@@ -510,7 +544,6 @@ namespace ChessIO.ws
                 throw new Exception("[ERROR]: This rook doesnt exists");
             }
         }
-        // Teljesen implementálva a Rook és Bishop alapján
         public static Position[] QueenMovement(int x, int y,char chartype, char[,] board) 
         {
             List<Position> possiblemovesall = new List<Position>();
@@ -589,11 +622,10 @@ namespace ChessIO.ws
                 }
                 var p = possiblemoves;
                 List<Position> filteredpossiblemoves = new List<Position>();
-                Console.WriteLine("Valid knight movements:");
                 //filteredpossiblemoves = possiblemoves;
                 foreach (var item in possiblemoves)
                 {
-                    Console.WriteLine(item.X+"|"+item.Y);
+                    //Console.WriteLine(item.X+"|"+item.Y);
                     if (
                         Char.IsLower(board[item.X, item.Y]) && 
                         !Char.IsLower(board[originalX, originalY]))
@@ -617,6 +649,167 @@ namespace ChessIO.ws
                 throw new Exception("[ERROR]: This rook doesnt exists");
             }
 
+        }
+        //Rosálás + A KIRÁLY NEM LÉPHET SAKKBA
+        public static Position[] KingMovement(int x, int y, char chartype, char[,] board)
+        {
+            List<Position> possiblemoves = new List<Position>();
+            //Kilépünk kettőt x vagy y irányba és a cellának mindkét x vagy y menti szomszédos oldala jó
+            var originalX = x;
+            var originalY = y;
+            #region Adding original moves
+            //-x, -y
+            if (x-1>=0 && y-1 >=0)
+            { 
+                possiblemoves.Add(new Position(x-1, y-1));
+            }
+            //-x, y
+            if (x-1>=0)
+            {
+                possiblemoves.Add(new Position(x - 1, y));
+            }
+            // -x, +y
+            if (x-1>=0 && y+1<=7)
+            {
+                possiblemoves.Add(new Position(x - 1, y+1));
+            }
+            //x, y-
+            if (y - 1 >= 0)
+            {
+                possiblemoves.Add(new Position(x, y-1));
+            }
+            //x, +y
+            if (y + 1 <= 7)
+            {
+                possiblemoves.Add(new Position(x, y+1));
+            }
+            //x+ y-
+            if (x + 1 <= 7 && y - 1 >= 0)
+            {
+                possiblemoves.Add(new Position(x + 1, y-1));
+            }
+            //x+, y
+            if (x + 1 <= 7)
+            {
+                possiblemoves.Add(new Position(x + 1, y));
+            }
+            //x+ , y+
+            if (x + 1 <= 7 && y + 1 <= 7)
+            {
+                possiblemoves.Add(new Position(x + 1, y+1));
+            }
+            #endregion
+            
+            //Getting all the possible next movement for all the pieces on the board. === Invalid moves for the king
+            List<Position> invalidmoves = new List<Position>();
+            for (int i = 0; i < board.GetLength(0); i++)
+            {
+                for (int j = 0; j < board.GetLength(1); j++)
+                {
+                    if (board[i, j] != 'K' && board[i, j] != 'k')
+                    {
+                        if (Char.IsLower(chartype) && !Char.IsLower(board[i,j]))
+                        {
+                            foreach (var item in GetValidMoves(new Position(i, j), board))
+                            {
+                                if (!invalidmoves.Contains(item))
+                                    invalidmoves.Add(item);
+                            }
+                        }
+                        else if (!Char.IsLower(chartype) && Char.IsLower(board[i, j]))
+                        {
+                            foreach (var item in GetValidMoves(new Position(i, j), board))
+                            {
+                                if (!invalidmoves.Contains(item))
+                                    invalidmoves.Add(item);
+                            }
+                        }
+
+                    }
+                }
+            }
+            //Getting the possible moves
+            List<Position> filteredpossiblemoves = new List<Position>();            
+            foreach (var item in possiblemoves)
+            {
+                //Checking if the move is a check for the current king
+                if (invalidmoves.FirstOrDefault(k=>k.X==item.X && k.Y==item.Y)==null)
+                {
+                    if (
+                        Char.IsLower(board[item.X, item.Y]) &&
+                        !Char.IsLower(board[originalX, originalY]))
+                    {
+                        filteredpossiblemoves.Add(item);
+                    }
+                    else if (
+                        !Char.IsLower(board[item.X, item.Y]) &&
+                        Char.IsLower(board[originalX, originalY]))
+                    {
+                        filteredpossiblemoves.Add(item);
+                    }
+                    if (board[item.X, item.Y] == '0')
+                    {
+                        filteredpossiblemoves.Add(item);
+                    }
+                }
+            }
+            return filteredpossiblemoves.ToArray();
+        }
+
+        /// <summary>
+        /// Azt mutatja meg, hogy a megadott board,on fennáll e a sakkhelyzet
+        /// </summary>
+        /// <param name="board"></param>
+        /// <returns></returns>
+        public static bool IsCheck(char[,] board)
+        {
+            List<Position> allvalidmoves = new List<Position>();
+            Position whitekingpos= new Position(-1,-1);
+            Position blackkingpos=new Position(-1,-1);
+            var check = false;
+            for (int i = 0; i < board.GetLength(0); i++)
+            {
+                for (int j = 0; j < board.GetLength(1); j++)
+                {
+                    //Addinv current valid moves to allvalidmoves
+                    foreach (var item in GetValidMoves(new Position(i, j), board))
+                    {
+                        if(!allvalidmoves.Contains(item))
+                        allvalidmoves.Add(item);
+                    }
+                    //Getting the positions of the kings
+
+                    if (board[i, j] == 'K')
+                    {
+                        whitekingpos = new Position(i, j);
+                    }
+                    if (board[i, j] == 'k')
+                    {
+                        blackkingpos = new Position(i, j);
+                    }
+                    if (whitekingpos.X != -1 && whitekingpos.Y!=-1)
+                    {
+                        var vmoves = allvalidmoves.FirstOrDefault(x => (x.X == whitekingpos.X && x.Y == whitekingpos.Y));
+                        if (vmoves != null)
+                        {
+                            //The white king is in check
+                            check= true;
+                        }
+                    }
+                    if (blackkingpos.X != -1 && blackkingpos.Y != -1)
+                    {
+                        var vmoves = allvalidmoves.FirstOrDefault(x => (x.X == blackkingpos.X && x.Y == blackkingpos.Y));
+                        if (vmoves != null)
+                        {
+                            //the black king is in check
+                            check =  true;
+                        }
+                    }                    
+                }                
+            }
+            if(check)
+                Console.WriteLine("Check happened");
+            return check;
         }
     }
 }

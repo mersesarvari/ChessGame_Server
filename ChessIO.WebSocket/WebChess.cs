@@ -24,28 +24,37 @@ namespace ChessIO.ws
         }
         protected override void OnMessage(MessageEventArgs e)
         {
-            //Console.WriteLine("Recieved message: " + e.Data);
+            
             var d = JsonConvert.DeserializeObject<Message>(e.Data);
+            //Movement comand from the client
             if (d.Opcode == 5)
             {
                 //Have to add logic to check that the move vas legal                
                 var currentgame = Server.Games.FirstOrDefault(x => x.Id == d.Gameid);
                 //Checking the current moves validity
-                var oldpos = new Position(d.OldcoordX, d.OldcoordY);
-                var newpos = new Position(d.NewcoordX, d.NewcoordY);
-                var valid = Logic.IsValidMove(oldpos, newpos,currentgame.Board);
-                //If move is valid we have to set the board
-                if (valid)
+                //Checking if is that the player's turn
+                if (d.Playerid == currentgame.ActivePlayerId)
                 {
-                    currentgame.MovePiece(oldpos, newpos);
-                    currentgame.DrawBoard();
-                    Console.WriteLine("Sending players this: "+currentgame.Fenstring);
-                    currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
+                    //Logic.IsCheck();
+                    var oldpos = new Position(d.OldcoordX, d.OldcoordY);
+                    var newpos = new Position(d.NewcoordX, d.NewcoordY);
+                    var valid = Logic.IsValidMove(oldpos, newpos, currentgame.Board);
+                    //If move is valid we have to set the board
+                    if (valid)
+                    {
+                        Console.Clear();
+                        currentgame.MovePiece(oldpos, newpos);
+                        //Game.DrawBoard(currentgame.Board);
+                        //Console.WriteLine("Sending players this: "+currentgame.Fenstring);
+                        currentgame.TurnChanger();
+                        currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid movement happened");
+                    }
                 }
-                else
-                {
-                    Console.WriteLine("Invalid movement happened");
-                }
+                
                 
             }
             
