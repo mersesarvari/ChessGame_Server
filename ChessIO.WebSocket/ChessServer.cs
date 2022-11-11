@@ -45,12 +45,9 @@ namespace ChessIO.ws
                         if (currentgame.IsSomeoneLost())
                         {
                             //Sending message to the winning player
-                            currentgame.SendMessage(new Message() { Opcode = 8, message = "You Won! Congratulation" }, Playercolor.White);
-                        }
-                        else
-                        {
+                            currentgame.SendMessage(new Message() { Opcode = 8, message = "You Won! Congratulation" }, currentgame.GetInactiveColor());
                             //Sending message to the loosing player
-                            currentgame.SendMessage(new Message() { Opcode = 8, message = "You lost! Better luck next time"}, Playercolor.Black);
+                            currentgame.SendMessage(new Message() { Opcode = 8, message = "You lost! Better luck next time" }, currentgame.ActiveColor);
                         }
                     }
                 }

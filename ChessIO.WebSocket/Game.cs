@@ -74,7 +74,13 @@ namespace ChessIO.ws
             ActivePlayerId = White;
             
         }
-
+        public Playercolor GetInactiveColor()
+        { 
+            if(ActiveColor == Playercolor.White)
+                return Playercolor.Black;
+            else
+                return Playercolor.White;
+        }
         public void StartGame()
         {
             var msg = new Message() { Opcode=4, Game=this};
