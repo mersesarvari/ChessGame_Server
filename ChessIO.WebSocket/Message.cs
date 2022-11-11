@@ -15,6 +15,7 @@ namespace ChessIO.ws
         public string Fen { get; set; }
         public Game Game { get; set; }
 
+        public string message { get; set; }
         public int OldcoordX { get; set; }
         public int OldcoordY { get; set; }
         public int NewcoordX { get; set; }

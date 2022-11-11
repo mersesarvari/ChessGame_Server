@@ -19,52 +19,45 @@ namespace ChessIO.ws
             //Console.WriteLine("[Connected]: " + ID);
             var currentid = ID;
             Server.Players.Add(new Player(currentid));
-            Server.SendMessage(ID, JsonConvert.SerializeObject(new Message() { Opcode=0, Playerid=ID}));
+            Server.SendMessage(ID, JsonConvert.SerializeObject(new Message() { Opcode = 0, Playerid = ID }));
 
         }
         protected override void OnMessage(MessageEventArgs e)
         {
-            
             var d = JsonConvert.DeserializeObject<Message>(e.Data);
             //Movement comand from the client
             if (d.Opcode == 5)
             {
                 //Have to add logic to check that the move vas legal                
                 var currentgame = Server.Games.FirstOrDefault(x => x.Id == d.Gameid);
-                //Checking the current moves validity
-                //Checking if is that the player's turn
                 if (d.Playerid == currentgame.ActivePlayerId)
                 {
                     //Logic.IsCheck();
                     var oldpos = new Position(d.OldcoordX, d.OldcoordY);
                     var newpos = new Position(d.NewcoordX, d.NewcoordY);
                     var valid = Logic.IsValidMove(oldpos, newpos, currentgame);
-                    //checking all valid moves for a color.
-                    
-                    if (valid)
+                    Console.Clear();
+                    if (currentgame.MovePiece(oldpos, newpos))
                     {
-                        Console.Clear();
-                        if (currentgame.MovePiece(oldpos, newpos))
+                        Console.WriteLine($"[Valid]: moving from [{oldpos.X},{oldpos.Y}] to [{newpos.X},{newpos.Y}]");
+                        currentgame.TurnChanger();
+                        currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
+                        if (currentgame.IsSomeoneLost())
                         {
-                            Console.WriteLine($"[Valid]: moving from [{oldpos.X},{oldpos.Y}] to [{newpos.X},{newpos.Y}]");
-                            currentgame.TurnChanger();
-                            currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
-                            if (currentgame.IsSomeoneLost())
-                            {
-                                //Sending message to the winning player
-                                
-                            }
-                        }                      
-                    }
-                    else
-                    {
-                        Console.WriteLine($"[Invalid]: moving from [{oldpos.X},{oldpos.Y}] to [{newpos.X},{newpos.Y}]");
+                            //Sending message to the winning player
+                            currentgame.SendMessage(new Message() { Opcode = 8, message = "You Won! Congratulation" }, Playercolor.White);
+                        }
+                        else
+                        {
+                            //Sending message to the loosing player
+                            currentgame.SendMessage(new Message() { Opcode = 8, message = "You lost! Better luck next time"}, Playercolor.Black);
+                        }
                     }
                 }
-                
-                
+
+
             }
-            
+
         }
         public void SendToAll(string message)
         {
@@ -81,7 +74,7 @@ namespace ChessIO.ws
                 Console.WriteLine(item);
             }
         }
-       
+
 
         protected override void OnClose(CloseEventArgs e)
         {

@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -81,34 +82,56 @@ namespace ChessIO.ws
             Server.SendMessage(Black, JsonConvert.SerializeObject(msg));
 
         }
-
-
         public void BroadcastMessage(Message message) 
         {
             Server.SendMessage(White, JsonConvert.SerializeObject(message));
             Server.SendMessage(Black, JsonConvert.SerializeObject(message));
         }
-
-        public bool MovePiece(Position oldpos, Position newpos)
+        public void SendMessage(Message message, Playercolor color)
         {
-            var oldboard = CopyBoard(Board);
-            Board[newpos.X, newpos.Y] = oldboard[oldpos.X,oldpos.Y];
-            Board[oldpos.X, oldpos.Y] = '0';
-            //If after the move your king is in chess the move was illegal
-            if (!Logic.IsKingInChess(Board,ActiveColor))
+            if (color == Playercolor.White)
             {
-                oldboard = Board;
-                Fenstring = Logic.ConvertToFen(oldboard);
-                return true;
+                Server.SendMessage(White, JsonConvert.SerializeObject(message));
             }
             else
             {
-                Board = oldboard;
-                Console.WriteLine("Illegitim move");
-                Game.DrawBoard(oldboard);
-                return false;
-                
+                Server.SendMessage(Black, JsonConvert.SerializeObject(message));
             }
+
+                
+            
+        }
+        public bool MovePiece(Position oldpos, Position newpos)
+        {
+            var valid = Logic.IsValidMove(oldpos, newpos, this);
+            if (valid)
+            {
+                var oldboard = CopyBoard(Board);
+                Board[newpos.X, newpos.Y] = oldboard[oldpos.X, oldpos.Y];
+                Board[oldpos.X, oldpos.Y] = '0';
+                //If after the move your king is in chess the move was illegal
+                if (!Logic.IsKingInChess(Board, ActiveColor))
+                {
+                    oldboard = Board;
+                    Fenstring = Logic.ConvertToFen(oldboard);
+                    return true;
+                }
+                else
+                {
+                    Board = oldboard;
+                    Console.WriteLine("Illegitim move");
+                    Game.DrawBoard(oldboard);
+                    return false;
+
+                }
+            }
+            else
+            {
+                Console.WriteLine($"[Invalid]: moving from [{oldpos.X},{oldpos.Y}] to [{newpos.X},{newpos.Y}]");
+                return false;
+            }
+
+
         }
         public  char[,] Simulatemove(Position oldpos, Position newpos)
         {
