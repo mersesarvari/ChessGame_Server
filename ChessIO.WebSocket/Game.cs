@@ -48,7 +48,7 @@ namespace ChessIO.ws
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
             Board = new char[8,8]; 
             Id = Guid.NewGuid().ToString() ;
-            Fenstring = "qr6/8/8/8/8/8/8/K7";
+            Fenstring = "1r6/1q6/8/8/8/8/8/K7";
             Board = Logic.ConvertFromFen(Fenstring);
             //PlayerList = new List<Player>();
 
@@ -130,7 +130,6 @@ namespace ChessIO.ws
                 Console.WriteLine();
             }
         }
-
         public void TurnChanger()
         {
             if (ActiveColor == Playercolor.White)
@@ -142,6 +141,24 @@ namespace ChessIO.ws
             {
                 ActiveColor = Playercolor.White;
                 ActivePlayerId = White;
+            }
+        }
+        public bool IsSomeoneLost()
+        {
+            var validmoves = Logic.GetAllValidMoves(this);
+            //Ha valakinek nincsen legit moovmentje és sakkban van akkor vesztett
+            foreach (var item in validmoves)
+            {
+                Console.WriteLine($"[{item.X},{item.Y}]");
+            }
+            if (validmoves.Count == 0 && Logic.IsKingInChess(this.Board, this.ActiveColor))
+            {
+                
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 

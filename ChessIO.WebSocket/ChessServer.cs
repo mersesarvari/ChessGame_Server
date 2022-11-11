@@ -38,13 +38,9 @@ namespace ChessIO.ws
                     //Logic.IsCheck();
                     var oldpos = new Position(d.OldcoordX, d.OldcoordY);
                     var newpos = new Position(d.NewcoordX, d.NewcoordY);
-                    var valid = Logic.IsValidMove(oldpos, newpos, currentgame.Board, currentgame.ActiveColor, currentgame);
+                    var valid = Logic.IsValidMove(oldpos, newpos, currentgame);
                     //checking all valid moves for a color.
-                    var validmoves = Logic.GetAllValidMoves(currentgame);
-                    foreach (var item in validmoves)
-                    {
-                        Console.WriteLine($"[{item.X},{item.Y}]");
-                    }
+                    
                     if (valid)
                     {
                         Console.Clear();
@@ -53,6 +49,11 @@ namespace ChessIO.ws
                             Console.WriteLine($"[Valid]: moving from [{oldpos.X},{oldpos.Y}] to [{newpos.X},{newpos.Y}]");
                             currentgame.TurnChanger();
                             currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
+                            if (currentgame.IsSomeoneLost())
+                            {
+                                //Sending message to the winning player
+                                
+                            }
                         }                      
                     }
                     else

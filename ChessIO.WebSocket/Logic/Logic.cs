@@ -110,24 +110,24 @@ namespace ChessIO.ws
                 {
                     if (game.Board[i, j] != '0')
                     {
-                        if (game.ActiveColor == Playercolor.White && Char.IsLower(game.Board[i, j]))
+                        if (game.ActiveColor == Playercolor.Black && Char.IsLower(game.Board[i, j]))
                         {
                             validmoves = GetValidMoves(new Position(i,j),game.Board);
                             foreach (var item in validmoves)
                             {
-                                if (IsValidMove(new Position(i, j), new Position(item.X, item.Y), game.Board, game.ActiveColor, game))
+                                if (IsValidMove(new Position(i, j), new Position(item.X, item.Y), game))
                                 { 
                                     validmoveswhatarenotcheck.Add(item);
                                 }
                             }
                             
                         }
-                        else if(game.ActiveColor == Playercolor.White && Char.IsLower(game.Board[i, j]))
+                        else if(game.ActiveColor == Playercolor.White && !Char.IsLower(game.Board[i, j]))
                         {
                             validmoves = GetValidMoves(new Position(i, j), game.Board);
                             foreach (var item in validmoves)
                             {
-                                if (IsValidMove(new Position(i, j), new Position(item.X, item.Y), game.Board, game.ActiveColor, game))
+                                if (IsValidMove(new Position(i, j), new Position(item.X, item.Y),game))
                                 {
                                     validmoveswhatarenotcheck.Add(item);
                                 }
@@ -143,13 +143,13 @@ namespace ChessIO.ws
             }
             return validmoveswhatarenotcheck;
         }
-        public static bool IsValidMove(Position oldpos, Position newpos, char[,] board, Playercolor color, Game game)
+        public static bool IsValidMove(Position oldpos, Position newpos, Game game)
         {
-            List<Position> validmoves = GetValidMoves(oldpos, board);
+            List<Position> validmoves = GetValidMoves(oldpos, game.Board);
             if (validmoves.FirstOrDefault(x => x.X == newpos.X && x.Y == newpos.Y) != null)
             {
                 var simboard = game.Simulatemove(oldpos, newpos);
-                if (Logic.IsKingInChess(simboard, color))
+                if (Logic.IsKingInChess(simboard, game.ActiveColor))
                 {
                     return false;
                 }
@@ -610,7 +610,6 @@ namespace ChessIO.ws
         public static Position[] KnightMovement(int x, int y, char chartype, char[,] board)
         {
             List<Position> possiblemoves = new List<Position>();
-            //Kilépünk kettőt x vagy y irányba és a cellának mindkét x vagy y menti szomszédos oldala jó
             var originalX = x;
             var originalY = y;
             if (board[x, y] == chartype.ToString().ToLower()[0] || board[x, y] == chartype.ToString().ToUpper()[0])
