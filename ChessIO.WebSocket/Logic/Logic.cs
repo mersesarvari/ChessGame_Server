@@ -106,8 +106,10 @@ namespace ChessIO.ws
             {
                 for (int j = 0; j < game.Board.GetLength(1); j++)
                 {
+                    //Ha nem üres babuval szeretnénk lépni
                     if (game.Board[i, j] != '0')
                     {
+                        //Ha nem a saját bábunk helyére szeretnénk lépni
                         if (game.ActiveColor == Playercolor.Black && Char.IsLower(game.Board[i, j]))
                         {
                             validmoves = GetValidMoves(new Position(i,j),game.Board);
@@ -120,7 +122,8 @@ namespace ChessIO.ws
                             }
                             
                         }
-                        else if(game.ActiveColor == Playercolor.White && !Char.IsLower(game.Board[i, j]))
+                        //Ha nem a saját bábunk helyére szeretnénk lépni
+                        else if (game.ActiveColor == Playercolor.White && !Char.IsLower(game.Board[i, j]))
                         {
                             validmoves = GetValidMoves(new Position(i, j), game.Board);
                             foreach (var item in validmoves)
@@ -752,6 +755,7 @@ namespace ChessIO.ws
                     {
                         if (Char.IsLower(chartype) && !Char.IsLower(board[i,j]))
                         {
+                            //Ha a többi bábu valid moveja között van a lépés akkor ilegális. Itt van a hiba. Mivel ha leütünk egy bábu-t akkor annak a helyére nem 
                             foreach (var item in GetValidMoves(new Position(i, j), board))
                             {
                                 if (!invalidmoves.Contains(item))

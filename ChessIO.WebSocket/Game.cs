@@ -49,7 +49,7 @@ namespace ChessIO.ws
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
             Board = new char[8,8]; 
             Id = Guid.NewGuid().ToString() ;
-            Fenstring = "1r6/1q6/8/8/8/R7/8/K7";
+            Fenstring = "rnbqkbnr/1pppppp1/p6p/8/2B5/4PQ2/PPPP1PPP/RNB1K1NR";
             Board = Logic.ConvertFromFen(Fenstring);
             //PlayerList = new List<Player>();
 
@@ -178,7 +178,7 @@ namespace ChessIO.ws
             //Ha valakinek nincsen legit moovmentje és sakkban van akkor vesztett
             foreach (var item in validmoves)
             {
-                Console.WriteLine($"[{item.X},{item.Y}]");
+                Console.Write($"[{item.X},{item.Y}] | ");
             }
             if (validmoves.Count == 0 && Logic.IsKingInChess(this.Board, this.ActiveColor))
             {
