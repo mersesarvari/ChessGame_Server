@@ -91,7 +91,6 @@ namespace ChessIO.ws
 
         public bool MovePiece(Position oldpos, Position newpos)
         {
-            
             var oldboard = CopyBoard(Board);
             Board[newpos.X, newpos.Y] = oldboard[oldpos.X,oldpos.Y];
             Board[oldpos.X, oldpos.Y] = '0';
@@ -110,6 +109,14 @@ namespace ChessIO.ws
                 return false;
                 
             }
+        }
+        public  char[,] Simulatemove(Position oldpos, Position newpos)
+        {
+            var sboard = CopyBoard(Board);
+            sboard[newpos.X, newpos.Y] = sboard[oldpos.X, oldpos.Y];
+            sboard[oldpos.X, oldpos.Y] = '0';
+            return sboard;
+
         }
         public static void DrawBoard(char[,]Board)
         {

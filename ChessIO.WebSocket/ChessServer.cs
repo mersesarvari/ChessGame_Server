@@ -12,7 +12,7 @@ using SuperSocket.Common;
 
 namespace ChessIO.ws
 {
-    public class WebChess : WebSocketBehavior
+    public class ChessServer : WebSocketBehavior
     {
         protected override void OnOpen()
         {
@@ -38,23 +38,26 @@ namespace ChessIO.ws
                     //Logic.IsCheck();
                     var oldpos = new Position(d.OldcoordX, d.OldcoordY);
                     var newpos = new Position(d.NewcoordX, d.NewcoordY);
-                    var valid = Logic.IsValidMove(oldpos, newpos, currentgame.Board);
-                    //If move is valid we have to set the board
-                    if (valid )
+                    var valid = Logic.IsValidMove(oldpos, newpos, currentgame.Board, currentgame.ActiveColor, currentgame);
+                    //checking all valid moves for a color.
+                    var validmoves = Logic.GetAllValidMoves(currentgame);
+                    foreach (var item in validmoves)
+                    {
+                        Console.WriteLine($"[{item.X},{item.Y}]");
+                    }
+                    if (valid)
                     {
                         Console.Clear();
                         if (currentgame.MovePiece(oldpos, newpos))
                         {
+                            Console.WriteLine($"[Valid]: moving from [{oldpos.X},{oldpos.Y}] to [{newpos.X},{newpos.Y}]");
                             currentgame.TurnChanger();
                             currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
-                        }
-                        //Game.DrawBoard(currentgame.Board);
-                        //Console.WriteLine("Sending players this: "+currentgame.Fenstring);
-                        
+                        }                      
                     }
                     else
                     {
-                        Console.WriteLine("Invalid movement happened");
+                        Console.WriteLine($"[Invalid]: moving from [{oldpos.X},{oldpos.Y}] to [{newpos.X},{newpos.Y}]");
                     }
                 }
                 

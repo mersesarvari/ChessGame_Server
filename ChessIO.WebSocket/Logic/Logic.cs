@@ -30,6 +30,9 @@ namespace ChessIO.ws
         public Logic()
         {
         }
+
+
+        
         public static List<Position> GetValidMoves(Position oldpos, char[,] board)
         {
             List<Position> validmoves = new List<Position>();
@@ -38,7 +41,6 @@ namespace ChessIO.ws
             var currentPiece = board[oldpos.X, oldpos.Y];
             if (currentPiece != '0')
             {
-                //Possible moves for the black
                 if (Char.IsLower(currentPiece))
                 {
                     switch (currentPiece)
@@ -96,27 +98,71 @@ namespace ChessIO.ws
             
             return validmoves;
         }
-        public static bool IsValidMove(Position oldpos, Position newpos, char[,] board)
+
+        public static List<Position> GetAllValidMoves(Game game)
+        {
+            var validmoveswhatarenotcheck = new List<Position>();
+            List<Position> validmoves = new List<Position>();
+            //Adding all the valid moves to the validmoves list
+            for (int i = 0; i < game.Board.GetLength(0); i++)
+            {
+                for (int j = 0; j < game.Board.GetLength(1); j++)
+                {
+                    if (game.Board[i, j] != '0')
+                    {
+                        if (game.ActiveColor == Playercolor.White && Char.IsLower(game.Board[i, j]))
+                        {
+                            validmoves = GetValidMoves(new Position(i,j),game.Board);
+                            foreach (var item in validmoves)
+                            {
+                                if (IsValidMove(new Position(i, j), new Position(item.X, item.Y), game.Board, game.ActiveColor, game))
+                                { 
+                                    validmoveswhatarenotcheck.Add(item);
+                                }
+                            }
+                            
+                        }
+                        else if(game.ActiveColor == Playercolor.White && Char.IsLower(game.Board[i, j]))
+                        {
+                            validmoves = GetValidMoves(new Position(i, j), game.Board);
+                            foreach (var item in validmoves)
+                            {
+                                if (IsValidMove(new Position(i, j), new Position(item.X, item.Y), game.Board, game.ActiveColor, game))
+                                {
+                                    validmoveswhatarenotcheck.Add(item);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            //If 
+            foreach (var item in validmoveswhatarenotcheck)
+            {
+                Logic.IsKingInChess(game.Board, game.ActiveColor);
+            }
+            return validmoveswhatarenotcheck;
+        }
+        public static bool IsValidMove(Position oldpos, Position newpos, char[,] board, Playercolor color, Game game)
         {
             List<Position> validmoves = GetValidMoves(oldpos, board);
             if (validmoves.FirstOrDefault(x => x.X == newpos.X && x.Y == newpos.Y) != null)
             {
-                //Console.WriteLine($"[Valid-Move] : From [{oldpos.X}|{oldpos.Y}] to [{newpos.X}|{newpos.Y}]");
-                return true;
+                var simboard = game.Simulatemove(oldpos, newpos);
+                if (Logic.IsKingInChess(simboard, color))
+                {
+                    return false;
+                }
+                else 
+                {
+                    return true;
+                }
             }
             else
             {
-                //Console.WriteLine($"Valid moves from {oldpos.X},{oldpos.Y}");
-                foreach (var item in validmoves)
-                {
-                    Console.WriteLine($"{item.X},{item.Y}");
-                }
-                //Console.WriteLine($"[Invalid-Move] : From [{oldpos.X}|{oldpos.Y}] to [{newpos.X}|{newpos.Y}]");
                 return false;
             }
         }
-            
-        
         public static string ConvertToFen(char[,] board)
         {
             var fenstring = "";
@@ -561,7 +607,6 @@ namespace ChessIO.ws
             }
             return possiblemovesall.ToArray();
         }
-
         public static Position[] KnightMovement(int x, int y, char chartype, char[,] board)
         {
             List<Position> possiblemoves = new List<Position>();
@@ -650,7 +695,7 @@ namespace ChessIO.ws
             }
 
         }
-        //Rosálás + A KIRÁLY NEM LÉPHET SAKKBA
+        //Hiányzik a rosálás logika
         public static Position[] KingMovement(int x, int y, char chartype, char[,] board)
         {
             List<Position> possiblemoves = new List<Position>();
@@ -756,61 +801,6 @@ namespace ChessIO.ws
             return filteredpossiblemoves.ToArray();
         }
 
-        /// <summary>
-        /// Azt mutatja meg, hogy a megadott board,on fennáll e a sakkhelyzet
-        /// </summary>
-        /// <param name="board"></param>
-        /// <returns></returns>
-        public static bool IsCheck(char[,] board)
-        {
-            List<Position> allvalidmoves = new List<Position>();
-            Position whitekingpos= new Position(-1,-1);
-            Position blackkingpos=new Position(-1,-1);
-            var check = false;
-            for (int i = 0; i < board.GetLength(0); i++)
-            {
-                for (int j = 0; j < board.GetLength(1); j++)
-                {
-                    //Addinv current valid moves to allvalidmoves
-                    foreach (var item in GetValidMoves(new Position(i, j), board))
-                    {
-                        if(!allvalidmoves.Contains(item))
-                        allvalidmoves.Add(item);
-                    }
-                    //Getting the positions of the kings
-
-                    if (board[i, j] == 'K')
-                    {
-                        whitekingpos = new Position(i, j);
-                    }
-                    if (board[i, j] == 'k')
-                    {
-                        blackkingpos = new Position(i, j);
-                    }
-                    if (whitekingpos.X != -1 && whitekingpos.Y!=-1)
-                    {
-                        var vmoves = allvalidmoves.FirstOrDefault(x => (x.X == whitekingpos.X && x.Y == whitekingpos.Y));
-                        if (vmoves != null)
-                        {
-                            //The white king is in check
-                            check= true;
-                        }
-                    }
-                    if (blackkingpos.X != -1 && blackkingpos.Y != -1)
-                    {
-                        var vmoves = allvalidmoves.FirstOrDefault(x => (x.X == blackkingpos.X && x.Y == blackkingpos.Y));
-                        if (vmoves != null)
-                        {
-                            //the black king is in check
-                            check =  true;
-                        }
-                    }                    
-                }                
-            }
-            if(check)
-                Console.WriteLine("Check happened");
-            return check;
-        }
         //Check if king is in chess after the move
         public static bool IsKingInChess(char[,]board, Playercolor color)
         {
@@ -854,6 +844,7 @@ namespace ChessIO.ws
             }
             
         }
+        
     }
 }
 

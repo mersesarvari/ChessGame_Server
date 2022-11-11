@@ -31,10 +31,8 @@ namespace ChessIO.ws
             }
         }
 
-
         public static void MatchPlayers() 
         {
-            
             while (true)
             {
                 //Getting players in the lobby
