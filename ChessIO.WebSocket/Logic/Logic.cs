@@ -31,7 +31,6 @@ namespace ChessIO.ws
         {
         }
 
-
         
         public static List<Position> GetValidMoves(Position oldpos, char[,] board)
         {
@@ -98,7 +97,6 @@ namespace ChessIO.ws
             
             return validmoves;
         }
-
         public static List<Position> GetAllValidMoves(Game game)
         {
             var validmoveswhatarenotcheck = new List<Position>();
@@ -666,7 +664,6 @@ namespace ChessIO.ws
                 }
                 var p = possiblemoves;
                 List<Position> filteredpossiblemoves = new List<Position>();
-                //filteredpossiblemoves = possiblemoves;
                 foreach (var item in possiblemoves)
                 {
                     //Console.WriteLine(item.X+"|"+item.Y);
@@ -686,6 +683,7 @@ namespace ChessIO.ws
                         filteredpossiblemoves.Add(item);
                     }
                 }
+                //Ki kell szedni még azokat a lépéseket amik sakkhoz vezetnének
                 return filteredpossiblemoves.ToArray();
             }
             else

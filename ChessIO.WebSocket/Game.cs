@@ -49,7 +49,7 @@ namespace ChessIO.ws
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
             Board = new char[8,8]; 
             Id = Guid.NewGuid().ToString() ;
-            Fenstring = "1r6/1q6/8/8/8/8/8/K7";
+            Fenstring = "1r6/1q6/8/8/8/R7/8/K7";
             Board = Logic.ConvertFromFen(Fenstring);
             //PlayerList = new List<Player>();
 
