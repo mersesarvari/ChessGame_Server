@@ -15,7 +15,7 @@ namespace ChessIO.ws
         Started,
         Ended
     }
-    public enum PieceColors
+    public enum Playercolor
     { 
         White,
         Black
@@ -38,7 +38,7 @@ namespace ChessIO.ws
 
         public string Fenstring { get; set; }
 
-        public PieceColors ActiveColor { get; set; }
+        public Playercolor ActiveColor { get; set; }
         public string ActivePlayerId { get; set; }
 
 
@@ -48,7 +48,7 @@ namespace ChessIO.ws
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
             Board = new char[8,8]; 
             Id = Guid.NewGuid().ToString() ;
-            Fenstring = "rnbqkbnr/8/8/8/8/8/8/RNBQKBNR";
+            Fenstring = "qr6/8/8/8/8/8/8/K7";
             Board = Logic.ConvertFromFen(Fenstring);
             //PlayerList = new List<Player>();
 
@@ -69,7 +69,7 @@ namespace ChessIO.ws
             TimerBlack = timer;
             TimerWhite = timer;
             State = GameState.None;
-            ActiveColor = PieceColors.White;
+            ActiveColor = Playercolor.White;
             ActivePlayerId = White;
             
         }
@@ -88,32 +88,27 @@ namespace ChessIO.ws
             Server.SendMessage(White, JsonConvert.SerializeObject(message));
             Server.SendMessage(Black, JsonConvert.SerializeObject(message));
         }
-        /*
-        public void MovePiece(Position oldpos, Position newpos)
+
+        public bool MovePiece(Position oldpos, Position newpos)
         {
-            //Checking logic
             
-        }
-        */
-        public void MovePiece(Position oldpos, Position newpos)
-        {
-            var pboard = Board;
-            pboard[newpos.X, newpos.Y] = Board[oldpos.X, oldpos.Y];
-            pboard[oldpos.X, oldpos.Y] = '0';
-            if (!Logic.IsCheck(pboard))
+            var oldboard = CopyBoard(Board);
+            Board[newpos.X, newpos.Y] = oldboard[oldpos.X,oldpos.Y];
+            Board[oldpos.X, oldpos.Y] = '0';
+            //If after the move your king is in chess the move was illegal
+            if (!Logic.IsKingInChess(Board,ActiveColor))
             {
-                //Board[newpos.X, newpos.Y] = Board[oldpos.X, oldpos.Y];
-                //Board[oldpos.X, oldpos.Y] = '0';
-                Board = pboard;
-                //DrawBoard(Board);
-                Fenstring = Logic.ConvertToFen(Board);
+                oldboard = Board;
+                Fenstring = Logic.ConvertToFen(oldboard);
+                return true;
             }
             else
             {
-                Console.WriteLine($"{ActiveColor} gave a check for the opposite");
-                Board = pboard;
-                DrawBoard(Board);
-                Fenstring = Logic.ConvertToFen(Board);
+                Board = oldboard;
+                Console.WriteLine("Illegitim move");
+                Game.DrawBoard(oldboard);
+                return false;
+                
             }
         }
         public static void DrawBoard(char[,]Board)
@@ -131,16 +126,29 @@ namespace ChessIO.ws
 
         public void TurnChanger()
         {
-            if (ActiveColor == PieceColors.White)
+            if (ActiveColor == Playercolor.White)
             {
-                ActiveColor = PieceColors.Black;
+                ActiveColor = Playercolor.Black;
                 ActivePlayerId = Black;
             }
             else
             {
-                ActiveColor = PieceColors.White;
+                ActiveColor = Playercolor.White;
                 ActivePlayerId = White;
             }
+        }
+
+        public char[,] CopyBoard(char[,] oldboard)
+        {
+            char[,] newboard = new char[8, 8];
+            for (int i = 0; i < newboard.GetLength(0); i++)
+            {
+                for (int j = 0; j < newboard.GetLength(1); j++)
+                {
+                    newboard[i, j] = oldboard[i, j];
+                }
+            }
+            return newboard;
         }
     }
 }

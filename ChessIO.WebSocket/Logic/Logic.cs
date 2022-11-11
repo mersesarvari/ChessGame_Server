@@ -811,6 +811,49 @@ namespace ChessIO.ws
                 Console.WriteLine("Check happened");
             return check;
         }
+        //Check if king is in chess after the move
+        public static bool IsKingInChess(char[,]board, Playercolor color)
+        {
+            List<Position> possiblemoves = new List<Position>();
+            //Getting the possible movements of all the other pieces (what are not kings)
+            Position king=new Position(-1,-1);
+            for (int i = 0; i < board.GetLength(0); i++)
+            {
+                for (int j = 0; j < board.GetLength(1); j++)
+                {
+                    //Fehér királyt nézzük - Pozíció megszerzése
+                    if (board[i, j] == 'K'&& color==Playercolor.White)
+                    { 
+                        king = new Position(i, j);
+                    }
+                    //Fekete királyt nézzük - Pozíció megszerzése
+                    if (board[i, j] == 'k' && color == Playercolor.White)
+                    {
+                        king = new Position(i, j);
+                    }
+                    //Összes lehetséges lépés letárolása
+                    possiblemoves.AddRange(GetValidMoves(new Position(i, j), board));
+                }
+            }
+            if (king.X != -1 && king.Y != -1)
+            {
+                possiblemoves = possiblemoves.Distinct().ToList();
+                if (possiblemoves.FirstOrDefault(k => k.X == king.X && k.Y == king.Y) != null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                //throw new Exception("King was null" + king);
+                return false;
+            }
+            
+        }
     }
 }
 

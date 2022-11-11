@@ -40,14 +40,17 @@ namespace ChessIO.ws
                     var newpos = new Position(d.NewcoordX, d.NewcoordY);
                     var valid = Logic.IsValidMove(oldpos, newpos, currentgame.Board);
                     //If move is valid we have to set the board
-                    if (valid)
+                    if (valid )
                     {
                         Console.Clear();
-                        currentgame.MovePiece(oldpos, newpos);
+                        if (currentgame.MovePiece(oldpos, newpos))
+                        {
+                            currentgame.TurnChanger();
+                            currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
+                        }
                         //Game.DrawBoard(currentgame.Board);
                         //Console.WriteLine("Sending players this: "+currentgame.Fenstring);
-                        currentgame.TurnChanger();
-                        currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
+                        
                     }
                     else
                     {
