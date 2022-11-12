@@ -1,8 +1,10 @@
-﻿using System;
+﻿using SuperSocket.SocketBase;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -31,8 +33,8 @@ namespace ChessIO.ws
         {
         }
 
-        
-        public static List<Position> GetValidMoves(Position oldpos, char[,] board)
+        //Get the valid moves before a move happen
+        public static List<Position> GetValidMoves(Position oldpos, char[,] board, Playercolor color)
         {
             List<Position> validmoves = new List<Position>();
             //Have to check here the color
@@ -40,7 +42,7 @@ namespace ChessIO.ws
             var currentPiece = board[oldpos.X, oldpos.Y];
             if (currentPiece != '0')
             {
-                if (Char.IsLower(currentPiece))
+                if (color== Playercolor.Black)
                 {
                     switch (currentPiece)
                     {
@@ -63,11 +65,11 @@ namespace ChessIO.ws
                             validmoves = KingMovement(oldpos.X, oldpos.Y, 'q', board).ToList();
                             break;
                         default:
-                            throw new Exception("Error when try to get the logic of the current character");
+                            break;
                     }
                 }
                 //Possible moves for the white
-                else
+                if(color == Playercolor.White)
                 {
                     switch (currentPiece)
                     {
@@ -90,80 +92,57 @@ namespace ChessIO.ws
                             validmoves = KingMovement(oldpos.X, oldpos.Y, 'K', board).ToList();
                             break;
                         default:
-                            throw new Exception("Error when try to get the logic of the current character");
+                            break;
                     }
                 }
             }
             
             return validmoves;
         }
-        public static List<Position> GetAllValidMoves(Game game)
+        /// <summary>
+        /// Getting all the valid moves with a specific color and with the current board standing
+        /// </summary>
+        /// <param name="game"></param>
+        /// <returns></returns>
+        
+        public static List<Position> GetAllValidMoves(char[,]board, Playercolor color)
         {
-            var validmoveswhatarenotcheck = new List<Position>();
-            List<Position> validmoves = new List<Position>();
-            //Adding all the valid moves to the validmoves list
-            for (int i = 0; i < game.Board.GetLength(0); i++)
+            var allvalidmoves = new List<Position>();
+            for (int i = 0; i < board.GetLength(0); i++)
             {
-                for (int j = 0; j < game.Board.GetLength(1); j++)
+                for (int j = 0; j < board.GetLength(1); j++)
                 {
-                    //Ha nem üres babuval szeretnénk lépni
-                    if (game.Board[i, j] != '0')
-                    {
-                        //Ha nem a saját bábunk helyére szeretnénk lépni
-                        if (game.ActiveColor == Playercolor.Black && Char.IsLower(game.Board[i, j]))
-                        {
-                            validmoves = GetValidMoves(new Position(i,j),game.Board);
-                            foreach (var item in validmoves)
-                            {
-                                if (IsValidMove(new Position(i, j), new Position(item.X, item.Y), game))
-                                { 
-                                    validmoveswhatarenotcheck.Add(item);
-                                }
-                            }
-                            
-                        }
-                        //Ha nem a saját bábunk helyére szeretnénk lépni
-                        else if (game.ActiveColor == Playercolor.White && !Char.IsLower(game.Board[i, j]))
-                        {
-                            validmoves = GetValidMoves(new Position(i, j), game.Board);
-                            foreach (var item in validmoves)
-                            {
-                                if (IsValidMove(new Position(i, j), new Position(item.X, item.Y),game))
-                                {
-                                    validmoveswhatarenotcheck.Add(item);
-                                }
-                            }
-                        }
-                    }
+
+                    allvalidmoves.AddRange(GetValidMoves(new Position(i,j), board,color));
                 }
             }
-            //If 
-            foreach (var item in validmoveswhatarenotcheck)
-            {
-                Logic.IsKingInChess(game.Board, game.ActiveColor);
-            }
-            return validmoveswhatarenotcheck;
+            return allvalidmoves.Distinct().ToList();
         }
-        public static bool IsValidMove(Position oldpos, Position newpos, Game game)
+        public static bool IsValidMove(Position oldpos, Position newpos, char[,] board, Playercolor color)
         {
-            List<Position> validmoves = GetValidMoves(oldpos, game.Board);
-            if (validmoves.FirstOrDefault(x => x.X == newpos.X && x.Y == newpos.Y) != null)
+            var newboard = Game.Simulatemove(oldpos, newpos, board);
+            List<Position> oppvalidmoves = new List<Position>();
+            if (Playercolor.White == color)
             {
-                var simboard = game.Simulatemove(oldpos, newpos);
-                if (Logic.IsKingInChess(simboard, game.ActiveColor))
-                {
-                    return false;
-                }
-                else 
-                {
-                    return true;
-                }
+                oppvalidmoves = GetAllValidMoves(newboard, Playercolor.Black);
+            }
+            else
+            {
+                oppvalidmoves = GetAllValidMoves(newboard, Playercolor.White);
+            }
+            Position kingpos = Game.GetKingPosition(newboard ,color);
+            var feltetel = oppvalidmoves.FirstOrDefault(x => x.X == kingpos.X && x.Y == kingpos.Y);
+            ;
+            if (feltetel == null)
+            {
+                return true;
             }
             else
             {
                 return false;
             }
         }
+        #region piecemovement
         public static string ConvertToFen(char[,] board)
         {
             var fenstring = "";
@@ -743,109 +722,10 @@ namespace ChessIO.ws
             {
                 possiblemoves.Add(new Position(x + 1, y+1));
             }
-            #endregion
-            
-            //Getting all the possible next movement for all the pieces on the board. === Invalid moves for the king
-            List<Position> invalidmoves = new List<Position>();
-            for (int i = 0; i < board.GetLength(0); i++)
-            {
-                for (int j = 0; j < board.GetLength(1); j++)
-                {
-                    if (board[i, j] != 'K' && board[i, j] != 'k')
-                    {
-                        if (Char.IsLower(chartype) && !Char.IsLower(board[i,j]))
-                        {
-                            //Ha a többi bábu valid moveja között van a lépés akkor ilegális. Itt van a hiba. Mivel ha leütünk egy bábu-t akkor annak a helyére nem 
-                            foreach (var item in GetValidMoves(new Position(i, j), board))
-                            {
-                                if (!invalidmoves.Contains(item))
-                                    invalidmoves.Add(item);
-                            }
-                        }
-                        else if (!Char.IsLower(chartype) && Char.IsLower(board[i, j]))
-                        {
-                            foreach (var item in GetValidMoves(new Position(i, j), board))
-                            {
-                                if (!invalidmoves.Contains(item))
-                                    invalidmoves.Add(item);
-                            }
-                        }
-
-                    }
-                }
-            }
-            //Getting the possible moves
-            List<Position> filteredpossiblemoves = new List<Position>();            
-            foreach (var item in possiblemoves)
-            {
-                //Checking if the move is a check for the current king
-                if (invalidmoves.FirstOrDefault(k=>k.X==item.X && k.Y==item.Y)==null)
-                {
-                    if (
-                        Char.IsLower(board[item.X, item.Y]) &&
-                        !Char.IsLower(board[originalX, originalY]))
-                    {
-                        filteredpossiblemoves.Add(item);
-                    }
-                    else if (
-                        !Char.IsLower(board[item.X, item.Y]) &&
-                        Char.IsLower(board[originalX, originalY]))
-                    {
-                        filteredpossiblemoves.Add(item);
-                    }
-                    if (board[item.X, item.Y] == '0')
-                    {
-                        filteredpossiblemoves.Add(item);
-                    }
-                }
-            }
-            return filteredpossiblemoves.ToArray();
+            #endregion            
+            return possiblemoves.ToArray();
         }
-
-        //Check if king is in chess after the move
-        public static bool IsKingInChess(char[,]board, Playercolor color)
-        {
-            List<Position> possiblemoves = new List<Position>();
-            //Getting the possible movements of all the other pieces (what are not kings)
-            Position king=new Position(-1,-1);
-            for (int i = 0; i < board.GetLength(0); i++)
-            {
-                for (int j = 0; j < board.GetLength(1); j++)
-                {
-                    //Fehér királyt nézzük - Pozíció megszerzése
-                    if (board[i, j] == 'K'&& color==Playercolor.White)
-                    { 
-                        king = new Position(i, j);
-                    }
-                    //Fekete királyt nézzük - Pozíció megszerzése
-                    if (board[i, j] == 'k' && color == Playercolor.White)
-                    {
-                        king = new Position(i, j);
-                    }
-                    //Összes lehetséges lépés letárolása
-                    possiblemoves.AddRange(GetValidMoves(new Position(i, j), board));
-                }
-            }
-            if (king.X != -1 && king.Y != -1)
-            {
-                possiblemoves = possiblemoves.Distinct().ToList();
-                if (possiblemoves.FirstOrDefault(k => k.X == king.X && k.Y == king.Y) != null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                //throw new Exception("King was null" + king);
-                return false;
-            }
-            
-        }
-        
+        #endregion
 
     }
 }

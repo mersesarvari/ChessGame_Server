@@ -35,17 +35,18 @@ namespace ChessIO.ws
                     //Logic.IsCheck();
                     var oldpos = new Position(d.OldcoordX, d.OldcoordY);
                     var newpos = new Position(d.NewcoordX, d.NewcoordY);
-                    var valid = Logic.IsValidMove(oldpos, newpos, currentgame);
-                    Console.Clear();
-                    if (currentgame.MovePiece(oldpos, newpos))
+                    //Console.Clear();
+                    var isvalidafter = Logic.IsValidMove(oldpos, newpos, currentgame.Board, currentgame.ActiveColor);
+                    if (isvalidafter)
                     {
+                        currentgame.MovePiece(oldpos, newpos);
                         Console.WriteLine($"[Valid]: moving from [{oldpos.X},{oldpos.Y}] to [{newpos.X},{newpos.Y}]");
                         currentgame.TurnChanger();
                         currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
-                        if (currentgame.IsSomeoneLost())
+                        if (/*currentgame.IsSomeoneLost()*/false)
                         {
                             //Sending message to the winning player
-                            currentgame.SendMessage(new Message() { Opcode = 8, message = "You Won! Congratulation" }, currentgame.GetInactiveColor());
+                            currentgame.SendMessage(new Message() { Opcode = 8, message = "You Won! Congratulation" }, currentgame.InactiveColor());
                             //Sending message to the loosing player
                             currentgame.SendMessage(new Message() { Opcode = 8, message = "You lost! Better luck next time" }, currentgame.ActiveColor);
                         }

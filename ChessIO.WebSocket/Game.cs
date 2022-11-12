@@ -23,6 +23,7 @@ namespace ChessIO.ws
     }
     public class Game
     {
+        #region fields
         Random r = new Random();
         public string Id { get; set; }
         public GameState State { get; set; }
@@ -42,14 +43,16 @@ namespace ChessIO.ws
         public Playercolor ActiveColor { get; set; }
         public string ActivePlayerId { get; set; }
 
-
+        #endregion
         [JsonConstructor]
         public Game(Player _p1, Player _p2, int timer)
         {
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
             Board = new char[8,8]; 
             Id = Guid.NewGuid().ToString() ;
-            Fenstring = "rnbqkbnr/1pppppp1/p6p/8/2B5/4PQ2/PPPP1PPP/RNB1K1NR";
+            //Fenstring = "rnbqkbnr/1pppppp1/p6p/8/2B5/4P3/PPPP1QPP/RNB1K1NR";
+            //Fenstring = "q7/8/8/8/8/8/R7/K7";
+            Fenstring = "k7/8/8/8/8/8/qq6/7K";
             Board = Logic.ConvertFromFen(Fenstring);
             //PlayerList = new List<Player>();
 
@@ -74,7 +77,7 @@ namespace ChessIO.ws
             ActivePlayerId = White;
             
         }
-        public Playercolor GetInactiveColor()
+        public Playercolor InactiveColor()
         { 
             if(ActiveColor == Playercolor.White)
                 return Playercolor.Black;
@@ -103,45 +106,17 @@ namespace ChessIO.ws
             {
                 Server.SendMessage(Black, JsonConvert.SerializeObject(message));
             }
-
-                
-            
         }
-        public bool MovePiece(Position oldpos, Position newpos)
+        public void MovePiece(Position oldpos, Position newpos)
         {
-            var valid = Logic.IsValidMove(oldpos, newpos, this);
-            if (valid)
-            {
-                var oldboard = CopyBoard(Board);
-                Board[newpos.X, newpos.Y] = oldboard[oldpos.X, oldpos.Y];
-                Board[oldpos.X, oldpos.Y] = '0';
-                //If after the move your king is in chess the move was illegal
-                if (!Logic.IsKingInChess(Board, ActiveColor))
-                {
-                    oldboard = Board;
-                    Fenstring = Logic.ConvertToFen(oldboard);
-                    return true;
-                }
-                else
-                {
-                    Board = oldboard;
-                    Console.WriteLine("Illegitim move");
-                    Game.DrawBoard(oldboard);
-                    return false;
-
-                }
-            }
-            else
-            {
-                Console.WriteLine($"[Invalid]: moving from [{oldpos.X},{oldpos.Y}] to [{newpos.X},{newpos.Y}]");
-                return false;
-            }
-
-
+            var oldboard = CopyBoard(Board);
+            Board[newpos.X, newpos.Y] = oldboard[oldpos.X, oldpos.Y];
+            Board[oldpos.X, oldpos.Y] = '0';
+            Fenstring = Logic.ConvertToFen(Board);
         }
-        public  char[,] Simulatemove(Position oldpos, Position newpos)
+        public static char[,] Simulatemove(Position oldpos, Position newpos, char[,]board)
         {
-            var sboard = CopyBoard(Board);
+            var sboard = CopyBoard(board);
             sboard[newpos.X, newpos.Y] = sboard[oldpos.X, oldpos.Y];
             sboard[oldpos.X, oldpos.Y] = '0';
             return sboard;
@@ -172,26 +147,7 @@ namespace ChessIO.ws
                 ActivePlayerId = White;
             }
         }
-        public bool IsSomeoneLost()
-        {
-            var validmoves = Logic.GetAllValidMoves(this);
-            //Ha valakinek nincsen legit moovmentje és sakkban van akkor vesztett
-            foreach (var item in validmoves)
-            {
-                Console.Write($"[{item.X},{item.Y}] | ");
-            }
-            if (validmoves.Count == 0 && Logic.IsKingInChess(this.Board, this.ActiveColor))
-            {
-                
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public char[,] CopyBoard(char[,] oldboard)
+        public static char[,] CopyBoard(char[,] oldboard)
         {
             char[,] newboard = new char[8, 8];
             for (int i = 0; i < newboard.GetLength(0); i++)
@@ -202,6 +158,37 @@ namespace ChessIO.ws
                 }
             }
             return newboard;
+        }
+        public static Position GetKingPosition(char[,]board, Playercolor color)
+        {
+            if (Playercolor.White == color)
+            {
+                for (int i = 0; i < board.GetLength(0); i++)
+                {
+                    for (int j = 0; j < board.GetLength(1); j++)
+                    {
+                        if (board[i, j] == 'K')
+                        {
+                            return new Position(i, j);
+                        }
+                    }
+                }
+                throw new Exception($"[Error]: {color} king not found");
+            }
+            else 
+            {
+                for (int i = 0; i < board.GetLength(0); i++)
+                {
+                    for (int j = 0; j < board.GetLength(1); j++)
+                    {
+                        if (board[i, j] == 'k')
+                        {
+                            return new Position(i, j);
+                        }
+                    }
+                }
+                throw new Exception($"[Error]: {color} king not found");
+            }
         }
     }
 }
