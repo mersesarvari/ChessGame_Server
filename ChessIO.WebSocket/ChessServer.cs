@@ -28,6 +28,7 @@ namespace ChessIO.ws
             //Movement comand from the client
             if (d.Opcode == 5)
             {
+                
                 //Have to add logic to check that the move vas legal                
                 var currentgame = Server.Games.FirstOrDefault(x => x.Id == d.Gameid);
                 if (d.Playerid == currentgame.ActivePlayerId)
@@ -36,20 +37,26 @@ namespace ChessIO.ws
                     var oldpos = new Position(d.OldcoordX, d.OldcoordY);
                     var newpos = new Position(d.NewcoordX, d.NewcoordY);
                     //Console.Clear();
-                    var isvalidafter = Logic.IsValidMove(oldpos, newpos, currentgame.Board, currentgame.ActiveColor);
-                    if (isvalidafter)
+                    //var ischeck = Logic.IsMoveCheck(oldpos, newpos, currentgame.Board, currentgame.ActiveColor);
+                    var isvalid = Logic.IsValidMove(oldpos, newpos, currentgame.Board, currentgame.ActiveColor);
+                    if (isvalid)
                     {
                         currentgame.MovePiece(oldpos, newpos);
-                        Console.WriteLine($"[Valid]: moving from [{oldpos.X},{oldpos.Y}] to [{newpos.X},{newpos.Y}]");
-                        currentgame.TurnChanger();
                         currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
-                        if (/*currentgame.IsSomeoneLost()*/false)
+                        currentgame.TurnChanger();
+                        //Checking checkmates
+                        var cm = Logic.IsCheckMate(currentgame.Board, currentgame.ActiveColor, true);
+                        if(cm)
                         {
                             //Sending message to the winning player
                             currentgame.SendMessage(new Message() { Opcode = 8, message = "You Won! Congratulation" }, currentgame.InactiveColor());
                             //Sending message to the loosing player
                             currentgame.SendMessage(new Message() { Opcode = 8, message = "You lost! Better luck next time" }, currentgame.ActiveColor);
                         }
+                    }
+                    else 
+                    {
+                        currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
                     }
                 }
 

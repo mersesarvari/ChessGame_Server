@@ -24,17 +24,14 @@ namespace ChessIO.ws
     }
     // White Pawn is tested and working
     // Black Pawn is tested and working
-    public class Logic
+    public static class Logic
     {
 
         public static readonly char[,] startingboard = Logic.ConvertFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         //public string Fen { get; set; }
-        public Logic()
-        {
-        }
 
         //Get the valid moves before a move happen
-        public static List<Position> GetValidMoves(Position oldpos, char[,] board, Playercolor color)
+        private static List<Position> GetValidMoves(Position oldpos, char[,] board, Playercolor color, bool ismyturn)
         {
             List<Position> validmoves = new List<Position>();
             //Have to check here the color
@@ -42,7 +39,7 @@ namespace ChessIO.ws
             var currentPiece = board[oldpos.X, oldpos.Y];
             if (currentPiece != '0')
             {
-                if (color== Playercolor.Black)
+                if (color == Playercolor.Black)
                 {
                     switch (currentPiece)
                     {
@@ -62,14 +59,13 @@ namespace ChessIO.ws
                             validmoves = QueenMovement(oldpos.X, oldpos.Y, 'q', board).ToList();
                             break;
                         case 'k':
-                            validmoves = KingMovement(oldpos.X, oldpos.Y, 'q', board).ToList();
+                            validmoves = KingMovement(oldpos.X, oldpos.Y, 'k', board, Playercolor.Black).ToList();
                             break;
                         default:
                             break;
                     }
                 }
-                //Possible moves for the white
-                if(color == Playercolor.White)
+                if (color == Playercolor.White)
                 {
                     switch (currentPiece)
                     {
@@ -89,12 +85,31 @@ namespace ChessIO.ws
                             validmoves = QueenMovement(oldpos.X, oldpos.Y, 'Q', board).ToList();
                             break;
                         case 'K':
-                            validmoves = KingMovement(oldpos.X, oldpos.Y, 'K', board).ToList();
+                            validmoves = KingMovement(oldpos.X, oldpos.Y, 'K', board, Playercolor.White).ToList();
                             break;
                         default:
                             break;
                     }
                 }
+            }
+            if (ismyturn)
+            {
+                List<Position> notcheckmoves = new List<Position>();
+                foreach (var item in validmoves)
+                {
+                    var newboard = Game.Simulatemove(oldpos, item, board);
+                    List<Position> oppvalidmoves = new List<Position>();
+                    oppvalidmoves = GetAllMoves(newboard, Game.GetOppositeColor(color),false);
+
+                    Position kingpos = Game.GetKingPosition(newboard, color);
+                    var feltetel = oppvalidmoves.FirstOrDefault(x => x.X == kingpos.X && x.Y == kingpos.Y);
+                    if (feltetel == null)
+                    {
+                        notcheckmoves.Add(item);
+                    }
+                }
+                return notcheckmoves;
+                
             }
             
             return validmoves;
@@ -105,7 +120,7 @@ namespace ChessIO.ws
         /// <param name="game"></param>
         /// <returns></returns>
         
-        public static List<Position> GetAllValidMoves(char[,]board, Playercolor color)
+        public static List<Position> GetAllMoves(char[,]board, Playercolor color, bool repeat)
         {
             var allvalidmoves = new List<Position>();
             for (int i = 0; i < board.GetLength(0); i++)
@@ -113,36 +128,40 @@ namespace ChessIO.ws
                 for (int j = 0; j < board.GetLength(1); j++)
                 {
 
-                    allvalidmoves.AddRange(GetValidMoves(new Position(i,j), board,color));
+                    allvalidmoves.AddRange(GetValidMoves(new Position(i,j), board,color,repeat));
                 }
             }
             return allvalidmoves.Distinct().ToList();
         }
         public static bool IsValidMove(Position oldpos, Position newpos, char[,] board, Playercolor color)
         {
-            var newboard = Game.Simulatemove(oldpos, newpos, board);
-            List<Position> oppvalidmoves = new List<Position>();
-            if (Playercolor.White == color)
-            {
-                oppvalidmoves = GetAllValidMoves(newboard, Playercolor.Black);
-            }
-            else
-            {
-                oppvalidmoves = GetAllValidMoves(newboard, Playercolor.White);
-            }
-            Position kingpos = Game.GetKingPosition(newboard ,color);
-            var feltetel = oppvalidmoves.FirstOrDefault(x => x.X == kingpos.X && x.Y == kingpos.Y);
+            var moves = GetValidMoves(oldpos, board, color, true);
             ;
-            if (feltetel == null)
+            var returnvalue = false;
+            foreach (var item in moves)
             {
-                return true;
+                if (newpos.X == item.X && newpos.Y == item.Y)
+                {
+                    returnvalue= true;
+                }
             }
-            else
+            /*
+            if (moves.Count() == 0)
             {
-                return false;
+                throw new Exception("Checkmate");
             }
+            */
+            return returnvalue;
+            
         }
-        #region piecemovement
+
+        public static bool IsCheckMate(char[,]board,Playercolor color,bool checkifincheck)
+        {
+            var counter = GetAllMoves(board, color, checkifincheck).Count();
+            if (counter == 0)
+                return true;
+            else return false;
+        }
         public static string ConvertToFen(char[,] board)
         {
             var fenstring = "";
@@ -237,6 +256,7 @@ namespace ChessIO.ws
 
         }
         // Not fully working
+        #region piecemovement
         public static Position[] PawnMovement(int x, int y, char chartype,char[,] board)
         {
             var possiblemoves = new List<Position>();
@@ -246,7 +266,7 @@ namespace ChessIO.ws
                 //Ha a király sakkban van akkor nem történhet semmi
                 possiblemoves = new List<Position>();
                 //Ha nincsenek előtte
-                if (board[x - 1, y] == '0' && x - 1 >= 0)
+                if (x - 1 >= 0&& board[x - 1, y] == '0')
                 {
                     possiblemoves.Add(new Position(x - 1, y));
                     //Ha kezdőhelyen van, kettőt léphet, ha üres az adott mező
@@ -675,7 +695,7 @@ namespace ChessIO.ws
 
         }
         //Hiányzik a rosálás logika
-        public static Position[] KingMovement(int x, int y, char chartype, char[,] board)
+        public static Position[] KingMovement(int x, int y, char chartype, char[,] board, Playercolor color)
         {
             List<Position> possiblemoves = new List<Position>();
             //Kilépünk kettőt x vagy y irányba és a cellának mindkét x vagy y menti szomszédos oldala jó
@@ -683,42 +703,42 @@ namespace ChessIO.ws
             var originalY = y;
             #region Adding original moves
             //-x, -y
-            if (x-1>=0 && y-1 >=0)
+            if (x-1>=0 && y-1 >=0 && Game.TargetIsEnemy(board,x-1,y-1,color))
             { 
                 possiblemoves.Add(new Position(x-1, y-1));
             }
             //-x, y
-            if (x-1>=0)
+            if (x-1>=0 && Game.TargetIsEnemy(board, x - 1, y, color))
             {
                 possiblemoves.Add(new Position(x - 1, y));
             }
             // -x, +y
-            if (x-1>=0 && y+1<=7)
+            if (x-1>=0 && y+1<=7 && Game.TargetIsEnemy(board, x - 1, y + 1, color))
             {
                 possiblemoves.Add(new Position(x - 1, y+1));
             }
             //x, y-
-            if (y - 1 >= 0)
+            if (y - 1 >= 0&& Game.TargetIsEnemy(board, x, y - 1, color))
             {
                 possiblemoves.Add(new Position(x, y-1));
             }
             //x, +y
-            if (y + 1 <= 7)
+            if (y + 1 <= 7 && Game.TargetIsEnemy(board, x, y + 1, color))
             {
                 possiblemoves.Add(new Position(x, y+1));
             }
             //x+ y-
-            if (x + 1 <= 7 && y - 1 >= 0)
+            if (x + 1 <= 7 && y - 1 >= 0 && Game.TargetIsEnemy(board, x + 1, y - 1, color))
             {
                 possiblemoves.Add(new Position(x + 1, y-1));
             }
             //x+, y
-            if (x + 1 <= 7)
+            if (x + 1 <= 7 && Game.TargetIsEnemy(board, x + 1, y, color))
             {
                 possiblemoves.Add(new Position(x + 1, y));
             }
             //x+ , y+
-            if (x + 1 <= 7 && y + 1 <= 7)
+            if (x + 1 <= 7 && y + 1 <= 7 && Game.TargetIsEnemy(board, x + 1, y + 1, color))
             {
                 possiblemoves.Add(new Position(x + 1, y+1));
             }

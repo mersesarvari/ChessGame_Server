@@ -50,9 +50,13 @@ namespace ChessIO.ws
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
             Board = new char[8,8]; 
             Id = Guid.NewGuid().ToString() ;
-            //Fenstring = "rnbqkbnr/1pppppp1/p6p/8/2B5/4P3/PPPP1QPP/RNB1K1NR";
+            //Checkmate situation
+            Fenstring = "rnbqkbnr/1pppppp1/p6p/8/2B5/4P3/PPPP1QPP/RNB1K1NR";
+            //Fenstring = "8/pKP5/8/8/8/8/8/7k";
+            //King test
+            //Fenstring = "KP/PP6/8/8/8/8/8/7k";
             //Fenstring = "q7/8/8/8/8/8/R7/K7";
-            Fenstring = "k7/8/8/8/8/8/qq6/7K";
+            //Fenstring = "k7/8/8/8/8/8/qq6/7K";
             Board = Logic.ConvertFromFen(Fenstring);
             //PlayerList = new List<Player>();
 
@@ -80,6 +84,13 @@ namespace ChessIO.ws
         public Playercolor InactiveColor()
         { 
             if(ActiveColor == Playercolor.White)
+                return Playercolor.Black;
+            else
+                return Playercolor.White;
+        }
+        public static Playercolor GetOppositeColor(Playercolor color)
+        {
+            if (color == Playercolor.White)
                 return Playercolor.Black;
             else
                 return Playercolor.White;
@@ -149,7 +160,7 @@ namespace ChessIO.ws
         }
         public static char[,] CopyBoard(char[,] oldboard)
         {
-            char[,] newboard = new char[8, 8];
+            char[,] newboard = new char[8, 8];            
             for (int i = 0; i < newboard.GetLength(0); i++)
             {
                 for (int j = 0; j < newboard.GetLength(1); j++)
@@ -189,6 +200,36 @@ namespace ChessIO.ws
                 }
                 throw new Exception($"[Error]: {color} king not found");
             }
+        }
+        public static bool TargetIsEnemy(char[,] board,int x,int y, Playercolor mycolor)
+        {
+            if (board[x, y] != '0')
+            {
+                if (mycolor == Playercolor.White && Char.IsLower(board[x,y]))
+                {
+                    return true;
+                }
+                else if (mycolor == Playercolor.Black && !Char.IsLower(board[x, y]))
+                {
+                    return true;
+                }
+                else return false;
+            }
+            else return true;
+            
+        }
+        public static List<Position> IterateBoard(char[,] board)
+        {
+            var listlength = board.GetLength(0)*board.GetLength(1);
+            List<Position> lista = new List<Position>();
+            for (int i = 0; i < board.GetLength(0); i++)
+            {
+                for (int j = 0; j < board.GetLength(1); j++)
+                {
+                    lista.Add(new Position(i, j));
+                }
+            }
+            return lista;
         }
     }
 }
