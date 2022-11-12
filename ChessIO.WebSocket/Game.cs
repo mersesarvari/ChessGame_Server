@@ -51,7 +51,7 @@ namespace ChessIO.ws
             Board = new char[8,8]; 
             Id = Guid.NewGuid().ToString() ;
             //Checkmate situation
-            Fenstring = "rnbqkbnr/1pppppp1/p6p/8/2B5/4P3/PPPP1QPP/RNB1K1NR";
+            Fenstring = "kp6/1p6/2Q5/8/8/8/8/K7";
             //Fenstring = "8/pKP5/8/8/8/8/8/7k";
             //King test
             //Fenstring = "KP/PP6/8/8/8/8/8/7k";
@@ -77,8 +77,8 @@ namespace ChessIO.ws
             TimerBlack = timer;
             TimerWhite = timer;
             State = GameState.None;
-            ActiveColor = Playercolor.White;
-            ActivePlayerId = White;
+            ActiveColor = Playercolor.Black;
+            ActivePlayerId = Black;
             
         }
         public Playercolor InactiveColor()

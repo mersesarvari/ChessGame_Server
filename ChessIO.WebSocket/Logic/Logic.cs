@@ -1,6 +1,7 @@
 ﻿using SuperSocket.SocketBase;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
@@ -44,7 +45,7 @@ namespace ChessIO.ws
                     switch (currentPiece)
                     {
                         case 'p':
-                            validmoves = PawnMovement(oldpos.X, oldpos.Y, 'p', board).ToList();
+                            validmoves = PawnMovement(oldpos.X, oldpos.Y, 'p', board,color).ToList();
                             break;
                         case 'r':
                             validmoves = RookMovement(oldpos.X, oldpos.Y, 'r', board).ToList();
@@ -70,7 +71,7 @@ namespace ChessIO.ws
                     switch (currentPiece)
                     {
                         case 'P':
-                            validmoves = PawnMovement(oldpos.X, oldpos.Y, 'P', board).ToList();
+                            validmoves = PawnMovement(oldpos.X, oldpos.Y, 'P', board,color).ToList();
                             break;
                         case 'R':
                             validmoves = RookMovement(oldpos.X, oldpos.Y, 'R', board).ToList();
@@ -133,9 +134,9 @@ namespace ChessIO.ws
             }
             return allvalidmoves.Distinct().ToList();
         }
-        public static bool IsValidMove(Position oldpos, Position newpos, char[,] board, Playercolor color)
+        public static bool IsValidMove(Position oldpos, Position newpos, char[,] board, Playercolor color, bool checkifcheck)
         {
-            var moves = GetValidMoves(oldpos, board, color, true);
+            var moves = GetValidMoves(oldpos, board, color, checkifcheck);
             ;
             var returnvalue = false;
             foreach (var item in moves)
@@ -257,13 +258,12 @@ namespace ChessIO.ws
         }
         // Not fully working
         #region piecemovement
-        public static Position[] PawnMovement(int x, int y, char chartype,char[,] board)
+        public static Position[] PawnMovement(int x, int y, char chartype,char[,] board, Playercolor color)
         {
             var possiblemoves = new List<Position>();
             //Check that the coordinate is valid
             if (board[x, y] == chartype.ToString().ToUpper()[0])
             {
-                //Ha a király sakkban van akkor nem történhet semmi
                 possiblemoves = new List<Position>();
                 //Ha nincsenek előtte
                 if (x - 1 >= 0&& board[x - 1, y] == '0')
@@ -277,12 +277,12 @@ namespace ChessIO.ws
                 }
 
                 //Ha Balra lehet ütni ellenséges babút
-                if (y != 0 && x != 0 && board[x - 1, y - 1] != '0' && Char.IsLower(board[x - 1, y - 1]))
+                if (y != 0 && x != 0 && board[x - 1, y - 1] != '0' && Game.TargetIsEnemy(board, x - 1, y - 1, color))
                 {
                     possiblemoves.Add(new Position(x - 1, y - 1));
                 }
                 //Ha Jobbra lehet ütni
-                if (y != 7 && x != 0 && board[x - 1, y + 1] != '0' && Char.IsLower(board[x - 1, y + 1]))
+                if (y != 7 && x != 0 && board[x - 1, y + 1] != '0' && Game.TargetIsEnemy(board, x - 1, y + 1, color))
                 {
                     possiblemoves.Add(new Position(x - 1, y + 1));
                 }
@@ -308,12 +308,12 @@ namespace ChessIO.ws
                 }
 
                 //Ha Balra lehet ütni ellenséges babút
-                if (x != 7 && y != 0 && board[x + 1, y - 1] != '0' && Char.IsLower(board[x + 1, y - 1]))
+                if (x != 7 && y != 0 && board[x + 1, y - 1] != '0' && Game.TargetIsEnemy(board, x + 1, y - 1, color))
                 {
                     possiblemoves.Add(new Position(x + 1, y - 1));
                 }
                 //Ha Jobbra lehet ütni
-                if (y != 7 && x != 7 && board[x + 1, y + 1] != '0' && Char.IsLower(board[x + 1, y + 1]))
+                if (y != 7 && x != 7 && board[x + 1, y + 1] != '0' && Game.TargetIsEnemy(board, x + 1, y + 1, color))
                 {
                     possiblemoves.Add(new Position(x + 1, y + 1));
                 }
