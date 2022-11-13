@@ -639,12 +639,7 @@ namespace ChessIO.ws
                         Game.TargetIsEnemy(board, x, y, color))
                     {
                         filteredpossiblemoves.Add(item);
-                    }
-                    else if (
-                        !Game.TargetIsEnemy(board, x, y, color))
-                    {
-                        filteredpossiblemoves.Add(item);
-                    }
+                    }                    
                     if(board[item.X, item.Y] == '0'){
                         filteredpossiblemoves.Add(item);
                     }

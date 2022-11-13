@@ -76,8 +76,8 @@ namespace ChessIO.ws
             TimerBlack = timer;
             TimerWhite = timer;
             State = GameState.None;
-            ActiveColor = Playercolor.Black;
-            ActivePlayerId = Black;
+            ActiveColor = Playercolor.White;
+            ActivePlayerId = White;
             MovesForWhite = new List<Possiblemoves>();
             MovesForBlack = new List<Possiblemoves>();
             
