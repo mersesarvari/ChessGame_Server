@@ -14,7 +14,7 @@ namespace ChessIO.ws
         public int Opcode { get; set; }
         public string Fen { get; set; }
         public Game Game { get; set; }
-
+        public Object Custom { get; set; }
         public string message { get; set; }
         public int OldcoordX { get; set; }
         public int OldcoordY { get; set; }

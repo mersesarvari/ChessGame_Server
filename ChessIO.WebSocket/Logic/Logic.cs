@@ -32,7 +32,7 @@ namespace ChessIO.ws
         //public string Fen { get; set; }
 
         //Get the valid moves before a move happen
-        private static List<Position> GetValidMoves(Position oldpos, char[,] board, Playercolor color, bool ismyturn)
+        public static List<Position> GetValidMoves(Position oldpos, char[,] board, Playercolor color, bool ismyturn)
         {
             List<Position> validmoves = new List<Position>();
             //Have to check here the color
@@ -119,8 +119,7 @@ namespace ChessIO.ws
         /// Getting all the valid moves with a specific color and with the current board standing
         /// </summary>
         /// <param name="game"></param>
-        /// <returns></returns>
-        
+        /// <returns></returns>        
         public static List<Position> GetAllMoves(char[,]board, Playercolor color, bool repeat)
         {
             var allvalidmoves = new List<Position>();
@@ -155,7 +154,6 @@ namespace ChessIO.ws
             return returnvalue;
             
         }
-
         public static bool IsCheckMate(char[,]board,Playercolor color,bool checkifincheck)
         {
             var counter = GetAllMoves(board, color, checkifincheck).Count();

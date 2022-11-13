@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -31,14 +32,13 @@ namespace ChessIO.ws
         public int Elosion { get; set; }
         public string White { get; set; }
         public string Black { get; set; }
-        //In Millisecnds
         public int TimerBlack { get; set; }
-        //In Millisecnds
         public int TimerWhite { get; set; }
-
         public char[,] Board { get; set; }
-
         public string Fenstring { get; set; }
+        public List<Possiblemoves> MovesForWhite { get; set; }
+        public List<Possiblemoves> MovesForBlack { get; set; }
+
 
         public Playercolor ActiveColor { get; set; }
         public string ActivePlayerId { get; set; }
@@ -51,11 +51,10 @@ namespace ChessIO.ws
             Board = new char[8,8]; 
             Id = Guid.NewGuid().ToString() ;
             //Checkmate situation
-            Fenstring = "kp6/1p6/2Q5/8/8/8/8/K7";
+            //Fenstring = "kp6/1p6/2Q5/8/8/8/8/K7";
             //Fenstring = "8/pKP5/8/8/8/8/8/7k";
             //King test
-            //Fenstring = "KP/PP6/8/8/8/8/8/7k";
-            //Fenstring = "q7/8/8/8/8/8/R7/K7";
+            Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
             //Fenstring = "k7/8/8/8/8/8/qq6/7K";
             Board = Logic.ConvertFromFen(Fenstring);
             //PlayerList = new List<Player>();
@@ -79,6 +78,8 @@ namespace ChessIO.ws
             State = GameState.None;
             ActiveColor = Playercolor.Black;
             ActivePlayerId = Black;
+            MovesForWhite = new List<Possiblemoves>();
+            MovesForBlack = new List<Possiblemoves>();
             
         }
         public Playercolor InactiveColor()
@@ -100,6 +101,14 @@ namespace ChessIO.ws
             var msg = new Message() { Opcode=4, Game=this};
             Server.SendMessage(White, JsonConvert.SerializeObject(msg));
             Server.SendMessage(Black, JsonConvert.SerializeObject(msg));
+            //Sending players the basic possible moves
+            var whitemoves = GetPlayerMoves(Playercolor.White);
+            var blackmoves = GetPlayerMoves(Playercolor.Black);
+            var wmovemsg = new Message() { Opcode = 6, Custom=whitemoves };
+            var bmovemsg = new Message() { Opcode = 6, Custom = blackmoves };
+            Server.SendMessage(White, JsonConvert.SerializeObject(wmovemsg));                        
+            Server.SendMessage(Black, JsonConvert.SerializeObject(bmovemsg));
+
 
         }
         public void BroadcastMessage(Message message) 
@@ -218,7 +227,7 @@ namespace ChessIO.ws
             else return true;
             
         }
-        public static List<Position> IterateBoard(char[,] board)
+        public static List<Position> GetFriendlyPiecesPos(char[,] board, Playercolor color)
         {
             var listlength = board.GetLength(0)*board.GetLength(1);
             List<Position> lista = new List<Position>();
@@ -226,10 +235,57 @@ namespace ChessIO.ws
             {
                 for (int j = 0; j < board.GetLength(1); j++)
                 {
-                    lista.Add(new Position(i, j));
+                    if (Playercolor.White == color && !Char.IsLower(board[i, j]))
+                    {
+                        lista.Add(new Position(i, j));
+                    }
+                    if (Playercolor.Black == color && Char.IsLower(board[i, j]))
+                    {
+                        lista.Add(new Position(i, j));
+                    }
+                    
                 }
             }
             return lista;
+        }
+
+        public List<Possiblemoves> GetPlayerMoves(Playercolor color)
+        {
+            List<Position> whiteposs = GetFriendlyPiecesPos(this.Board, color);
+            
+            foreach (var item in whiteposs)
+            {
+                var validmoves = Logic.GetValidMoves(item, this.Board, color, true);
+                var possiblemoves = new Possiblemoves(item);
+                for (int i = 0; i < validmoves.Count(); i++)
+                {
+                    possiblemoves.AddMove(validmoves[i]);
+                }
+                if (color == Playercolor.White)
+                {
+                    if (possiblemoves.To.Count() > 0)
+                    {
+                        MovesForWhite.Add(possiblemoves);
+                    }
+                }
+                else
+                {
+                    if (possiblemoves.To.Count() > 0)
+                    {
+                        MovesForBlack.Add(possiblemoves);
+                    }
+                }
+                
+            }
+            if (color == Playercolor.White)
+            {
+                return MovesForWhite;
+            }
+            else
+            {
+                return MovesForBlack;
+            }
+
         }
     }
 }
