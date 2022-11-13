@@ -236,13 +236,16 @@ namespace ChessIO.ws
             {
                 for (int j = 0; j < board.GetLength(1); j++)
                 {
-                    if (Playercolor.White == color && !Char.IsLower(board[i, j]))
+                    if (board[i, j] != '0')
                     {
-                        lista.Add(new Position(i, j));
-                    }
-                    if (Playercolor.Black == color && Char.IsLower(board[i, j]))
-                    {
-                        lista.Add(new Position(i, j));
+                        if (Playercolor.White == color && !Char.IsLower(board[i, j]))
+                        {
+                            lista.Add(new Position(i, j));
+                        }
+                        if (Playercolor.Black == color && Char.IsLower(board[i, j]))
+                        {
+                            lista.Add(new Position(i, j));
+                        }
                     }
                     
                 }
@@ -253,20 +256,19 @@ namespace ChessIO.ws
         public List<Possiblemoves> GetPlayerMoves(Playercolor color, bool ismyturn)
         {
             List<Position> whiteposs = GetFriendlyPiecesPos(this.Board, color);
-            
+            ;
             foreach (var item in whiteposs)
             {
-                var validmoves = Logic.GetValidMoves(item, this.Board, color, ismyturn);
+                //Megnézem az adott pozícióról az összes valid lépést
+                var valid_moves_from_pos = Logic.GetValidMoves(item, this.Board, color, ismyturn);
                 var possiblemoves = new Possiblemoves(item);
-                for (int i = 0; i < validmoves.Count(); i++)
-                {
-                    possiblemoves.AddMove(validmoves[i]);
-                }
+                possiblemoves.To=valid_moves_from_pos;
                 if (color == Playercolor.White)
                 {
                     if (possiblemoves.To.Count() > 0)
                     {
-                        MovesForWhite.Add(possiblemoves);
+                        MovesForWhite.Add(possiblemoves);                        
+                        MovesForBlack = new List<Possiblemoves>();
                     }
                 }
                 else
@@ -274,6 +276,7 @@ namespace ChessIO.ws
                     if (possiblemoves.To.Count() > 0)
                     {
                         MovesForBlack.Add(possiblemoves);
+                        MovesForWhite = new List<Possiblemoves>();
                     }
                 }
                 

@@ -58,7 +58,7 @@ namespace ChessIO.ws
                         }
                         else
                         {
-                            //Sending list of possible moves
+                            //Sending list of possible moves to the next player
                             var playermoves = currentgame.GetPlayerMoves(currentgame.ActiveColor, true);
                             var wmovemsg = new Message() { Opcode = 6, Custom = playermoves };
                             Server.SendMessage(currentgame.ActivePlayerId, JsonConvert.SerializeObject(wmovemsg));
