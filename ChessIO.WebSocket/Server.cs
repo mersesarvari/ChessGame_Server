@@ -45,8 +45,10 @@ namespace ChessIO.ws
                     playersinlobby[1].PlayerState = PlayerState.Game;
                     //Basic 10minute game
                     Game currentgame = new Game(playersinlobby[0], playersinlobby[1], 600000);
-                    Server.Games.Add(currentgame);
+                    
+                    Console.WriteLine("[Game created]:" + currentgame.Id);
                     currentgame.StartGame();
+                    Server.Games.Add(currentgame);
                 }
                 else
                 {

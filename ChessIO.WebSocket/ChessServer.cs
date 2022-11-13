@@ -26,6 +26,7 @@ namespace ChessIO.ws
         }
         protected override void OnMessage(MessageEventArgs e)
         {
+
             var d = JsonConvert.DeserializeObject<Message>(e.Data);
             //Movement comand from the client
             if (d.Opcode == 5)

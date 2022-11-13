@@ -98,9 +98,11 @@ namespace ChessIO.ws
         }
         public void StartGame()
         {
-            var msg = new Message() { Opcode=4, Game=this};
-            Server.SendMessage(White, JsonConvert.SerializeObject(msg));
-            Server.SendMessage(Black, JsonConvert.SerializeObject(msg));
+            //Fel kellett cserélni itt a színeket valamiért. tuti valami bug...
+            var gamedataWhite = new Message() { Opcode=4, Gameid =  this.Id, Fen=this.Fenstring, Playerid=this.White, Color=Playercolor.Black };
+            var gamedataBlack = new Message() { Opcode = 4, Gameid = this.Id, Fen = this.Fenstring, Playerid = this.Black, Color=Playercolor.White};
+            Server.SendMessage(White, JsonConvert.SerializeObject(gamedataWhite));
+            Server.SendMessage(Black, JsonConvert.SerializeObject(gamedataBlack));
             //Sending players the basic possible moves
             var whitemoves = GetPlayerMoves(Playercolor.White,true);
             var blackmoves = GetPlayerMoves(Playercolor.Black,true);

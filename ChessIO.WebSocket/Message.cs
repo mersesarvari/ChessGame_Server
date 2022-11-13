@@ -9,6 +9,7 @@ namespace ChessIO.ws
 {
     public class Message
     {
+
         public string Gameid { get; set; }
         public string Playerid { get; set; }
         public int Opcode { get; set; }
@@ -20,6 +21,7 @@ namespace ChessIO.ws
         public int OldcoordY { get; set; }
         public int NewcoordX { get; set; }
         public int NewcoordY { get; set; }
+        public Playercolor Color {get;set;}
         //public object message { get; set; }
         /*
         public Message(int opcode, T message)
