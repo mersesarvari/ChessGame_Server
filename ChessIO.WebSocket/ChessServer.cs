@@ -9,6 +9,8 @@ using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using System.Linq.Expressions;
 using SuperSocket.Common;
+using System.Collections;
+using System.ComponentModel;
 
 namespace ChessIO.ws
 {
@@ -41,7 +43,8 @@ namespace ChessIO.ws
                     var isvalid = Logic.IsValidMove(oldpos, newpos, currentgame.Board, currentgame.ActiveColor,true);
                     if (isvalid)
                     {
-                        currentgame.MovePiece(oldpos, newpos);
+                        //Moving on the board
+                        currentgame.MovePiece(oldpos, newpos);                        
                         currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
                         currentgame.TurnChanger();
                         //Checking checkmates
@@ -52,6 +55,13 @@ namespace ChessIO.ws
                             currentgame.SendMessage(new Message() { Opcode = 8, message = "You Won! Congratulation" }, currentgame.InactiveColor());
                             //Sending message to the loosing player
                             currentgame.SendMessage(new Message() { Opcode = 8, message = "You lost! Better luck next time" }, currentgame.ActiveColor);
+                        }
+                        else
+                        {
+                            //Sending list of possible moves
+                            var playermoves = currentgame.GetPlayerMoves(currentgame.ActiveColor, true);
+                            var wmovemsg = new Message() { Opcode = 6, Custom = playermoves };
+                            Server.SendMessage(currentgame.ActivePlayerId, JsonConvert.SerializeObject(wmovemsg));
                         }
                     }
                     else 

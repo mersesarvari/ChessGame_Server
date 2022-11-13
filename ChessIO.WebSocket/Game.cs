@@ -51,10 +51,10 @@ namespace ChessIO.ws
             Board = new char[8,8]; 
             Id = Guid.NewGuid().ToString() ;
             //Checkmate situation
-            //Fenstring = "kp6/1p6/2Q5/8/8/8/8/K7";
-            //Fenstring = "8/pKP5/8/8/8/8/8/7k";
-            //King test
-            Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+            
+            /*  Original */     Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+            /*  Queen Test */   //Fenstring = "K1k/pppppppp/2QP3p/8/8/8/8/8";
+            /*  Bishop Test */  //Fenstring = "8/rnbqkbnr/2pp4/8/8/8/RNBQKBNR/8";
             //Fenstring = "k7/8/8/8/8/8/qq6/7K";
             Board = Logic.ConvertFromFen(Fenstring);
             //PlayerList = new List<Player>();
@@ -102,8 +102,9 @@ namespace ChessIO.ws
             Server.SendMessage(White, JsonConvert.SerializeObject(msg));
             Server.SendMessage(Black, JsonConvert.SerializeObject(msg));
             //Sending players the basic possible moves
-            var whitemoves = GetPlayerMoves(Playercolor.White);
-            var blackmoves = GetPlayerMoves(Playercolor.Black);
+            var whitemoves = GetPlayerMoves(Playercolor.White,true);
+            var blackmoves = GetPlayerMoves(Playercolor.Black,true);
+            ;
             var wmovemsg = new Message() { Opcode = 6, Custom=whitemoves };
             var bmovemsg = new Message() { Opcode = 6, Custom = blackmoves };
             Server.SendMessage(White, JsonConvert.SerializeObject(wmovemsg));                        
@@ -249,13 +250,13 @@ namespace ChessIO.ws
             return lista;
         }
 
-        public List<Possiblemoves> GetPlayerMoves(Playercolor color)
+        public List<Possiblemoves> GetPlayerMoves(Playercolor color, bool ismyturn)
         {
             List<Position> whiteposs = GetFriendlyPiecesPos(this.Board, color);
             
             foreach (var item in whiteposs)
             {
-                var validmoves = Logic.GetValidMoves(item, this.Board, color, true);
+                var validmoves = Logic.GetValidMoves(item, this.Board, color, ismyturn);
                 var possiblemoves = new Possiblemoves(item);
                 for (int i = 0; i < validmoves.Count(); i++)
                 {
