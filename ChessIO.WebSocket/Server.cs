@@ -19,7 +19,7 @@ namespace ChessIO.ws
         public static void SendMessage(string id, string message)
         {
             foreach (var item in Server.Instance.WebSocketServices.Hosts)
-            {
+            {   if(id!="Bot")
                 item.Sessions.SendTo(message, id);
             }
         }
@@ -56,6 +56,33 @@ namespace ChessIO.ws
                 }
                 Thread.Sleep(3000);
             }
+        }
+        public static void CreateBotGame()
+        {
+            Console.WriteLine("Create Bog Game method is running");
+            while (true)
+            {
+                var playersinlobby = Server.Players.FindAll(x => x.PlayerState == PlayerState.Lobby);
+                if (playersinlobby.Count > 0)
+                {
+                    //Matching two player
+
+                    playersinlobby[0].PlayerState = PlayerState.Game;
+                    //Basic 10minute game
+                    Game currentgame = new Game(playersinlobby[0], 600000);
+
+
+                    Console.WriteLine("[Bot Game created]:" + currentgame.Id);
+                    currentgame.StartGame();
+                    Server.Games.Add(currentgame);
+                }
+                else
+                {
+                    //Console.WriteLine("Players in lobby:" + playersinlobby.Count);
+                }
+                Thread.Sleep(3000);
+            }
+            
         }
     }
 }

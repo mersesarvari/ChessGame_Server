@@ -22,6 +22,11 @@ namespace ChessIO.ws
         White,
         Black
     }
+    public enum GameType
+    {
+        Multiplayer,
+        Singleplayer,
+    }
     public class Game
     {
         #region fields
@@ -39,17 +44,60 @@ namespace ChessIO.ws
         public List<Possiblemoves> MovesForWhite { get; set; }
         public List<Possiblemoves> MovesForBlack { get; set; }
 
-
+        public static string[,] Zones = new string[8, 8] {
+                { "A8", "B8", "C8", "D8", "E8", "F8", "G8", "H8" },
+                { "A7", "B7", "C7", "D7", "E7", "F7", "G7", "H7" },
+                 { "A6", "B6", "C6", "D6", "E6", "F6", "G6", "H6" },
+                 { "A5", "B5", "C5", "D5", "E5", "F5", "G5", "H5" },
+                 { "A4", "B4", "C4", "D4", "E4", "F4", "G4", "H4" },
+                 { "A3", "B3", "C3", "D3", "E3", "F3", "G3", "H3" },
+                 { "A2", "B2", "C2", "D2", "E2", "F2", "G2", "H2" },
+                 { "A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1" },
+            };
+        public GameType Gametype { get; set; }
         public Playercolor ActiveColor { get; set; }
         public string ActivePlayerId { get; set; }
 
         #endregion
+        
+        public Game(Player _p1, int timer)
+        {
+
+            //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+            Board = new char[8, 8];
+            Id = Guid.NewGuid().ToString();
+            this.Gametype = GameType.Singleplayer;
+            /*  Original */
+            Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+            Board = Logic.ConvertFromFen(Fenstring);
+            var whiteblack = r.Next(0, 99);
+            if (whiteblack % 2 == 1)
+            {
+                White = _p1.Id;
+                Black = "Bot";
+            }
+            else
+            {
+                White = "Bot";
+                Black = _p1.Id;
+            }
+            TimerBlack = timer;
+            TimerWhite = timer;
+            State = GameState.None;
+            ActiveColor = Playercolor.White;
+            ActivePlayerId = White;
+            MovesForWhite = new List<Possiblemoves>();
+            MovesForBlack = new List<Possiblemoves>();
+
+        }
         [JsonConstructor]
         public Game(Player _p1, Player _p2, int timer)
         {
+            
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
             Board = new char[8,8]; 
             Id = Guid.NewGuid().ToString() ;
+            this.Gametype = GameType.Multiplayer;
             //Checkmate situation
             
             /*  Original */     Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
@@ -98,35 +146,70 @@ namespace ChessIO.ws
         }
         public void StartGame()
         {
-            //Fel kellett cserélni itt a színeket valamiért. tuti valami bug...
-            var gamedataWhite = new Message() { Opcode=4, Gameid =  this.Id, Fen=this.Fenstring, Playerid=this.White, Color=Playercolor.Black };
-            var gamedataBlack = new Message() { Opcode = 4, Gameid = this.Id, Fen = this.Fenstring, Playerid = this.Black, Color=Playercolor.White};
-            Server.SendMessage(White, JsonConvert.SerializeObject(gamedataWhite));
-            Server.SendMessage(Black, JsonConvert.SerializeObject(gamedataBlack));
-            //Sending players the basic possible moves
-            var whitemoves = GetPlayerMoves(Playercolor.White,true);
-            var blackmoves = GetPlayerMoves(Playercolor.Black,true);
-            ;
-            var wmovemsg = new Message() { Opcode = 6, Custom=whitemoves };
-            var bmovemsg = new Message() { Opcode = 6, Custom = blackmoves };
-            Server.SendMessage(White, JsonConvert.SerializeObject(wmovemsg));                        
-            Server.SendMessage(Black, JsonConvert.SerializeObject(bmovemsg));
+            if (Gametype == GameType.Multiplayer)
+            {
+                //Fel kellett cserélni itt a színeket valamiért. tuti valami bug...
+                var gamedataWhite = new Message() { Opcode = 4, Gameid = this.Id, Fen = this.Fenstring, Playerid = this.White, Color = Playercolor.Black };
+                var gamedataBlack = new Message() { Opcode = 4, Gameid = this.Id, Fen = this.Fenstring, Playerid = this.Black, Color = Playercolor.White };
+                Server.SendMessage(White, JsonConvert.SerializeObject(gamedataWhite));
+                Server.SendMessage(Black, JsonConvert.SerializeObject(gamedataBlack));
+                //Sending players the basic possible moves
+                var whitemoves = GetPlayerMoves(Playercolor.White, true);
+                var blackmoves = GetPlayerMoves(Playercolor.Black, true);
+                ;
+                var wmovemsg = new Message() { Opcode = 6, Custom = whitemoves };
+                var bmovemsg = new Message() { Opcode = 6, Custom = blackmoves };
+                Server.SendMessage(White, JsonConvert.SerializeObject(wmovemsg));
+                Server.SendMessage(Black, JsonConvert.SerializeObject(bmovemsg));
+            }
+            else
+            {
+                Console.WriteLine("Player1:"+White);
+                Console.WriteLine("Player2:" + Black);
+                if (White == "Bot")
+                {
+                    var gamedataBlack = new Message() { Opcode = 4, Gameid = this.Id, Fen = this.Fenstring, Playerid = this.Black, Color = Playercolor.White };
+                    Server.SendMessage(Black, JsonConvert.SerializeObject(gamedataBlack));
+                    var blackmoves = GetPlayerMoves(Playercolor.Black, true);
+                    var bmovemsg = new Message() { Opcode = 6, Custom = blackmoves };
+                    Server.SendMessage(Black, JsonConvert.SerializeObject(bmovemsg));
+                }
+                else
+                {                    
+                    var gamedataWhite = new Message() { Opcode = 4, Gameid = this.Id, Fen = this.Fenstring, Playerid = this.White, Color = Playercolor.Black };
+                    Server.SendMessage(White, JsonConvert.SerializeObject(gamedataWhite));
+                    var whitemoves = GetPlayerMoves(Playercolor.White, true);
+                    var wmovemsg = new Message() { Opcode = 6, Custom = whitemoves };
+                    Server.SendMessage(White, JsonConvert.SerializeObject(wmovemsg));
+                }
+            }
 
+            
 
         }
         public void BroadcastMessage(Message message) 
         {
-            Server.SendMessage(White, JsonConvert.SerializeObject(message));
-            Server.SendMessage(Black, JsonConvert.SerializeObject(message));
+            if (White != "Bot")
+            {
+                Server.SendMessage(White, JsonConvert.SerializeObject(message));
+            }
+            if (Black != "Bot")
+            {
+                Server.SendMessage(Black, JsonConvert.SerializeObject(message));
+            }
+            
+            
         }
         public void SendMessage(Message message, Playercolor color)
         {
             if (color == Playercolor.White)
             {
+                if(White !="Bot")
                 Server.SendMessage(White, JsonConvert.SerializeObject(message));
             }
             else
             {
+                if (Black != "Bot")
                 Server.SendMessage(Black, JsonConvert.SerializeObject(message));
             }
         }
@@ -254,7 +337,6 @@ namespace ChessIO.ws
             }
             return lista;
         }
-
         public List<Possiblemoves> GetPlayerMoves(Playercolor color, bool ismyturn)
         {
             List<Position> whiteposs = GetFriendlyPiecesPos(this.Board, color);
@@ -292,6 +374,24 @@ namespace ChessIO.ws
                 return MovesForBlack;
             }
 
+        }
+        public static Position GetZoneName(string pos)
+        {
+            Position _pos=new Position(-1,-1);
+            for (int i = 0; i < Zones.GetLength(0); i++)
+            {
+                for (int j = 0; j < Zones.GetLength(1); j++)
+                {
+                    if (pos.ToLower() == Zones[i, j].ToLower())
+                    {
+                        _pos = new Position(i, j);
+                    }
+
+                }
+            }
+            if (_pos.X != -1 && _pos.Y != -1)
+                return _pos;
+            else throw new Exception("Position was not found");
         }
     }
 }
