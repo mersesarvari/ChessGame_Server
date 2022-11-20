@@ -25,13 +25,16 @@ namespace ChessIO.ws
             }
             var oldzonecode = Game.Zones[oldpos.X, oldpos.Y];
             var newzonecode = Game.Zones[newpos.X, newpos.Y];
-            stockfish.SetPosition(oldzonecode+ newzonecode);
+            stockfish.SetPosition(oldzonecode.ToLower()+""+ newzonecode.ToLower());
             ;
+            Console.WriteLine("Board after th Player Moved");
+            Console.WriteLine(stockfish.GetBoardVisual());
             var bestMove = stockfish.GetBestMove();
             var from = Game.GetZoneName(bestMove[0].ToString() + bestMove[1].ToString());
             var to = Game.GetZoneName(bestMove[2].ToString() + bestMove[3].ToString());
             game.MovePiece(from, to);
-            stockfish.SetPosition(bestMove);
+            stockfish.SetPosition(oldzonecode.ToLower() + "" + newzonecode.ToLower(), bestMove);
+            Console.WriteLine("Board after the Bot Moved");
             Console.WriteLine(stockfish.GetBoardVisual());
         }
 
