@@ -87,7 +87,6 @@ namespace ChessIO.ws
                         currentgame.MovePiece(oldpos, newpos);
                         //Adding Bot logic to here
                         currentgame.TurnChanger();
-                        Bot.BotMovePiece(oldpos,newpos,currentgame);
                         currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
                         
                         //Checking checkmates

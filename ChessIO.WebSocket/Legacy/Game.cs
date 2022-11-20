@@ -45,42 +45,34 @@ namespace ChessIO.ws.Legacy
         public List<Possiblemoves> MovesForBlack { get; set; }
 
         public static string[,] Zones = new string[8, 8] {
-                { "A8", "B8", "C8", "D8", "E8", "F8", "G8", "H8" },
-                { "A7", "B7", "C7", "D7", "E7", "F7", "G7", "H7" },
-                 { "A6", "B6", "C6", "D6", "E6", "F6", "G6", "H6" },
-                 { "A5", "B5", "C5", "D5", "E5", "F5", "G5", "H5" },
-                 { "A4", "B4", "C4", "D4", "E4", "F4", "G4", "H4" },
-                 { "A3", "B3", "C3", "D3", "E3", "F3", "G3", "H3" },
-                 { "A2", "B2", "C2", "D2", "E2", "F2", "G2", "H2" },
-                 { "A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1" },
+                { "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8" },
+                { "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7" },
+                { "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6" },
+                { "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5" },
+                { "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4" },
+                { "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3" },
+                { "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2" },
+                { "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1" },
             };
         public GameType Gametype { get; set; }
         public Playercolor ActiveColor { get; set; }
         public string ActivePlayerId { get; set; }
-
+        public Bot CurrentBot { get; set; }
         #endregion
 
         public Game(Player _p1, int timer)
         {
-
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
             Board = new char[8, 8];
             Id = Guid.NewGuid().ToString();
             Gametype = GameType.Singleplayer;
             /*  Original */
+            CurrentBot = new Bot();
+            //Fenstring = Bot.stockfish.GetFenPosition();
             Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
             Board = Logic.ConvertFromFen(Fenstring);
-            var whiteblack = r.Next(0, 99);
-            if (whiteblack % 2 == 1)
-            {
-                White = _p1.Id;
-                Black = "Bot";
-            }
-            else
-            {
-                White = "Bot";
-                Black = _p1.Id;
-            }
+            White = _p1.Id;
+            Black = "Bot";
             TimerBlack = timer;
             TimerWhite = timer;
             State = GameState.None;
@@ -93,7 +85,7 @@ namespace ChessIO.ws.Legacy
         [JsonConstructor]
         public Game(Player _p1, Player _p2, int timer)
         {
-
+            CurrentBot = new Bot();
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
             Board = new char[8, 8];
             Id = Guid.NewGuid().ToString();
@@ -101,14 +93,11 @@ namespace ChessIO.ws.Legacy
             //Checkmate situation
 
             /*  Original */
+            //Fenstring = Bot.stockfish.GetFenPosition();
             Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-            /*  Queen Test */   //Fenstring = "K1k/pppppppp/2QP3p/8/8/8/8/8";
-            /*  Bishop Test */  //Fenstring = "8/rnbqkbnr/2pp4/8/8/8/RNBQKBNR/8";
-            //Fenstring = "k7/8/8/8/8/8/qq6/7K";
             Board = Logic.ConvertFromFen(Fenstring);
-            //PlayerList = new List<Player>();
 
-            //Elosion = elosion;
+
             var whiteblack = r.Next(0, 99);
             if (whiteblack % 2 == 1)
             {
@@ -219,7 +208,7 @@ namespace ChessIO.ws.Legacy
             var oldboard = CopyBoard(Board);
             Board[newpos.X, newpos.Y] = oldboard[oldpos.X, oldpos.Y];
             Board[oldpos.X, oldpos.Y] = '0';
-            Fenstring = Logic.ConvertToFen(Board);
+            CurrentBot.BotMovePiece(oldpos,newpos);
         }
         public static char[,] Simulatemove(Position oldpos, Position newpos, char[,] board)
         {

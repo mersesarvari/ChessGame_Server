@@ -20,15 +20,8 @@ namespace ChessIO.ws
             Server.Instance.AddWebSocketService<ChessServer>("/chess");
             // Create online chess machmaker
             //Thread t = new Thread(()=>Server.MatchPlayers());
-            Bot.GetBot();
             Thread t = new Thread(() => Server.CreateBotGame());
-            t.Start();
-            //Server.CreateBotGame();
-            //var board = Logic.ConvertFromFen("8/8/8/3R4/3R4/8/8/8");
-            //Logic.ConvertToFen();
-            /*
-            
-            */
+            t.Start();     
             Console.ReadKey();
             Server.Instance.Stop();
         }

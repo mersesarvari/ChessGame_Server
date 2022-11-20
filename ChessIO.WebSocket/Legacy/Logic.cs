@@ -27,11 +27,6 @@ namespace ChessIO.ws.Legacy
     // Black Pawn is tested and working
     public static class Logic
     {
-
-        public static readonly char[,] startingboard = ConvertFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-        //public string Fen { get; set; }
-
-        //Get the valid moves before a move happen
         public static List<Position> GetValidMoves(Position oldpos, char[,] board, Playercolor color, bool ismyturn)
         {
             List<Position> validmoves = new List<Position>();
@@ -145,12 +140,6 @@ namespace ChessIO.ws.Legacy
                     returnvalue = true;
                 }
             }
-            /*
-            if (moves.Count() == 0)
-            {
-                throw new Exception("Checkmate");
-            }
-            */
             return returnvalue;
 
         }
@@ -161,6 +150,7 @@ namespace ChessIO.ws.Legacy
                 return true;
             else return false;
         }
+        /*
         public static string ConvertToFen(char[,] board)
         {
             var fenstring = "";
@@ -204,6 +194,8 @@ namespace ChessIO.ws.Legacy
             //this.Fen = fenstring;
             return fenstring;
         }
+        */
+        
         public static char[,] ConvertFromFen(string fenstring)
         {
             //Többi beállítás hiányzik logic kell ide
@@ -254,6 +246,7 @@ namespace ChessIO.ws.Legacy
             return _board;
 
         }
+        
         // Not fully working
         #region piecemovement
         public static Position[] PawnMovement(int x, int y, char chartype, char[,] board, Playercolor color)
