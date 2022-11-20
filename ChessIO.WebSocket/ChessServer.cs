@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using SuperSocket.Common;
 using System.Collections;
 using System.ComponentModel;
+using ChessIO.ws.Legacy;
 
 namespace ChessIO.ws
 {

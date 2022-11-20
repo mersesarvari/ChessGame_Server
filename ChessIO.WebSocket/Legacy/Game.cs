@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChessIO.ws
+namespace ChessIO.ws.Legacy
 {
     public enum GameState
     {
@@ -18,7 +18,7 @@ namespace ChessIO.ws
         Ended
     }
     public enum Playercolor
-    { 
+    {
         White,
         Black
     }
@@ -59,14 +59,14 @@ namespace ChessIO.ws
         public string ActivePlayerId { get; set; }
 
         #endregion
-        
+
         public Game(Player _p1, int timer)
         {
 
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
             Board = new char[8, 8];
             Id = Guid.NewGuid().ToString();
-            this.Gametype = GameType.Singleplayer;
+            Gametype = GameType.Singleplayer;
             /*  Original */
             Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
             Board = Logic.ConvertFromFen(Fenstring);
@@ -93,14 +93,15 @@ namespace ChessIO.ws
         [JsonConstructor]
         public Game(Player _p1, Player _p2, int timer)
         {
-            
+
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-            Board = new char[8,8]; 
-            Id = Guid.NewGuid().ToString() ;
-            this.Gametype = GameType.Multiplayer;
+            Board = new char[8, 8];
+            Id = Guid.NewGuid().ToString();
+            Gametype = GameType.Multiplayer;
             //Checkmate situation
-            
-            /*  Original */     Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+
+            /*  Original */
+            Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
             /*  Queen Test */   //Fenstring = "K1k/pppppppp/2QP3p/8/8/8/8/8";
             /*  Bishop Test */  //Fenstring = "8/rnbqkbnr/2pp4/8/8/8/RNBQKBNR/8";
             //Fenstring = "k7/8/8/8/8/8/qq6/7K";
@@ -128,11 +129,11 @@ namespace ChessIO.ws
             ActivePlayerId = White;
             MovesForWhite = new List<Possiblemoves>();
             MovesForBlack = new List<Possiblemoves>();
-            
+
         }
         public Playercolor InactiveColor()
-        { 
-            if(ActiveColor == Playercolor.White)
+        {
+            if (ActiveColor == Playercolor.White)
                 return Playercolor.Black;
             else
                 return Playercolor.White;
@@ -149,8 +150,8 @@ namespace ChessIO.ws
             if (Gametype == GameType.Multiplayer)
             {
                 //Fel kellett cserélni itt a színeket valamiért. tuti valami bug...
-                var gamedataWhite = new Message() { Opcode = 4, Gameid = this.Id, Fen = this.Fenstring, Playerid = this.White, Color = Playercolor.Black };
-                var gamedataBlack = new Message() { Opcode = 4, Gameid = this.Id, Fen = this.Fenstring, Playerid = this.Black, Color = Playercolor.White };
+                var gamedataWhite = new Message() { Opcode = 4, Gameid = Id, Fen = Fenstring, Playerid = White, Color = Playercolor.Black };
+                var gamedataBlack = new Message() { Opcode = 4, Gameid = Id, Fen = Fenstring, Playerid = Black, Color = Playercolor.White };
                 Server.SendMessage(White, JsonConvert.SerializeObject(gamedataWhite));
                 Server.SendMessage(Black, JsonConvert.SerializeObject(gamedataBlack));
                 //Sending players the basic possible moves
@@ -164,19 +165,19 @@ namespace ChessIO.ws
             }
             else
             {
-                Console.WriteLine("Player1:"+White);
+                Console.WriteLine("Player1:" + White);
                 Console.WriteLine("Player2:" + Black);
                 if (White == "Bot")
                 {
-                    var gamedataBlack = new Message() { Opcode = 4, Gameid = this.Id, Fen = this.Fenstring, Playerid = this.Black, Color = Playercolor.White };
+                    var gamedataBlack = new Message() { Opcode = 4, Gameid = Id, Fen = Fenstring, Playerid = Black, Color = Playercolor.White };
                     Server.SendMessage(Black, JsonConvert.SerializeObject(gamedataBlack));
                     var blackmoves = GetPlayerMoves(Playercolor.Black, true);
                     var bmovemsg = new Message() { Opcode = 6, Custom = blackmoves };
                     Server.SendMessage(Black, JsonConvert.SerializeObject(bmovemsg));
                 }
                 else
-                {                    
-                    var gamedataWhite = new Message() { Opcode = 4, Gameid = this.Id, Fen = this.Fenstring, Playerid = this.White, Color = Playercolor.Black };
+                {
+                    var gamedataWhite = new Message() { Opcode = 4, Gameid = Id, Fen = Fenstring, Playerid = White, Color = Playercolor.Black };
                     Server.SendMessage(White, JsonConvert.SerializeObject(gamedataWhite));
                     var whitemoves = GetPlayerMoves(Playercolor.White, true);
                     var wmovemsg = new Message() { Opcode = 6, Custom = whitemoves };
@@ -184,10 +185,10 @@ namespace ChessIO.ws
                 }
             }
 
-            
+
 
         }
-        public void BroadcastMessage(Message message) 
+        public void BroadcastMessage(Message message)
         {
             if (White != "Bot")
             {
@@ -197,20 +198,20 @@ namespace ChessIO.ws
             {
                 Server.SendMessage(Black, JsonConvert.SerializeObject(message));
             }
-            
-            
+
+
         }
         public void SendMessage(Message message, Playercolor color)
         {
             if (color == Playercolor.White)
             {
-                if(White !="Bot")
-                Server.SendMessage(White, JsonConvert.SerializeObject(message));
+                if (White != "Bot")
+                    Server.SendMessage(White, JsonConvert.SerializeObject(message));
             }
             else
             {
                 if (Black != "Bot")
-                Server.SendMessage(Black, JsonConvert.SerializeObject(message));
+                    Server.SendMessage(Black, JsonConvert.SerializeObject(message));
             }
         }
         public void MovePiece(Position oldpos, Position newpos)
@@ -220,7 +221,7 @@ namespace ChessIO.ws
             Board[oldpos.X, oldpos.Y] = '0';
             Fenstring = Logic.ConvertToFen(Board);
         }
-        public static char[,] Simulatemove(Position oldpos, Position newpos, char[,]board)
+        public static char[,] Simulatemove(Position oldpos, Position newpos, char[,] board)
         {
             var sboard = CopyBoard(board);
             sboard[newpos.X, newpos.Y] = sboard[oldpos.X, oldpos.Y];
@@ -228,7 +229,7 @@ namespace ChessIO.ws
             return sboard;
 
         }
-        public static void DrawBoard(char[,]Board)
+        public static void DrawBoard(char[,] Board)
         {
             Console.WriteLine("------------------ BOARD ------------------");
             for (int i = 0; i < Board.GetLength(0); i++)
@@ -255,7 +256,7 @@ namespace ChessIO.ws
         }
         public static char[,] CopyBoard(char[,] oldboard)
         {
-            char[,] newboard = new char[8, 8];            
+            char[,] newboard = new char[8, 8];
             for (int i = 0; i < newboard.GetLength(0); i++)
             {
                 for (int j = 0; j < newboard.GetLength(1); j++)
@@ -265,7 +266,7 @@ namespace ChessIO.ws
             }
             return newboard;
         }
-        public static Position GetKingPosition(char[,]board, Playercolor color)
+        public static Position GetKingPosition(char[,] board, Playercolor color)
         {
             if (Playercolor.White == color)
             {
@@ -281,7 +282,7 @@ namespace ChessIO.ws
                 }
                 throw new Exception($"[Error]: {color} king not found");
             }
-            else 
+            else
             {
                 for (int i = 0; i < board.GetLength(0); i++)
                 {
@@ -296,26 +297,26 @@ namespace ChessIO.ws
                 throw new Exception($"[Error]: {color} king not found");
             }
         }
-        public static bool TargetIsEnemy(char[,] board,int x,int y, Playercolor mycolor)
+        public static bool TargetIsEnemy(char[,] board, int x, int y, Playercolor mycolor)
         {
             if (board[x, y] != '0')
             {
-                if (mycolor == Playercolor.White && Char.IsLower(board[x,y]))
+                if (mycolor == Playercolor.White && char.IsLower(board[x, y]))
                 {
                     return true;
                 }
-                else if (mycolor == Playercolor.Black && !Char.IsLower(board[x, y]))
+                else if (mycolor == Playercolor.Black && !char.IsLower(board[x, y]))
                 {
                     return true;
                 }
                 else return false;
             }
             else return true;
-            
+
         }
         public static List<Position> GetFriendlyPiecesPos(char[,] board, Playercolor color)
         {
-            var listlength = board.GetLength(0)*board.GetLength(1);
+            var listlength = board.GetLength(0) * board.GetLength(1);
             List<Position> lista = new List<Position>();
             for (int i = 0; i < board.GetLength(0); i++)
             {
@@ -323,35 +324,35 @@ namespace ChessIO.ws
                 {
                     if (board[i, j] != '0')
                     {
-                        if (Playercolor.White == color && !Char.IsLower(board[i, j]))
+                        if (Playercolor.White == color && !char.IsLower(board[i, j]))
                         {
                             lista.Add(new Position(i, j));
                         }
-                        if (Playercolor.Black == color && Char.IsLower(board[i, j]))
+                        if (Playercolor.Black == color && char.IsLower(board[i, j]))
                         {
                             lista.Add(new Position(i, j));
                         }
                     }
-                    
+
                 }
             }
             return lista;
         }
         public List<Possiblemoves> GetPlayerMoves(Playercolor color, bool ismyturn)
         {
-            List<Position> whiteposs = GetFriendlyPiecesPos(this.Board, color);
+            List<Position> whiteposs = GetFriendlyPiecesPos(Board, color);
             ;
             foreach (var item in whiteposs)
             {
                 //Megnézem az adott pozícióról az összes valid lépést
-                var valid_moves_from_pos = Logic.GetValidMoves(item, this.Board, color, ismyturn);
+                var valid_moves_from_pos = Logic.GetValidMoves(item, Board, color, ismyturn);
                 var possiblemoves = new Possiblemoves(item);
-                possiblemoves.To=valid_moves_from_pos;
+                possiblemoves.To = valid_moves_from_pos;
                 if (color == Playercolor.White)
                 {
                     if (possiblemoves.To.Count() > 0)
                     {
-                        MovesForWhite.Add(possiblemoves);                        
+                        MovesForWhite.Add(possiblemoves);
                         MovesForBlack = new List<Possiblemoves>();
                     }
                 }
@@ -363,7 +364,7 @@ namespace ChessIO.ws
                         MovesForWhite = new List<Possiblemoves>();
                     }
                 }
-                
+
             }
             if (color == Playercolor.White)
             {
@@ -377,7 +378,7 @@ namespace ChessIO.ws
         }
         public static Position GetZoneName(string pos)
         {
-            Position _pos=new Position(-1,-1);
+            Position _pos = new Position(-1, -1);
             for (int i = 0; i < Zones.GetLength(0); i++)
             {
                 for (int j = 0; j < Zones.GetLength(1); j++)

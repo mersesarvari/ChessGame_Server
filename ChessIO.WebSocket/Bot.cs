@@ -1,4 +1,5 @@
-﻿using Stockfish.NET;
+﻿using ChessIO.ws.Legacy;
+using Stockfish.NET;
 using System;
 using System.Collections.Generic;
 using System.Linq;
