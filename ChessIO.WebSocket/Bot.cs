@@ -34,5 +34,17 @@ namespace ChessIO.ws
             stockfish.SetPosition(bestMove);
             Console.WriteLine(stockfish.GetBoardVisual());
         }
+
+        public static void GetBot()
+        {
+            string currentDirName = System.IO.Directory.GetCurrentDirectory();
+            DirectoryInfo current = new DirectoryInfo(currentDirName);
+            var ggparent = current.Parent.Parent.Parent.FullName+@"\Stockfish\";
+            if (!File.Exists(current + @"/Stockfish/stockfish12.exe"))
+            {
+                File.Copy(ggparent + @"/stockfish12.exe", current.FullName);
+            }
+            
+        }
     }
 }
