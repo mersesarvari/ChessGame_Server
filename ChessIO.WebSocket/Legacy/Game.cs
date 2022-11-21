@@ -35,12 +35,10 @@ namespace ChessIO.ws.Legacy
         Random r = new Random();
         public string Id { get; set; }
         public GameState State { get; set; }
-        public int Elosion { get; set; }
         public string White { get; set; }
         public string Black { get; set; }
         public int TimerBlack { get; set; }
         public int TimerWhite { get; set; }
-        //public char[,] Board { get; set; }
         public string Fenstring { get; set; }
         public Logic logic;
         public List<Possiblemoves> MovesForWhite { get; set; }
@@ -59,18 +57,14 @@ namespace ChessIO.ws.Legacy
         public GameType Gametype { get; set; }
         public Playercolor ActiveColor { get; set; }
         public string ActivePlayerId { get; set; }
-        public Bot CurrentBot { get; set; }
         #endregion
 
         public Game(Player _p1, int timer)
         {
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-            //Board = new char[8, 8];
             Id = Guid.NewGuid().ToString();
             Gametype = GameType.Singleplayer;
-            /*  Original */
             Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-            //Board = Logic.ConvertFromFen(Fenstring);
             White = _p1.Id;
             Black = "Bot";
             TimerBlack = timer;
@@ -82,16 +76,15 @@ namespace ChessIO.ws.Legacy
             MovesForBlack = new List<Possiblemoves>();
             PiecePositions = new List<PiecePosition>();
             logic = new Logic(this);
+            logic.ConvertFromFen();
 
         }
-        [JsonConstructor]
         public Game(Player _p1, Player _p2, int timer)
         {
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
             Id = Guid.NewGuid().ToString();
             Gametype = GameType.Multiplayer;
             Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-            //Board = Logic.ConvertFromFen(Fenstring);
             var whiteblack = r.Next(0, 99);
             if (whiteblack % 2 == 1)
             {
@@ -112,6 +105,7 @@ namespace ChessIO.ws.Legacy
             MovesForBlack = new List<Possiblemoves>();
             PiecePositions = new List<PiecePosition>();
             logic = new Logic(this);
+            logic.ConvertFromFen();
 
         }
         public Playercolor InactiveColor()
@@ -167,9 +161,6 @@ namespace ChessIO.ws.Legacy
                     Server.SendMessage(White, JsonConvert.SerializeObject(wmovemsg));
                 }
             }
-
-
-
         }
         public void BroadcastMessage(Message message)
         {
@@ -235,14 +226,23 @@ namespace ChessIO.ws.Legacy
             return simboard;
 
         }
-        public static void DrawBoard(char[,] Board)
+        public void DrawBoard()
         {
             Console.WriteLine("------------------ BOARD ------------------");
-            for (int i = 0; i < Board.GetLength(0); i++)
+            for (int i = 0; i < Zones.GetLength(0); i++)
             {
-                for (int j = 0; j < Board.GetLength(1); j++)
+                for (int j = 0; j < Zones.GetLength(1); j++)
                 {
-                    Console.Write(Board[i, j] + " ");
+                    if (PiecePositions.FirstOrDefault(f => f.Position.X == i && f.Position.Y == j) != null)
+                    {
+                        var piece = PiecePositions.FirstOrDefault(f => f.Position.X == i && f.Position.Y==j);
+                        Console.Write(piece.Piece + " ");
+                    }
+                    else
+                    {
+                        Console.Write("0" + " ");
+                    }
+                    
                 }
                 Console.WriteLine();
             }
@@ -282,7 +282,6 @@ namespace ChessIO.ws.Legacy
         public List<Possiblemoves> GetPlayerMoves(Playercolor color, bool ismyturn)
         {
             List<PiecePosition> whiteposs = (PiecePositions.FindAll(x=>x.Color == color));
-            ;
             foreach (var item in whiteposs)
             {
                 //Megnézem az adott pozícióról az összes valid lépést

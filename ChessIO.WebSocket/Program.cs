@@ -1,4 +1,5 @@
-﻿using Stockfish.NET;
+﻿using ChessIO.ws.Legacy;
+using Stockfish.NET;
 using System.Net.NetworkInformation;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -18,6 +19,8 @@ namespace ChessIO.ws
             Server.Instance.Start();
             Console.WriteLine("Server started on ws://localhost:5000");
             Server.Instance.AddWebSocketService<ChessServer>("/chess");
+            
+
             // Create online chess machmaker
             //Thread t = new Thread(()=>Server.MatchPlayers());
             Thread t = new Thread(() => Server.CreateBotGame());

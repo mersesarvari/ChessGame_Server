@@ -13,6 +13,7 @@ using System.Collections;
 using System.ComponentModel;
 using ChessIO.ws.Legacy;
 using ChessIO.ws.Helper;
+using ChessIO.ws.Board;
 
 namespace ChessIO.ws
 {
@@ -44,7 +45,7 @@ namespace ChessIO.ws
                     var newpos = new Position(d.NewcoordX, d.NewcoordY);
                     //Console.Clear();
                     //var ischeck = Logic.IsMoveCheck(oldpos, newpos, currentgame.Board, currentgame.ActiveColor);
-                    var isvalid = Logic.IsValidMove(oldpos, newpos, currentgame.Board, currentgame.ActiveColor,true);
+                    var isvalid = currentgame.logic.IsValidMove(oldpos, newpos, currentgame.ActiveColor,true);
                     if (isvalid)
                     {
                         //Moving on the board
@@ -52,7 +53,7 @@ namespace ChessIO.ws
                         currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
                         currentgame.TurnChanger();
                         //Checking checkmates
-                        var cm = Logic.IsCheckMate(currentgame.Board, currentgame.ActiveColor, true);
+                        var cm = currentgame.logic.IsCheckMate(currentgame.ActiveColor, true);
                         if(cm)
                         {
                             //Sending message to the winning player
@@ -81,7 +82,7 @@ namespace ChessIO.ws
                     var newpos = new Position(d.NewcoordX, d.NewcoordY);
                     //Console.Clear();
                     //var ischeck = Logic.IsMoveCheck(oldpos, newpos, currentgame.Board, currentgame.ActiveColor);
-                    var isvalid = Logic.IsValidMove(oldpos, newpos, currentgame.Board, currentgame.ActiveColor, true);
+                    var isvalid = currentgame.logic.IsValidMove(oldpos, newpos, currentgame.ActiveColor, true);
                     if (isvalid)
                     {
                         //Moving on the board
@@ -91,7 +92,7 @@ namespace ChessIO.ws
                         currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
                         
                         //Checking checkmates
-                        var cm = Logic.IsCheckMate(currentgame.Board, currentgame.ActiveColor, true);
+                        var cm = currentgame.logic.IsCheckMate(currentgame.ActiveColor, true);
                         if (cm)
                         {
                             //Sending message to the winning player

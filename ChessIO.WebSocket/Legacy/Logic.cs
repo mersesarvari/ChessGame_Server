@@ -42,7 +42,7 @@ namespace ChessIO.ws.Legacy
                         validmoves = KnightMovement(oldpos.X, oldpos.Y, 'n', color).ToList();
                         break;
                     case 'b':
-                        validmoves = BishopMovement(oldpos.X, oldpos.Y, 'b',  color).ToList();
+                        validmoves = BishopMovement(oldpos.X, oldpos.Y,  color).ToList();
                         break;
                     case 'q':
                         validmoves = QueenMovement(oldpos.X, oldpos.Y, 'q',  color).ToList();
@@ -68,7 +68,7 @@ namespace ChessIO.ws.Legacy
                         validmoves = KnightMovement(oldpos.X, oldpos.Y, 'N',  color).ToList();
                         break;
                     case 'B':
-                        validmoves = BishopMovement(oldpos.X, oldpos.Y, 'B',  color).ToList();
+                        validmoves = BishopMovement(oldpos.X, oldpos.Y,  color).ToList();
                         break;
                     case 'Q':
                         validmoves = QueenMovement(oldpos.X, oldpos.Y, 'Q',  color).ToList();
@@ -139,11 +139,11 @@ namespace ChessIO.ws.Legacy
                 return true;
             else return false;
         }
-
-        public static string ConvertToFen(char[,] board)
+        public string ConvertToFen()
         {
             var fenstring = "";
             int zerocounter = 0;
+            /*
             for (int i = 0; i < board.GetLength(0); i++)
             {
                 //Kezdődik a sor elemeinek megnézése
@@ -180,59 +180,63 @@ namespace ChessIO.ws.Legacy
                     fenstring += "/";
                 }
             }
+            */
+            game.PiecePositions.Sort();
             //this.Fen = fenstring;
             return fenstring;
         }
-
-
-        public static char[,] ConvertFromFen(string fenstring)
+        public void ConvertFromFen()
         {
-            //Többi beállítás hiányzik logic kell ide
-            char[,] baseboard = new char[8, 8];
-            //Alapvető állás konverzió
-            fenstring = fenstring.Split(' ')[0];
-            var _board = baseboard;
-            //string[] line = new string[8];
-            for (var i = 0; i < fenstring.Split('/').Length; i++)
+            char[] numbers = new[] { '1', '2', '3', '4', '5', '6', '7' };
+            int posX = 0;
+            int posY = 0;
+            //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+            var fen = game.Fenstring;
+            //Getting the board
+            string boardstr = fen.Split(' ')[0];
+            for (int i = 0; i < boardstr.Split('/').Length; i++)
             {
-                string line = "";
-                for (int chars = 0; chars < fenstring.Split('/')[i].Length; chars++)
+                posX = i;
+                
+                var row = boardstr.Split('/');
+                for (int j = 0; j < row[i].Length; j++)
                 {
-                    var current = fenstring.Split('/')[i][chars];
-                    //CHARACTER IS NUMBER
-                    //Checking empty row
-                    if (current == '8')
-                    {
-                        line = "0" + "0" + "0" + "0" + "0" + "0" + "0" + "0";
+                    posY = j;
+                    var item = boardstr.Split('/')[i][j];
+                    if (item == '8')
                         break;
-                    }
-                    // Checking empty cells in the row
-                    else if (current == '1' || current == '2' || current == '3' || current == '4' || current == '5' || current == '6' || current == '7')
+                    else if (numbers.Contains(item))
                     {
-                        for (int szorzo = 0; szorzo < int.Parse(current.ToString()); szorzo++)
+                        posY += int.Parse(item.ToString());
+                        ;
+                        if (j + 1 < 8)
                         {
-                            line += '0'.ToString();
+                            var piece = new PiecePosition(new Position(posX, j+1), item, Playercolor.White);
+                            game.PiecePositions.Add(piece);
+                            j++;
+                            break;
                         }
-                    }
-                    //Checking valid piececodes
-                    else if ("rnbqkpRNBQKP".Contains(current.ToString().ToLower()))
-                    {
-                        line += current.ToString();
                     }
                     else
                     {
-                        throw new Exception("[Error]: cannot parse char: " + current);
+                        if (Char.IsUpper(item))
+                        {
+                            var piece = new PiecePosition(new Position(posX, posY), item, Playercolor.White);
+                            game.PiecePositions.Add(piece);
+                        }
+                        else
+                        {
+                            var piece = new PiecePosition(new Position(posX, posY), item, Playercolor.Black);
+                            game.PiecePositions.Add(piece);
+                        }
+                        
                     }
-
-                };
-                //console.log("Line: " + line.toString());
-                //_board[i] = line.ToArray();
-                for (int k = 0; k < line.Length; k++)
-                {
-                    _board[i, k] = line[k];
                 }
-            };
-            return _board;
+                
+            }
+            game.DrawBoard();
+            var _i= game.PiecePositions;
+            ;
 
         }
 
@@ -311,13 +315,13 @@ namespace ChessIO.ws.Legacy
 
 
         }
-        public Position[] BishopMovement(int x, int y, char chartype, Playercolor color)
+        public Position[] BishopMovement(int x, int y, Playercolor color)
         {
             List<Position> possiblemoves = new List<Position>();
             //Check that the coordinate is valid
             var originalX = x;
             var originalY = y;
-            if (game.PiecePositions.FirstOrDefault(f => f.Position == new Position(x, y) && f.Color == color) != null)
+            if (game.PiecePositions.FirstOrDefault(f => f.IsEquals(new Position(x,y)) && f.Color == color) != null)
             {
                 /* X+ Y+ -Vagy ha barátságos karakter jön */
                 while (x < 7 && y < 7)
@@ -538,7 +542,7 @@ namespace ChessIO.ws.Legacy
             List<Position> rookmoves = new List<Position>();
             rookmoves = RookMovement(x, y, chartype, color).ToList();
             List<Position> bishopmoves = new List<Position>();
-            bishopmoves = BishopMovement(x, y, chartype, color).ToList();
+            bishopmoves = BishopMovement(x, y, color).ToList();
             foreach (var item in rookmoves)
             {
                 possiblemovesall.Add(item);

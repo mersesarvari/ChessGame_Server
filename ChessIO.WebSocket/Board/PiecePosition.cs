@@ -25,6 +25,14 @@ namespace ChessIO.ws.Board
             Position = new Position(x, y);
         }
 
+        public bool IsEquals(Position pos)
+        {
+            if (this.Position.X == pos.X && Position.Y == pos.Y)
+                return true;
+            else
+            return false;
+        }
+
         
     }
 }
