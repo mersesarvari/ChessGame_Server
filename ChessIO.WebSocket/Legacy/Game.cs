@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using ChessIO.ws.Board;
+using ChessIO.ws.Helper;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -33,17 +35,17 @@ namespace ChessIO.ws.Legacy
         Random r = new Random();
         public string Id { get; set; }
         public GameState State { get; set; }
-        //public List<Player> PlayerList { get; set; }
         public int Elosion { get; set; }
         public string White { get; set; }
         public string Black { get; set; }
         public int TimerBlack { get; set; }
         public int TimerWhite { get; set; }
-        public char[,] Board { get; set; }
+        //public char[,] Board { get; set; }
         public string Fenstring { get; set; }
+        public Logic logic;
         public List<Possiblemoves> MovesForWhite { get; set; }
         public List<Possiblemoves> MovesForBlack { get; set; }
-
+        public List<PiecePosition> PiecePositions = new List<PiecePosition>();
         public static string[,] Zones = new string[8, 8] {
                 { "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8" },
                 { "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7" },
@@ -63,14 +65,12 @@ namespace ChessIO.ws.Legacy
         public Game(Player _p1, int timer)
         {
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-            Board = new char[8, 8];
+            //Board = new char[8, 8];
             Id = Guid.NewGuid().ToString();
             Gametype = GameType.Singleplayer;
             /*  Original */
-            CurrentBot = new Bot();
-            //Fenstring = Bot.stockfish.GetFenPosition();
             Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-            Board = Logic.ConvertFromFen(Fenstring);
+            //Board = Logic.ConvertFromFen(Fenstring);
             White = _p1.Id;
             Black = "Bot";
             TimerBlack = timer;
@@ -80,24 +80,18 @@ namespace ChessIO.ws.Legacy
             ActivePlayerId = White;
             MovesForWhite = new List<Possiblemoves>();
             MovesForBlack = new List<Possiblemoves>();
+            PiecePositions = new List<PiecePosition>();
+            logic = new Logic(this);
 
         }
         [JsonConstructor]
         public Game(Player _p1, Player _p2, int timer)
         {
-            CurrentBot = new Bot();
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-            Board = new char[8, 8];
             Id = Guid.NewGuid().ToString();
             Gametype = GameType.Multiplayer;
-            //Checkmate situation
-
-            /*  Original */
-            //Fenstring = Bot.stockfish.GetFenPosition();
             Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-            Board = Logic.ConvertFromFen(Fenstring);
-
-
+            //Board = Logic.ConvertFromFen(Fenstring);
             var whiteblack = r.Next(0, 99);
             if (whiteblack % 2 == 1)
             {
@@ -109,8 +103,6 @@ namespace ChessIO.ws.Legacy
                 White = _p2.Id;
                 Black = _p1.Id;
             }
-            //PlayerList.Add(_p1);
-            //PlayerList.Add(_p2);
             TimerBlack = timer;
             TimerWhite = timer;
             State = GameState.None;
@@ -118,6 +110,8 @@ namespace ChessIO.ws.Legacy
             ActivePlayerId = White;
             MovesForWhite = new List<Possiblemoves>();
             MovesForBlack = new List<Possiblemoves>();
+            PiecePositions = new List<PiecePosition>();
+            logic = new Logic(this);
 
         }
         public Playercolor InactiveColor()
@@ -205,17 +199,40 @@ namespace ChessIO.ws.Legacy
         }
         public void MovePiece(Position oldpos, Position newpos)
         {
-            var oldboard = CopyBoard(Board);
-            Board[newpos.X, newpos.Y] = oldboard[oldpos.X, oldpos.Y];
-            Board[oldpos.X, oldpos.Y] = '0';
-            CurrentBot.BotMovePiece(oldpos,newpos);
+            var oldpiece = GetPieceByPos(oldpos);
+            // Checking is the new position is an enemy character or not
+            if (GetPieceByPos(newpos) != null)
+            {
+                PiecePositions.Remove(GetPieceByPos(newpos));
+                PiecePositions.Remove(oldpiece);
+                PiecePositions.Add(new PiecePosition(newpos, oldpiece.Piece, oldpiece.Color));
+            }
+            else
+            {
+                
+                PiecePositions.Remove(oldpiece);
+                PiecePositions.Add(new PiecePosition(newpos, oldpiece.Piece, oldpiece.Color));
+            }
+            
         }
-        public static char[,] Simulatemove(Position oldpos, Position newpos, char[,] board)
+        public List<PiecePosition> Simulatemove(Position oldpos, Position newpos)
         {
-            var sboard = CopyBoard(board);
-            sboard[newpos.X, newpos.Y] = sboard[oldpos.X, oldpos.Y];
-            sboard[oldpos.X, oldpos.Y] = '0';
-            return sboard;
+            var simboard = CopyBoard();
+            var oldpiece = GetPieceByPos(oldpos);
+            // Checking is the new position is an enemy character or not
+            if (GetPieceByPos(newpos) != null)
+            {
+                simboard.Remove(GetPieceByPos(newpos));
+                simboard.Remove(oldpiece);
+                simboard.Add(new PiecePosition(newpos, oldpiece.Piece, oldpiece.Color));
+            }
+            else
+            {
+
+                simboard.Remove(oldpiece);
+                simboard.Add(new PiecePosition(newpos, oldpiece.Piece, oldpiece.Color));
+            }
+            return simboard;
 
         }
         public static void DrawBoard(char[,] Board)
@@ -243,99 +260,34 @@ namespace ChessIO.ws.Legacy
                 ActivePlayerId = White;
             }
         }
-        public static char[,] CopyBoard(char[,] oldboard)
+        public List<PiecePosition> CopyBoard()
         {
-            char[,] newboard = new char[8, 8];
-            for (int i = 0; i < newboard.GetLength(0); i++)
+            List<PiecePosition> positions= new();
+            foreach (var item in PiecePositions)
             {
-                for (int j = 0; j < newboard.GetLength(1); j++)
-                {
-                    newboard[i, j] = oldboard[i, j];
-                }
+                positions.Add(item);
             }
-            return newboard;
+            return positions;
         }
-        public static Position GetKingPosition(char[,] board, Playercolor color)
+        public Position GetKingPosition(Playercolor color)
         {
-            if (Playercolor.White == color)
-            {
-                for (int i = 0; i < board.GetLength(0); i++)
-                {
-                    for (int j = 0; j < board.GetLength(1); j++)
-                    {
-                        if (board[i, j] == 'K')
-                        {
-                            return new Position(i, j);
-                        }
-                    }
-                }
-                throw new Exception($"[Error]: {color} king not found");
-            }
-            else
-            {
-                for (int i = 0; i < board.GetLength(0); i++)
-                {
-                    for (int j = 0; j < board.GetLength(1); j++)
-                    {
-                        if (board[i, j] == 'k')
-                        {
-                            return new Position(i, j);
-                        }
-                    }
-                }
-                throw new Exception($"[Error]: {color} king not found");
-            }
+            return PiecePositions.FirstOrDefault(x => x.Piece == 'K'&& x.Color==color).Position;
         }
-        public static bool TargetIsEnemy(char[,] board, int x, int y, Playercolor mycolor)
+        public bool TargetIsEnemy(Position target, Playercolor mycolor)
         {
-            if (board[x, y] != '0')
-            {
-                if (mycolor == Playercolor.White && char.IsLower(board[x, y]))
-                {
-                    return true;
-                }
-                else if (mycolor == Playercolor.Black && !char.IsLower(board[x, y]))
-                {
-                    return true;
-                }
-                else return false;
-            }
-            else return true;
-
-        }
-        public static List<Position> GetFriendlyPiecesPos(char[,] board, Playercolor color)
-        {
-            var listlength = board.GetLength(0) * board.GetLength(1);
-            List<Position> lista = new List<Position>();
-            for (int i = 0; i < board.GetLength(0); i++)
-            {
-                for (int j = 0; j < board.GetLength(1); j++)
-                {
-                    if (board[i, j] != '0')
-                    {
-                        if (Playercolor.White == color && !char.IsLower(board[i, j]))
-                        {
-                            lista.Add(new Position(i, j));
-                        }
-                        if (Playercolor.Black == color && char.IsLower(board[i, j]))
-                        {
-                            lista.Add(new Position(i, j));
-                        }
-                    }
-
-                }
-            }
-            return lista;
+            if (PiecePositions.FirstOrDefault(x => x.Position == target && x.Color != mycolor) != null)
+                return true;
+            else return false;
         }
         public List<Possiblemoves> GetPlayerMoves(Playercolor color, bool ismyturn)
         {
-            List<Position> whiteposs = GetFriendlyPiecesPos(Board, color);
+            List<PiecePosition> whiteposs = (PiecePositions.FindAll(x=>x.Color == color));
             ;
             foreach (var item in whiteposs)
             {
                 //Megnézem az adott pozícióról az összes valid lépést
-                var valid_moves_from_pos = Logic.GetValidMoves(item, Board, color, ismyturn);
-                var possiblemoves = new Possiblemoves(item);
+                var valid_moves_from_pos = logic.GetValidMoves(item.Position, color, ismyturn);
+                var possiblemoves = new Possiblemoves(item.Position);
                 possiblemoves.To = valid_moves_from_pos;
                 if (color == Playercolor.White)
                 {
@@ -364,6 +316,10 @@ namespace ChessIO.ws.Legacy
                 return MovesForBlack;
             }
 
+        }
+        public PiecePosition GetPieceByPos(Position pos)
+        {
+            return PiecePositions.FirstOrDefault(x=>x.Position==pos);
         }
         public static Position GetZoneName(string pos)
         {

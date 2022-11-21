@@ -1,4 +1,5 @@
-﻿using ChessIO.ws.Legacy;
+﻿using ChessIO.ws.Board;
+using ChessIO.ws.Legacy;
 using Stockfish.NET;
 using System;
 using System.Collections.Generic;
@@ -28,20 +29,6 @@ namespace ChessIO.ws
             }
             var oldzonecode = Game.Zones[oldpos.X, oldpos.Y];
             var newzonecode = Game.Zones[newpos.X, newpos.Y];
-            //stockfish.SetPosition(oldzonecode+""+ newzonecode);
-            stockfish.SetPosition("e2e4");
-            Console.WriteLine(stockfish.GetBoardVisual());
-            
-            /*
-            Console.WriteLine("Board after th Player Moved");
-            Console.WriteLine(stockfish.GetBoardVisual());
-            var bestMove = stockfish.GetBestMove();
-            var from = Game.GetZoneName(bestMove[0].ToString() + bestMove[1].ToString());
-            var to = Game.GetZoneName(bestMove[2].ToString() + bestMove[3].ToString());
-            stockfish.SetPosition(oldzonecode.ToLower() + "" + newzonecode.ToLower(), bestMove);
-            Console.WriteLine("Board after the Bot Moved");
-            Console.WriteLine(stockfish.GetBoardVisual());
-            */
         }
 
         public void GetBot()

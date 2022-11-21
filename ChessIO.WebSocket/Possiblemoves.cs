@@ -1,4 +1,5 @@
-﻿using ChessIO.ws.Legacy;
+﻿using ChessIO.ws.Board;
+using ChessIO.ws.Legacy;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -12,6 +12,7 @@ using SuperSocket.Common;
 using System.Collections;
 using System.ComponentModel;
 using ChessIO.ws.Legacy;
+using ChessIO.ws.Helper;
 
 namespace ChessIO.ws
 {
