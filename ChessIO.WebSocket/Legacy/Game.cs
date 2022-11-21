@@ -216,7 +216,7 @@ namespace ChessIO.ws.Legacy
             //Queenside white rook moved
             if (oldpiece.Piece == 'R' && oldpos.X == 7 && oldpos.Y == 0)
             {
-                whiteCastleQueenSide=false;
+                whiteCastleQueenSide = false;
             }
             //Kingside white rook moved
             if (oldpiece.Piece == 'R' && oldpos.X == 7 && oldpos.Y == 7)
@@ -267,14 +267,14 @@ namespace ChessIO.ws.Legacy
                 {
                     if (PiecePositions.FirstOrDefault(f => f.Position.X == i && f.Position.Y == j) != null)
                     {
-                        var piece = PiecePositions.FirstOrDefault(f => f.Position.X == i && f.Position.Y==j);
+                        var piece = PiecePositions.FirstOrDefault(f => f.Position.X == i && f.Position.Y == j);
                         Console.Write(piece.Piece + " ");
                     }
                     else
                     {
                         Console.Write("0" + " ");
                     }
-                    
+
                 }
                 Console.WriteLine();
             }
@@ -294,7 +294,7 @@ namespace ChessIO.ws.Legacy
         }
         public List<PiecePosition> CopyBoard()
         {
-            List<PiecePosition> positions= new();
+            List<PiecePosition> positions = new();
             foreach (var item in PiecePositions)
             {
                 positions.Add(item);
@@ -310,13 +310,26 @@ namespace ChessIO.ws.Legacy
         }
         public bool TargetIsEnemy(Position target, Playercolor mycolor)
         {
-            if (PiecePositions.FirstOrDefault(x => x.IsEquals(target) && x.Color != mycolor) != null)
-                return true;
-            else return false;
+            //Ez itt teljeen rossz
+            foreach (var item in PiecePositions)
+            {
+                if (item.IsEquals(target))
+                { 
+                    if(mycolor== item.Color)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+            }
+            return true;
         }
         public List<Possiblemoves> GetPossibleMoves(Playercolor color, bool ismyturn)
         {
-            List<PiecePosition> whiteposs = (PiecePositions.FindAll(x=>x.Color == color));
+            List<PiecePosition> whiteposs = (PiecePositions.FindAll(x => x.Color == color));
             foreach (var item in whiteposs)
             {
                 //Megnézem az adott pozícióról az összes valid lépést
@@ -353,7 +366,7 @@ namespace ChessIO.ws.Legacy
         }
         public PiecePosition GetPieceByPos(Position pos)
         {
-            return PiecePositions.FirstOrDefault(x => x.Position.X == pos.X&& x.Position.Y==pos.Y);
+            return PiecePositions.FirstOrDefault(x => x.Position.X == pos.X && x.Position.Y == pos.Y);
         }
         public static Position GetZoneName(string pos)
         {

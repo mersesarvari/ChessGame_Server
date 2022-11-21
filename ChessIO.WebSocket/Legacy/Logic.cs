@@ -46,7 +46,7 @@ namespace ChessIO.ws.Legacy
                         validmoves = QueenMovement(oldpos.X, oldpos.Y, 'q', color).ToList();
                         break;
                     case 'k':
-                        validmoves = KingMovement(oldpos.X, oldpos.Y, Playercolor.Black).ToList();
+                        validmoves = KingMovement(oldpos.X, oldpos.Y, color).ToList();
                         break;
                     default:
                         break;
@@ -72,7 +72,7 @@ namespace ChessIO.ws.Legacy
                         validmoves = QueenMovement(oldpos.X, oldpos.Y, 'Q', color).ToList();
                         break;
                     case 'K':
-                        validmoves = KingMovement(oldpos.X, oldpos.Y, Playercolor.White).ToList();
+                        validmoves = KingMovement(oldpos.X, oldpos.Y,  color).ToList();
                         break;
                     default:
                         break;
@@ -523,11 +523,11 @@ namespace ChessIO.ws.Legacy
             //Felfele mozgás
             if (x - 2 >= 0)
             {
-                if (y - 1 >= 0)
+                if (y - 1 >= 0 && game.TargetIsEnemy(new Position(x - 2, y - 1), color))
                 {
                     possiblemoves.Add(new Position(x - 2, y - 1));
                 }
-                if (y + 1 <= 7)
+                if (y + 1 <= 7 && game.TargetIsEnemy(new Position(x - 2, y +1), color))
                 {
                     possiblemoves.Add(new Position(x - 2, y + 1));
                 }
@@ -535,11 +535,11 @@ namespace ChessIO.ws.Legacy
             // Lefele
             if (x + 2 <= 7)
             {
-                if (y - 1 >= 0)
+                if (y - 1 >= 0 && game.TargetIsEnemy(new Position(x + 2, y - 1), color))
                 {
                     possiblemoves.Add(new Position(x + 2, y - 1));
                 }
-                if (y + 1 <= 7)
+                if (y + 1 <= 7 && game.TargetIsEnemy(new Position(x+2, y +1), color))
                 {
                     possiblemoves.Add(new Position(x + 2, y + 1));
                 }
@@ -548,11 +548,11 @@ namespace ChessIO.ws.Legacy
             // Left side movement
             if (y - 2 >= 0)
             {
-                if (x - 1 >= 0)
+                if (x - 1 >= 0 && game.TargetIsEnemy(new Position(x-1,y-2),color))
                 {
                     possiblemoves.Add(new Position(x - 1, y - 2));
                 }
-                if (x + 1 <= 7)
+                if (x + 1 <= 7 && game.TargetIsEnemy(new Position(x + 1, y - 2), color))
                 {
                     possiblemoves.Add(new Position(x + 1, y - 2));
                 }
@@ -561,32 +561,16 @@ namespace ChessIO.ws.Legacy
             // Jobbra mozgás
             if (y + 2 <= 7)
             {
-                if (x - 1 >= 0)
+                if (x - 1 >= 0 && game.TargetIsEnemy(new Position(x - 1, y + 2), color))
                 {
                     possiblemoves.Add(new Position(x - 1, y + 2));
                 }
-                if (x + 1 <= 7)
+                if (x + 1 <= 7 && game.TargetIsEnemy(new Position(x + 1, y +2), color))
                 {
                     possiblemoves.Add(new Position(x + 1, y + 2));
                 }
             }
-            
-            var p = possiblemoves;
-            List<Position> filteredpossiblemoves = new List<Position>();
-            foreach (var item in possiblemoves)
-            {
-                //Console.WriteLine(item.X+"|"+item.Y);
-                if (
-                    game.TargetIsEnemy(new Position(x, y), game.InactiveColor()))
-                {
-                    filteredpossiblemoves.Add(item);
-                }
-                if (game.GetPieceByPos(new Position(x, y)) == null)
-                {
-                    filteredpossiblemoves.Add(item);
-                }
-            }
-            return filteredpossiblemoves.ToArray();
+            return possiblemoves.ToArray();
 
 
         }
