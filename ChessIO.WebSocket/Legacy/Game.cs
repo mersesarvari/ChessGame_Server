@@ -49,6 +49,14 @@ namespace ChessIO.ws.Legacy
         public GameType Gametype { get; set; }
         public Playercolor ActiveColor { get; set; }
         public string ActivePlayerId { get; set; }
+
+        //Sáncolás változók
+        public bool whiteCastleKingSide = true;
+        public bool whiteCastleQueenSide = true;
+        public bool blackCastleKingSide = true;
+        public bool blackCastleQueenSide = true;
+
+
         #endregion
 
         public Game(Player _p1, int timer)
@@ -185,6 +193,37 @@ namespace ChessIO.ws.Legacy
         public void MovePiece(Position oldpos, Position newpos)
         {
             var oldpiece = GetPieceByPos(oldpos);
+            if (oldpiece.Piece == 'K')
+            {
+                whiteCastleKingSide = false;
+                whiteCastleQueenSide = false;
+            }
+            if (oldpiece.Piece == 'k')
+            {
+                blackCastleKingSide = false;
+                blackCastleQueenSide = false;
+            }
+            //Queenside black rook moved
+            if (oldpiece.Piece == 'r' && oldpos.X == 0 && oldpos.Y == 0)
+            {
+                blackCastleQueenSide = false;
+            }
+            //Kingside black rook moved
+            if (oldpiece.Piece == 'r' && oldpos.X == 0 && oldpos.Y == 7)
+            {
+                blackCastleKingSide = false;
+            }
+            //Queenside white rook moved
+            if (oldpiece.Piece == 'R' && oldpos.X == 7 && oldpos.Y == 0)
+            {
+                whiteCastleQueenSide=false;
+            }
+            //Kingside white rook moved
+            if (oldpiece.Piece == 'R' && oldpos.X == 7 && oldpos.Y == 7)
+            {
+                whiteCastleKingSide = false;
+            }
+
             // Checking is the new position is an enemy character or not
             if (GetPieceByPos(newpos) != null)
             {
