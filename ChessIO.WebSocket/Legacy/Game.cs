@@ -57,8 +57,8 @@ namespace ChessIO.ws.Legacy
             bot = new Bot(this, Playercolor.Black);
             Id = Guid.NewGuid().ToString();
             Gametype = GameType.Singleplayer;
-            //Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-            Fenstring = "rnbqk1nr/1p1ppp1p/2p3pb/p7/2BP4/4PQ2/PPP2PPP/RNB1K1NR";
+            Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+            //Fenstring = "rnbqk1nr/1p1ppp1p/2p3pb/p7/2BP4/4PQ2/PPP2PPP/RNB1K1NR";
             White = _p1.Id;
             Black = "Bot";
             TimerBlack = timer;
