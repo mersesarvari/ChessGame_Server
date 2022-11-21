@@ -65,7 +65,7 @@ namespace ChessIO.ws
                         {
 
                             //Sending list of possible moves to the next player
-                            var playermoves = currentgame.GetPlayerMoves(currentgame.ActiveColor, true);
+                            var playermoves = currentgame.GetPossibleMoves(currentgame.ActiveColor, true);
                             var wmovemsg = new Message() { Opcode = 6, Custom = playermoves };
                             Server.SendMessage(currentgame.ActivePlayerId, JsonConvert.SerializeObject(wmovemsg));
                         }
@@ -83,7 +83,7 @@ namespace ChessIO.ws
                     //Console.Clear();
                     //var ischeck = Logic.IsMoveCheck(oldpos, newpos, currentgame.Board, currentgame.ActiveColor);
                     var isvalid = currentgame.logic.IsValidMove(oldpos, newpos, currentgame.ActiveColor, true);
-                    ;
+                    //Player Movement
                     if (isvalid)
                     {
                         //Moving on the board
@@ -105,7 +105,7 @@ namespace ChessIO.ws
                         {
 
                             //Sending list of possible moves to the next player
-                            var playermoves = currentgame.GetPlayerMoves(currentgame.ActiveColor, true);
+                            var playermoves = currentgame.GetPossibleMoves(currentgame.ActiveColor, true);
                             var wmovemsg = new Message() { Opcode = 6, Custom = playermoves };
                             Server.SendMessage(currentgame.ActivePlayerId, JsonConvert.SerializeObject(wmovemsg));
                         }
@@ -113,6 +113,28 @@ namespace ChessIO.ws
                     else
                     {
                         currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
+                    }
+                    //Bot movement
+                    currentgame.bot.Move();
+                    currentgame.TurnChanger();
+                    currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
+
+                    //Checking checkmates
+                    var _cm = currentgame.logic.IsCheckMate(currentgame.ActiveColor, true);
+                    if (_cm)
+                    {
+                        //Sending message to the winning player
+                        currentgame.SendMessage(new Message() { Opcode = 8, message = "You Won! Congratulation" }, currentgame.InactiveColor());
+                        //Sending message to the loosing player
+                        currentgame.SendMessage(new Message() { Opcode = 8, message = "You lost! Better luck next time" }, currentgame.ActiveColor);
+                    }
+                    else
+                    {
+
+                        //Sending list of possible moves to the next player
+                        var playermoves = currentgame.GetPossibleMoves(currentgame.ActiveColor, true);
+                        var wmovemsg = new Message() { Opcode = 6, Custom = playermoves };
+                        Server.SendMessage(currentgame.ActivePlayerId, JsonConvert.SerializeObject(wmovemsg));
                     }
                 }
 

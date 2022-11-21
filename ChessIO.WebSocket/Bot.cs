@@ -11,36 +11,21 @@ namespace ChessIO.ws
 {
     public class Bot
     {
-        public IStockfish stockfish;
-        public Bot()
-        {
-            GetBot();
-            stockfish = new Stockfish.NET.Stockfish(@"Stockfish\stockfish12.exe");
-        }
-        public void BotMovePiece(Position oldpos, Position newpos)
-        {
-            for (int i = 0; i < Game.Zones.GetLength(0); i++)
-            {
-                for (int j = 0; j < Game.Zones.GetLength(1); j++)
-                {
-                    Console.Write(Game.Zones[i,j]+" ");
-                }
-                Console.WriteLine();
-            }
-            var oldzonecode = Game.Zones[oldpos.X, oldpos.Y];
-            var newzonecode = Game.Zones[newpos.X, newpos.Y];
-        }
+        private Game game;
+        private Playercolor color;
 
-        public void GetBot()
+        public Bot(Game game, Playercolor color)
         {
-            string currentDirName = System.IO.Directory.GetCurrentDirectory();
-            DirectoryInfo current = new DirectoryInfo(currentDirName);
-            var ggparent = current.Parent.Parent.Parent.FullName+@"\Stockfish\stockfish12.exe";
-            if (!File.Exists(current + @"/Stockfish/stockfish12.exe"))
-            {
-                File.Copy(ggparent.ToString(), current.FullName+@"\Stockfish\stockfish12.exe");
-            }
-            
+            this.game = game;
+            this.color = color;
+        }
+        public void Move()
+        {
+            var moves = game.GetPossibleMoves(color,false);
+            Random random = new Random();
+            var randommove=random.Next(moves.Count);
+            var randommoveto = random.Next(moves[randommove].To.Count);
+            game.MovePiece(moves[randommove].From, moves[randommove].To[randommoveto]);
         }
     }
 }

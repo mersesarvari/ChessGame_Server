@@ -40,10 +40,10 @@ namespace ChessIO.ws.Legacy
                         validmoves = KnightMovement(oldpos.X, oldpos.Y, 'n', color).ToList();
                         break;
                     case 'b':
-                        validmoves = BishopMovement(oldpos.X, oldpos.Y,  color).ToList();
+                        validmoves = BishopMovement(oldpos.X, oldpos.Y, color).ToList();
                         break;
                     case 'q':
-                        validmoves = QueenMovement(oldpos.X, oldpos.Y, 'q',  color).ToList();
+                        validmoves = QueenMovement(oldpos.X, oldpos.Y, 'q', color).ToList();
                         break;
                     case 'k':
                         validmoves = KingMovement(oldpos.X, oldpos.Y, Playercolor.Black).ToList();
@@ -60,16 +60,16 @@ namespace ChessIO.ws.Legacy
                         validmoves = PawnMovement(oldpos.X, oldpos.Y, 'P', color).ToList();
                         break;
                     case 'R':
-                        validmoves = RookMovement(oldpos.X, oldpos.Y, 'R',  color).ToList();
+                        validmoves = RookMovement(oldpos.X, oldpos.Y, 'R', color).ToList();
                         break;
                     case 'N':
-                        validmoves = KnightMovement(oldpos.X, oldpos.Y, 'N',  color).ToList();
+                        validmoves = KnightMovement(oldpos.X, oldpos.Y, 'N', color).ToList();
                         break;
                     case 'B':
-                        validmoves = BishopMovement(oldpos.X, oldpos.Y,  color).ToList();
+                        validmoves = BishopMovement(oldpos.X, oldpos.Y, color).ToList();
                         break;
                     case 'Q':
-                        validmoves = QueenMovement(oldpos.X, oldpos.Y, 'Q',  color).ToList();
+                        validmoves = QueenMovement(oldpos.X, oldpos.Y, 'Q', color).ToList();
                         break;
                     case 'K':
                         validmoves = KingMovement(oldpos.X, oldpos.Y, Playercolor.White).ToList();
@@ -142,7 +142,7 @@ namespace ChessIO.ws.Legacy
             var board = DrawBoard();
             var fenstring = "";
             int zerocounter = 0;
-            
+
             for (int i = 0; i < board.GetLength(0); i++)
             {
                 //Kezdődik a sor elemeinek megnézése
@@ -184,57 +184,26 @@ namespace ChessIO.ws.Legacy
         //Working more or less
         public void ConvertFromFen()
         {
-            char[] numbers = new[] { '1', '2', '3', '4', '5', '6', '7' };
-            int posX = 0;
-            int posY = 0;
-            //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-            var fen = game.Fenstring;
-            //Getting the board
-            string boardstr = fen.Split(' ')[0];
-            for (int i = 0; i < boardstr.Split('/').Length; i++)
+            game.PiecePositions = new List<PiecePosition>();
+            DrawBoard();
+            var matrix = GetMatrixFromFen(game.Fenstring);
+            for (int i = 0; i < matrix.GetLength(0); i++)
             {
-                posX = i;
-                
-                var row = boardstr.Split('/');
-                for (int j = 0; j < row[i].Length; j++)
+                for (int j = 0; j < matrix.GetLength(1); j++)
                 {
-                    posY = j;
-                    var item = boardstr.Split('/')[i][j];
-                    if (item == '8')
-                        break;
-                    else if (numbers.Contains(item))
+                    if (matrix[i, j] != '0')
                     {
-                        posY += int.Parse(item.ToString());
-                        ;
-                        if (j + 1 < 8)
+                        if (Char.IsUpper(matrix[i, j]))
                         {
-                            var piece = new PiecePosition(new Position(posX, j+1), item, Playercolor.White);
-                            game.PiecePositions.Add(piece);
-                            j++;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        if (Char.IsUpper(item))
-                        {
-                            var piece = new PiecePosition(new Position(posX, posY), item, Playercolor.White);
-                            game.PiecePositions.Add(piece);
+                            game.PiecePositions.Add(new PiecePosition(new Position(i, j), matrix[i, j], Playercolor.White));
                         }
                         else
                         {
-                            var piece = new PiecePosition(new Position(posX, posY), item, Playercolor.Black);
-                            game.PiecePositions.Add(piece);
+                            game.PiecePositions.Add(new PiecePosition(new Position(i, j), matrix[i, j], Playercolor.Black));
                         }
-                        
                     }
                 }
-                
             }
-            game.DrawBoard();
-            var _i= game.PiecePositions;
-            ;
-
         }
 
         // Not fully working
@@ -318,198 +287,11 @@ namespace ChessIO.ws.Legacy
             //Check that the coordinate is valid
             var originalX = x;
             var originalY = y;
-            if (game.PiecePositions.FirstOrDefault(f => f.IsEquals(new Position(x,y)) && f.Color == color) != null)
-            {
-                /* X+ Y+ -Vagy ha barátságos karakter jön */
-                while (x < 7 && y < 7)
-                {
-                    x++;
-                    y++;
-                    if (game.GetPieceByPos(new Position(x, y)) == null)
-                    {
-                        possiblemoves.Add(new Position(x, y));
-                    }
-                    else if (
-                        //Ha mindkét karakter azonos színű
-                        !game.TargetIsEnemy(new Position(x, y), color))
-                    {
-                        break;
-                    }
-                    else if (
-                        //Ha Mindkét karakter különböző színű
-                        game.TargetIsEnemy(new Position(x, y), color))
-                    {
-                        possiblemoves.Add(new Position(x, y));
-                        break;
-                    }
 
-                }
-                // Resetting X and Y data
-                x = originalX;
-                y = originalY;
-                while (x > 0 && y > 0)
-                {
-                    x--;
-                    y--;
-                    if (game.GetPieceByPos(new Position(x, y)) == null)
-                    {
-                        possiblemoves.Add(new Position(x, y));
-                    }
-                    else if (
-                        //Ha mindkét karakter azonos színű
-                        !game.TargetIsEnemy(new Position(x, y), color))
-                    {
-                        break;
-                    }
-                    else if (
-                        //Ha Mindkét karakter különböző színű
-                        game.TargetIsEnemy(new Position(x, y), color))
-                    {
-                        possiblemoves.Add(new Position(x, y));
-                        break;
-                    }
-                }
-                // Resetting X and Y data
-                x = originalX;
-                y = originalY;
-                while (x > 0 && y < 7)
-                {
-                    x--;
-                    y++;
-                    if (game.GetPieceByPos(new Position(x, y)) == null)
-                    {
-                        possiblemoves.Add(new Position(x, y));
-                    }
-                    else if (
-                        //Ha mindkét karakter azonos színű
-                        !game.TargetIsEnemy(new Position(x, y), color))
-                    {
-                        break;
-                    }
-                    else if (
-                        //Ha Mindkét karakter különböző színű
-                        game.TargetIsEnemy(new Position(x, y), color))
-                    {
-                        possiblemoves.Add(new Position(x, y));
-                        break;
-                    }
-                }
-                // Resetting X and Y data
-                x = originalX;
-                y = originalY;
-                while (x < 7 && y > 0)
-                {
-                    x++;
-                    y--;
-                    if (game.GetPieceByPos(new Position(x, y)) == null)
-                    {
-                        possiblemoves.Add(new Position(x, y));
-                    }
-                    else if (
-                        //Ha mindkét karakter azonos színű
-                        !game.TargetIsEnemy(new Position(x, y), color))
-                    {
-                        break;
-                    }
-                    else if (
-                        //Ha Mindkét karakter különböző színű
-                        game.TargetIsEnemy(new Position(x, y), color))
-                    {
-                        possiblemoves.Add(new Position(x, y));
-                        break;
-                    }
-                }
-
-                return possiblemoves.ToArray();
-            }
-            else
-            {
-                throw new Exception("[ERROR]: This bishop doesnt exists");
-            }
-        }
-        public Position[] RookMovement(int x, int y, char chartype, Playercolor color)
-        {
-            List<Position> possiblemoves = new List<Position>();
-            //Check that the coordinate is valid
-            var originalX = x;
-            var originalY = y;
-            //Felfele mozgás
-            while (x > 0)
-            {
-                x--;
-                if (game.GetPieceByPos(new Position(x, y)) == null)
-                {
-                    possiblemoves.Add(new Position(x, y));
-                }
-                else if (
-                    //Ha mindkét karakter azonos színű
-                    !game.TargetIsEnemy(new Position(x, y), color))
-                {
-                    break;
-                }
-                else if (
-                    //Ha Mindkét karakter különböző színű
-                    game.TargetIsEnemy(new Position(x, y), color))
-                {
-                    possiblemoves.Add(new Position(x, y));
-                    break;
-                }
-
-            }
-            // Lefele
-            x = originalX;
-            y = originalY;
-            while (x < 7)
+            /* X+ Y+ -Vagy ha barátságos karakter jön */
+            while (x < 7 && y < 7)
             {
                 x++;
-                if (game.GetPieceByPos(new Position(x, y)) == null)
-                {
-                    possiblemoves.Add(new Position(x, y));
-                }
-                else if (
-                    //Ha mindkét karakter azonos színű
-                    !game.TargetIsEnemy(new Position(x, y), color))
-                {
-                    break;
-                }
-                else if (
-                    //Ha Mindkét karakter különböző színű
-                    game.TargetIsEnemy(new Position(x, y), color))
-                {
-                    possiblemoves.Add(new Position(x, y));
-                    break;
-                }
-            }
-            // Left side movement
-            x = originalX;
-            y = originalY;
-            while (y > 0)
-            {
-                y--;
-                if (game.GetPieceByPos(new Position(x, y)) == null)
-                {
-                    possiblemoves.Add(new Position(x, y));
-                }
-                else if (
-                    //Ha mindkét karakter azonos színű
-                    !game.TargetIsEnemy(new Position(x, y), color))
-                {
-                    break;
-                }
-                else if (
-                    //Ha Mindkét karakter különböző színű
-                    game.TargetIsEnemy(new Position(x, y), color))
-                {
-                    possiblemoves.Add(new Position(x, y));
-                    break;
-                }
-
-            }
-            // Jobbra mozgás
-            x = originalX;
-            y = originalY;
-            while (y < 7)
-            {
                 y++;
                 if (game.GetPieceByPos(new Position(x, y)) == null)
                 {
@@ -530,176 +312,407 @@ namespace ChessIO.ws.Legacy
                 }
 
             }
-
-            return possiblemoves.ToArray();
-        }
-        public Position[] QueenMovement(int x, int y, char chartype, Playercolor color)
-        {
-            List<Position> possiblemovesall = new List<Position>();
-            List<Position> rookmoves = new List<Position>();
-            rookmoves = RookMovement(x, y, chartype, color).ToList();
-            List<Position> bishopmoves = new List<Position>();
-            bishopmoves = BishopMovement(x, y, color).ToList();
-            foreach (var item in rookmoves)
+            // Resetting X and Y data
+            x = originalX;
+            y = originalY;
+            while (x > 0 && y > 0)
             {
-                possiblemovesall.Add(item);
-            }
-            foreach (var item in bishopmoves)
-            {
-                possiblemovesall.Add(item);
-            }
-            return possiblemovesall.ToArray();
-        }
-        public Position[] KnightMovement(int x, int y, char chartype, Playercolor color)
-        {
-            List<Position> possiblemoves = new List<Position>();
-            var originalX = x;
-            var originalY = y;
-
-            //Felfele mozgás
-            if (x - 2 >= 0)
-            {
-                if (y - 1 >= 0)
-                {
-                    possiblemoves.Add(new Position(x - 2, y - 1));
-                }
-                if (y + 1 <= 7)
-                {
-                    possiblemoves.Add(new Position(x - 2, y + 1));
-                }
-            }
-            // Lefele
-            if (x + 2 <= 7)
-            {
-                if (y - 1 >= 0)
-                {
-                    possiblemoves.Add(new Position(x + 2, y - 1));
-                }
-                if (y + 1 <= 7)
-                {
-                    possiblemoves.Add(new Position(x + 2, y + 1));
-                }
-            }
-
-            // Left side movement
-            if (y - 2 >= 0)
-            {
-                if (x - 1 >= 0)
-                {
-                    possiblemoves.Add(new Position(x - 1, y - 2));
-                }
-                if (x + 1 <= 7)
-                {
-                    possiblemoves.Add(new Position(x + 1, y - 2));
-                }
-            }
-
-            // Jobbra mozgás
-            if (y + 2 <= 7)
-            {
-                if (x - 1 >= 0)
-                {
-                    possiblemoves.Add(new Position(x - 1, y + 2));
-                }
-                if (x + 1 <= 7)
-                {
-                    possiblemoves.Add(new Position(x + 1, y + 2));
-                }
-            }
-            var p = possiblemoves;
-            List<Position> filteredpossiblemoves = new List<Position>();
-            foreach (var item in possiblemoves)
-            {
-                //Console.WriteLine(item.X+"|"+item.Y);
-                if (
-                    game.TargetIsEnemy(new Position(x, y), color))
-                {
-                    filteredpossiblemoves.Add(item);
-                }
+                x--;
+                y--;
                 if (game.GetPieceByPos(new Position(x, y)) == null)
                 {
-                    filteredpossiblemoves.Add(item);
+                    possiblemoves.Add(new Position(x, y));
+                }
+                else if (
+                    //Ha mindkét karakter azonos színű
+                    !game.TargetIsEnemy(new Position(x, y), color))
+                {
+                    break;
+                }
+                else if (
+                    //Ha Mindkét karakter különböző színű
+                    game.TargetIsEnemy(new Position(x, y), color))
+                {
+                    possiblemoves.Add(new Position(x, y));
+                    break;
                 }
             }
-            //Ki kell szedni még azokat a lépéseket amik sakkhoz vezetnének
-            return filteredpossiblemoves.ToArray();
+            // Resetting X and Y data
+            x = originalX;
+            y = originalY;
+            while (x > 0 && y < 7)
+            {
+                x--;
+                y++;
+                if (game.GetPieceByPos(new Position(x, y)) == null)
+                {
+                    possiblemoves.Add(new Position(x, y));
+                }
+                else if (
+                    //Ha mindkét karakter azonos színű
+                    !game.TargetIsEnemy(new Position(x, y), color))
+                {
+                    break;
+                }
+                else if (
+                    //Ha Mindkét karakter különböző színű
+                    game.TargetIsEnemy(new Position(x, y), color))
+                {
+                    possiblemoves.Add(new Position(x, y));
+                    break;
+                }
+            }
+            // Resetting X and Y data
+            x = originalX;
+            y = originalY;
+            while (x < 7 && y > 0)
+            {
+                x++;
+                y--;
+                if (game.GetPieceByPos(new Position(x, y)) == null)
+                {
+                    possiblemoves.Add(new Position(x, y));
+                }
+                else if (
+                    //Ha mindkét karakter azonos színű
+                    !game.TargetIsEnemy(new Position(x, y), color))
+                {
+                    break;
+                }
+                else if (
+                    //Ha Mindkét karakter különböző színű
+                    game.TargetIsEnemy(new Position(x, y), color))
+                {
+                    possiblemoves.Add(new Position(x, y));
+                    break;
+                }
+            }
 
+            return possiblemoves.ToArray();
+        
+    }
+    public Position[] RookMovement(int x, int y, char chartype, Playercolor color)
+    {
+        List<Position> possiblemoves = new List<Position>();
+        //Check that the coordinate is valid
+        var originalX = x;
+        var originalY = y;
+        //Felfele mozgás
+        while (x > 0)
+        {
+            x--;
+            if (game.GetPieceByPos(new Position(x, y)) == null)
+            {
+                possiblemoves.Add(new Position(x, y));
+            }
+            else if (
+                //Ha mindkét karakter azonos színű
+                !game.TargetIsEnemy(new Position(x, y), color))
+            {
+                break;
+            }
+            else if (
+                //Ha Mindkét karakter különböző színű
+                game.TargetIsEnemy(new Position(x, y), color))
+            {
+                possiblemoves.Add(new Position(x, y));
+                break;
+            }
 
         }
-        //Hiányzik a rosálás logika
-        public Position[] KingMovement(int x, int y, Playercolor color)
+        // Lefele
+        x = originalX;
+        y = originalY;
+        while (x < 7)
         {
-            List<Position> possiblemoves = new List<Position>();
-            //Kilépünk kettőt x vagy y irányba és a cellának mindkét x vagy y menti szomszédos oldala jó
-            var originalX = x;
-            var originalY = y;
-            #region Adding original moves
-            //-x, -y
-            if (x - 1 >= 0 && y - 1 >= 0 && game.TargetIsEnemy(new Position(x - 1, y - 1), color))
+            x++;
+            if (game.GetPieceByPos(new Position(x, y)) == null)
             {
-                possiblemoves.Add(new Position(x - 1, y - 1));
+                possiblemoves.Add(new Position(x, y));
             }
-            //-x, y
-            if (x - 1 >= 0 && game.TargetIsEnemy(new Position(x - 1, y), color))
+            else if (
+                //Ha mindkét karakter azonos színű
+                !game.TargetIsEnemy(new Position(x, y), color))
             {
-                possiblemoves.Add(new Position(x - 1, y));
+                break;
             }
-            // -x, +y
-            if (x - 1 >= 0 && y + 1 <= 7 && game.TargetIsEnemy(new Position(x - 1, y + 1), color))
+            else if (
+                //Ha Mindkét karakter különböző színű
+                game.TargetIsEnemy(new Position(x, y), color))
             {
-                possiblemoves.Add(new Position(x - 1, y + 1));
+                possiblemoves.Add(new Position(x, y));
+                break;
             }
-            //x, y-
-            if (y - 1 >= 0 && game.TargetIsEnemy(new Position(x, y - 1), color))
+        }
+        // Left side movement
+        x = originalX;
+        y = originalY;
+        while (y > 0)
+        {
+            y--;
+            if (game.GetPieceByPos(new Position(x, y)) == null)
             {
-                possiblemoves.Add(new Position(x, y - 1));
+                possiblemoves.Add(new Position(x, y));
             }
-            //x, +y
-            if (y + 1 <= 7 && game.TargetIsEnemy(new Position(x, y + 1), color))
+            else if (
+                //Ha mindkét karakter azonos színű
+                !game.TargetIsEnemy(new Position(x, y), color))
             {
-                possiblemoves.Add(new Position(x, y + 1));
+                break;
             }
-            //x+ y-
-            if (x + 1 <= 7 && y - 1 >= 0 && game.TargetIsEnemy(new Position(x + 1, y - 1), color))
+            else if (
+                //Ha Mindkét karakter különböző színű
+                game.TargetIsEnemy(new Position(x, y), color))
             {
-                possiblemoves.Add(new Position(x + 1, y - 1));
+                possiblemoves.Add(new Position(x, y));
+                break;
             }
-            //x+, y
-            if (x + 1 <= 7 && game.TargetIsEnemy(new Position(x + 1, y), color))
+
+        }
+        // Jobbra mozgás
+        x = originalX;
+        y = originalY;
+        while (y < 7)
+        {
+            y++;
+            if (game.GetPieceByPos(new Position(x, y)) == null)
             {
-                possiblemoves.Add(new Position(x + 1, y));
+                possiblemoves.Add(new Position(x, y));
             }
-            //x+ , y+
-            if (x + 1 <= 7 && y + 1 <= 7 && game.TargetIsEnemy(new Position(x + 1, y + 1), color))
+            else if (
+                //Ha mindkét karakter azonos színű
+                !game.TargetIsEnemy(new Position(x, y), color))
             {
-                possiblemoves.Add(new Position(x + 1, y + 1));
+                break;
             }
-            #endregion            
-            return possiblemoves.ToArray();
+            else if (
+                //Ha Mindkét karakter különböző színű
+                game.TargetIsEnemy(new Position(x, y), color))
+            {
+                possiblemoves.Add(new Position(x, y));
+                break;
+            }
+
+        }
+
+        return possiblemoves.ToArray();
+    }
+    public Position[] QueenMovement(int x, int y, char chartype, Playercolor color)
+    {
+        List<Position> possiblemovesall = new List<Position>();
+        List<Position> rookmoves = new List<Position>();
+        rookmoves = RookMovement(x, y, chartype, color).ToList();
+        List<Position> bishopmoves = new List<Position>();
+        bishopmoves = BishopMovement(x, y, color).ToList();
+        foreach (var item in rookmoves)
+        {
+            possiblemovesall.Add(item);
+        }
+        foreach (var item in bishopmoves)
+        {
+            possiblemovesall.Add(item);
+        }
+        return possiblemovesall.ToArray();
+    }
+    public Position[] KnightMovement(int x, int y, char chartype, Playercolor color)
+    {
+        List<Position> possiblemoves = new List<Position>();
+        var originalX = x;
+        var originalY = y;
+
+        //Felfele mozgás
+        if (x - 2 >= 0)
+        {
+            if (y - 1 >= 0)
+            {
+                possiblemoves.Add(new Position(x - 2, y - 1));
+            }
+            if (y + 1 <= 7)
+            {
+                possiblemoves.Add(new Position(x - 2, y + 1));
+            }
+        }
+        // Lefele
+        if (x + 2 <= 7)
+        {
+            if (y - 1 >= 0)
+            {
+                possiblemoves.Add(new Position(x + 2, y - 1));
+            }
+            if (y + 1 <= 7)
+            {
+                possiblemoves.Add(new Position(x + 2, y + 1));
+            }
+        }
+
+        // Left side movement
+        if (y - 2 >= 0)
+        {
+            if (x - 1 >= 0)
+            {
+                possiblemoves.Add(new Position(x - 1, y - 2));
+            }
+            if (x + 1 <= 7)
+            {
+                possiblemoves.Add(new Position(x + 1, y - 2));
+            }
+        }
+
+        // Jobbra mozgás
+        if (y + 2 <= 7)
+        {
+            if (x - 1 >= 0)
+            {
+                possiblemoves.Add(new Position(x - 1, y + 2));
+            }
+            if (x + 1 <= 7)
+            {
+                possiblemoves.Add(new Position(x + 1, y + 2));
+            }
+        }
+        var p = possiblemoves;
+        List<Position> filteredpossiblemoves = new List<Position>();
+        foreach (var item in possiblemoves)
+        {
+            //Console.WriteLine(item.X+"|"+item.Y);
+            if (
+                game.TargetIsEnemy(new Position(x, y), color))
+            {
+                filteredpossiblemoves.Add(item);
+            }
+            if (game.GetPieceByPos(new Position(x, y)) == null)
+            {
+                filteredpossiblemoves.Add(item);
+            }
+        }
+        //Ki kell szedni még azokat a lépéseket amik sakkhoz vezetnének
+        return filteredpossiblemoves.ToArray();
+
+
+    }
+    //Hiányzik a rosálás logika
+    public Position[] KingMovement(int x, int y, Playercolor color)
+    {
+        List<Position> possiblemoves = new List<Position>();
+        //Kilépünk kettőt x vagy y irányba és a cellának mindkét x vagy y menti szomszédos oldala jó
+        var originalX = x;
+        var originalY = y;
+        #region Adding original moves
+        //-x, -y
+        if (x - 1 >= 0 && y - 1 >= 0 && game.TargetIsEnemy(new Position(x - 1, y - 1), color))
+        {
+            possiblemoves.Add(new Position(x - 1, y - 1));
+        }
+        //-x, y
+        if (x - 1 >= 0 && game.TargetIsEnemy(new Position(x - 1, y), color))
+        {
+            possiblemoves.Add(new Position(x - 1, y));
+        }
+        // -x, +y
+        if (x - 1 >= 0 && y + 1 <= 7 && game.TargetIsEnemy(new Position(x - 1, y + 1), color))
+        {
+            possiblemoves.Add(new Position(x - 1, y + 1));
+        }
+        //x, y-
+        if (y - 1 >= 0 && game.TargetIsEnemy(new Position(x, y - 1), color))
+        {
+            possiblemoves.Add(new Position(x, y - 1));
+        }
+        //x, +y
+        if (y + 1 <= 7 && game.TargetIsEnemy(new Position(x, y + 1), color))
+        {
+            possiblemoves.Add(new Position(x, y + 1));
+        }
+        //x+ y-
+        if (x + 1 <= 7 && y - 1 >= 0 && game.TargetIsEnemy(new Position(x + 1, y - 1), color))
+        {
+            possiblemoves.Add(new Position(x + 1, y - 1));
+        }
+        //x+, y
+        if (x + 1 <= 7 && game.TargetIsEnemy(new Position(x + 1, y), color))
+        {
+            possiblemoves.Add(new Position(x + 1, y));
+        }
+        //x+ , y+
+        if (x + 1 <= 7 && y + 1 <= 7 && game.TargetIsEnemy(new Position(x + 1, y + 1), color))
+        {
+            possiblemoves.Add(new Position(x + 1, y + 1));
         }
         #endregion
-        public char[,] DrawBoard()
-        {
-            char[,] board = new char[8, 8];
-            for (int i = 0; i < Game.Zones.GetLength(0); i++)
-            {
-                for (int j = 0; j < Game.Zones.GetLength(1); j++)
-                {
-                    if (game.PiecePositions.FirstOrDefault(f => f.Position.X == i && f.Position.Y == j) != null)
-                    {
-                        var piece = game.PiecePositions.FirstOrDefault(f => f.Position.X == i && f.Position.Y == j);
-                        board[i, j] = piece.Piece;
-                    }
-                    else
-                    {
-                        board[i, j] = '0';
-                    }
-
-                }
-            }
-            return board;
-        }
+        return possiblemoves.ToArray();
     }
+    #endregion
+    public char[,] DrawBoard()
+    {
+        char[,] board = new char[8, 8];
+        for (int i = 0; i < Game.Zones.GetLength(0); i++)
+        {
+            for (int j = 0; j < Game.Zones.GetLength(1); j++)
+            {
+                if (game.PiecePositions.FirstOrDefault(f => f.Position.X == i && f.Position.Y == j) != null)
+                {
+                    var piece = game.PiecePositions.FirstOrDefault(f => f.Position.X == i && f.Position.Y == j);
+                    board[i, j] = piece.Piece;
+                }
+                else
+                {
+                    board[i, j] = '0';
+                }
+
+            }
+        }
+        return board;
+    }
+    public char[,] GetMatrixFromFen(string fen)
+    {
+        //Többi beállítás hiányzik logic kell ide
+        char[,] baseboard = new char[8, 8];
+        //Alapvető állás konverzió
+        var fenstring = fen.Split(' ')[0];
+        var _board = baseboard;
+        //string[] line = new string[8];
+        for (var i = 0; i < fenstring.Split('/').Length; i++)
+        {
+            string line = "";
+            for (int chars = 0; chars < fenstring.Split('/')[i].Length; chars++)
+            {
+                var current = fenstring.Split('/')[i][chars];
+                //CHARACTER IS NUMBER
+                //Checking empty row
+                if (current == '8')
+                {
+                    line = "0" + "0" + "0" + "0" + "0" + "0" + "0" + "0";
+                    break;
+                }
+                // Checking empty cells in the row
+                else if (current == '1' || current == '2' || current == '3' || current == '4' || current == '5' || current == '6' || current == '7')
+                {
+                    for (int szorzo = 0; szorzo < int.Parse(current.ToString()); szorzo++)
+                    {
+                        line += ('0'.ToString());
+                    }
+                }
+                //Checking valid piececodes
+                else if ("rnbqkpRNBQKP".Contains(current.ToString().ToLower()))
+                {
+                    line += (current.ToString());
+                }
+                else
+                {
+                    throw new Exception("[Error]: cannot parse char: " + current);
+                }
+
+            };
+            //console.log("Line: " + line.toString());
+            //_board[i] = line.ToArray();
+            for (int k = 0; k < line.Length; k++)
+            {
+                _board[i, k] = line[k];
+            }
+        };
+        return _board;
+    }
+}
 }
 
 

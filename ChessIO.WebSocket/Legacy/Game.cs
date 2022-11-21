@@ -23,6 +23,7 @@ namespace ChessIO.ws.Legacy
     public class Game
     {
         #region fields
+        public Bot bot;
         Random r = new Random();
         public string Id { get; set; }
         public GameState State { get; set; }
@@ -53,9 +54,11 @@ namespace ChessIO.ws.Legacy
         public Game(Player _p1, int timer)
         {
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+            bot = new Bot(this, Playercolor.Black);
             Id = Guid.NewGuid().ToString();
             Gametype = GameType.Singleplayer;
-            Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+            //Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+            Fenstring = "rnbqk1nr/1p1ppp1p/2p3pb/p7/2BP4/4PQ2/PPP2PPP/RNB1K1NR";
             White = _p1.Id;
             Black = "Bot";
             TimerBlack = timer;
@@ -123,8 +126,8 @@ namespace ChessIO.ws.Legacy
                 Server.SendMessage(White, JsonConvert.SerializeObject(gamedataWhite));
                 Server.SendMessage(Black, JsonConvert.SerializeObject(gamedataBlack));
                 //Sending players the basic possible moves
-                var whitemoves = GetPlayerMoves(Playercolor.White, true);
-                var blackmoves = GetPlayerMoves(Playercolor.Black, true);
+                var whitemoves = GetPossibleMoves(Playercolor.White, true);
+                var blackmoves = GetPossibleMoves(Playercolor.Black, true);
                 ;
                 var wmovemsg = new Message() { Opcode = 6, Custom = whitemoves };
                 var bmovemsg = new Message() { Opcode = 6, Custom = blackmoves };
@@ -139,7 +142,7 @@ namespace ChessIO.ws.Legacy
                 {
                     var gamedataBlack = new Message() { Opcode = 4, Gameid = Id, Fen = Fenstring, Playerid = Black, Color = Playercolor.White };
                     Server.SendMessage(Black, JsonConvert.SerializeObject(gamedataBlack));
-                    var blackmoves = GetPlayerMoves(Playercolor.Black, true);
+                    var blackmoves = GetPossibleMoves(Playercolor.Black, true);
                     var bmovemsg = new Message() { Opcode = 6, Custom = blackmoves };
                     Server.SendMessage(Black, JsonConvert.SerializeObject(bmovemsg));
                 }
@@ -147,7 +150,7 @@ namespace ChessIO.ws.Legacy
                 {
                     var gamedataWhite = new Message() { Opcode = 4, Gameid = Id, Fen = Fenstring, Playerid = White, Color = Playercolor.Black };
                     Server.SendMessage(White, JsonConvert.SerializeObject(gamedataWhite));
-                    var whitemoves = GetPlayerMoves(Playercolor.White, true);
+                    var whitemoves = GetPossibleMoves(Playercolor.White, true);
                     var wmovemsg = new Message() { Opcode = 6, Custom = whitemoves };
                     Server.SendMessage(White, JsonConvert.SerializeObject(wmovemsg));
                 }
@@ -261,15 +264,18 @@ namespace ChessIO.ws.Legacy
         }
         public Position GetKingPosition(Playercolor color)
         {
-            return PiecePositions.FirstOrDefault(x => (x.Piece == 'K' || x.Piece == 'k') && x.Color==color).Position;
+            if (color == Playercolor.Black)
+                return PiecePositions.FirstOrDefault(f => f.Piece == 'k').Position;
+            else
+                return PiecePositions.FirstOrDefault(f => f.Piece == 'K').Position;
         }
         public bool TargetIsEnemy(Position target, Playercolor mycolor)
         {
-            if (PiecePositions.FirstOrDefault(x => x.Position == target && x.Color != mycolor) != null)
+            if (PiecePositions.FirstOrDefault(x => x.IsEquals(target) && x.Color != mycolor) != null)
                 return true;
             else return false;
         }
-        public List<Possiblemoves> GetPlayerMoves(Playercolor color, bool ismyturn)
+        public List<Possiblemoves> GetPossibleMoves(Playercolor color, bool ismyturn)
         {
             List<PiecePosition> whiteposs = (PiecePositions.FindAll(x=>x.Color == color));
             foreach (var item in whiteposs)
