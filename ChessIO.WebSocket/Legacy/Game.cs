@@ -1,15 +1,6 @@
 ﻿using ChessIO.ws.Board;
 using ChessIO.ws.Helper;
 using Newtonsoft.Json;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChessIO.ws.Legacy
 {
@@ -200,11 +191,10 @@ namespace ChessIO.ws.Legacy
             }
             else
             {
-                
                 PiecePositions.Remove(oldpiece);
                 PiecePositions.Add(new PiecePosition(newpos, oldpiece.Piece, oldpiece.Color));
             }
-            
+            logic.ConvertToFen();
         }
         public List<PiecePosition> Simulatemove(Position oldpos, Position newpos)
         {
@@ -271,7 +261,7 @@ namespace ChessIO.ws.Legacy
         }
         public Position GetKingPosition(Playercolor color)
         {
-            return PiecePositions.FirstOrDefault(x => x.Piece == 'K'&& x.Color==color).Position;
+            return PiecePositions.FirstOrDefault(x => (x.Piece == 'K' || x.Piece == 'k') && x.Color==color).Position;
         }
         public bool TargetIsEnemy(Position target, Playercolor mycolor)
         {
@@ -318,7 +308,7 @@ namespace ChessIO.ws.Legacy
         }
         public PiecePosition GetPieceByPos(Position pos)
         {
-            return PiecePositions.FirstOrDefault(x=>x.Position==pos);
+            return PiecePositions.FirstOrDefault(x => x.Position.X == pos.X&& x.Position.Y==pos.Y);
         }
         public static Position GetZoneName(string pos)
         {

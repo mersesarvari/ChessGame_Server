@@ -14,8 +14,6 @@ using System.Xml.Linq;
 
 namespace ChessIO.ws.Legacy
 {
-    // White Pawn is tested and working
-    // Black Pawn is tested and working
     public class Logic
     {
         public Game game { get; set; }
@@ -139,11 +137,12 @@ namespace ChessIO.ws.Legacy
                 return true;
             else return false;
         }
-        public string ConvertToFen()
+        public void ConvertToFen()
         {
+            var board = DrawBoard();
             var fenstring = "";
             int zerocounter = 0;
-            /*
+            
             for (int i = 0; i < board.GetLength(0); i++)
             {
                 //Kezdődik a sor elemeinek megnézése
@@ -166,12 +165,10 @@ namespace ChessIO.ws.Legacy
                         }
                         fenstring += board[i, j];
                     }
-
                     //checking at the end of the row
                     if (j == 7 && emptyrow)
                     {
                         fenstring += zerocounter;
-
                     }
                     emptyrow = true;
                 }
@@ -180,11 +177,11 @@ namespace ChessIO.ws.Legacy
                     fenstring += "/";
                 }
             }
-            */
-            game.PiecePositions.Sort();
             //this.Fen = fenstring;
-            return fenstring;
+            game.Fenstring = fenstring;
+
         }
+        //Working more or less
         public void ConvertFromFen()
         {
             char[] numbers = new[] { '1', '2', '3', '4', '5', '6', '7' };
@@ -681,6 +678,27 @@ namespace ChessIO.ws.Legacy
             return possiblemoves.ToArray();
         }
         #endregion
+        public char[,] DrawBoard()
+        {
+            char[,] board = new char[8, 8];
+            for (int i = 0; i < Game.Zones.GetLength(0); i++)
+            {
+                for (int j = 0; j < Game.Zones.GetLength(1); j++)
+                {
+                    if (game.PiecePositions.FirstOrDefault(f => f.Position.X == i && f.Position.Y == j) != null)
+                    {
+                        var piece = game.PiecePositions.FirstOrDefault(f => f.Position.X == i && f.Position.Y == j);
+                        board[i, j] = piece.Piece;
+                    }
+                    else
+                    {
+                        board[i, j] = '0';
+                    }
+
+                }
+            }
+            return board;
+        }
     }
 }
 

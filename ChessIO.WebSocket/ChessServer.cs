@@ -83,6 +83,7 @@ namespace ChessIO.ws
                     //Console.Clear();
                     //var ischeck = Logic.IsMoveCheck(oldpos, newpos, currentgame.Board, currentgame.ActiveColor);
                     var isvalid = currentgame.logic.IsValidMove(oldpos, newpos, currentgame.ActiveColor, true);
+                    ;
                     if (isvalid)
                     {
                         //Moving on the board
