@@ -21,7 +21,7 @@ namespace ChessIO.ws
         }
         public void Move()
         {
-            var moves = game.GetPossibleMoves(color,false);
+            var moves = game.logic.GetValidMoves(color,false);
             Random random = new Random();
             var randommove=random.Next(moves.Count);
             var randommoveto = random.Next(moves[randommove].To.Count);

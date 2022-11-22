@@ -45,8 +45,7 @@ namespace ChessIO.ws
                     var newpos = new Position(d.NewcoordX, d.NewcoordY);
                     //Console.Clear();
                     //var ischeck = Logic.IsMoveCheck(oldpos, newpos, currentgame.Board, currentgame.ActiveColor);
-                    var isvalid = currentgame.logic.IsValidMove(oldpos, newpos, currentgame.ActiveColor,true);
-                    if (isvalid)
+                    if (currentgame.logic.IsValidMove(oldpos,newpos, currentgame.ActiveColor, true))
                     {
                         //Moving on the board
                         currentgame.MovePiece(oldpos, newpos);                        
@@ -82,9 +81,8 @@ namespace ChessIO.ws
                     var newpos = new Position(d.NewcoordX, d.NewcoordY);
                     //Console.Clear();
                     //var ischeck = Logic.IsMoveCheck(oldpos, newpos, currentgame.Board, currentgame.ActiveColor);
-                    var isvalid = currentgame.logic.IsValidMove(oldpos, newpos, currentgame.ActiveColor, true);
                     //Player Movement
-                    if (isvalid)
+                    if (currentgame.logic.IsValidMove(oldpos, newpos, currentgame.ActiveColor, true))
                     {
                         //Moving on the board
                         currentgame.MovePiece(oldpos, newpos);

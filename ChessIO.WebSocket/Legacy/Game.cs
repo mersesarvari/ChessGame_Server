@@ -407,7 +407,6 @@ namespace ChessIO.ws.Legacy
             }
             return true;
         }
-        
         public PiecePosition GetPieceByPos(Position pos)
         {
             return PiecePositions.FirstOrDefault(x => x.Position.X == pos.X && x.Position.Y == pos.Y);
