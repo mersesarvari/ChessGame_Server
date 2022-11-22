@@ -94,78 +94,66 @@ namespace ChessIO.ws.Legacy
             return notcheckmoves;
             
         }
-        private List<Position> GetAttackedPositions(Position oldpos, Playercolor color)
+        private List<Position> GetAttackedPositions(Playercolor color)
         {
             List<Position> validmoves = new List<Position>();
 
-            var currentPiece = game.GetPieceByPos(oldpos);
-            if (color == Playercolor.Black)
+            foreach (var item in game.PiecePositions)
             {
-                switch (currentPiece.Piece)
+                if (color == Playercolor.Black)
                 {
-                    case "p":
-                        validmoves = PawnAttack(oldpos.X, oldpos.Y, 'p', color).ToList();
-                        break;
-                    case "r":
-                        validmoves = RookAttack(oldpos.X, oldpos.Y, 'r', color).ToList();
-                        break;
-                    case "n":
-                        validmoves = KnightAttack(oldpos.X, oldpos.Y, color).ToList();
-                        break;
-                    case "b":
-                        validmoves = BishopAttack(oldpos.X, oldpos.Y, color).ToList();
-                        break;
-                    case "q":
-                        validmoves = QueenAttack(oldpos.X, oldpos.Y, 'q', color).ToList();
-                        break;
-                    case "k":
-                        validmoves = KingAttack(oldpos.X, oldpos.Y, color).ToList();
-                        break;
-                    default:
-                        break;
+                    switch (item.Piece)
+                    {
+                        case "p":
+                            validmoves = PawnAttack(item.Position.X, item.Position.Y, 'p', color).ToList();
+                            break;
+                        case "r":
+                            validmoves = RookAttack(item.Position.X, item.Position.Y, 'r', color).ToList();
+                            break;
+                        case "n":
+                            validmoves = KnightAttack(item.Position.X, item.Position.Y, color).ToList();
+                            break;
+                        case "b":
+                            validmoves = BishopAttack(item.Position.X, item.Position.Y, color).ToList();
+                            break;
+                        case "q":
+                            validmoves = QueenAttack(item.Position.X, item.Position.Y, 'q', color).ToList();
+                            break;
+                        case "k":
+                            validmoves = KingAttack(item.Position.X, item.Position.Y, color).ToList();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                if (color == Playercolor.White)
+                {
+                    switch (item.Piece)
+                    {
+                        case "P":
+                            validmoves = PawnMovement(item.Position.X, item.Position.Y, 'P', color).ToList();
+                            break;
+                        case "R":
+                            validmoves = RookMovement(item.Position.X, item.Position.Y, 'R', color).ToList();
+                            break;
+                        case "N":
+                            validmoves = KnightMovement(item.Position.X, item.Position.Y, color).ToList();
+                            break;
+                        case "B":
+                            validmoves = BishopMovement(item.Position.X, item.Position.Y, color).ToList();
+                            break;
+                        case "Q":
+                            validmoves = QueenMovement(item.Position.X, item.Position.Y, 'Q', color).ToList();
+                            break;
+                        case "K":
+                            validmoves = KingMovement(item.Position.X, item.Position.Y, color).ToList();
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
-            if (color == Playercolor.White)
-            {
-                switch (currentPiece.Piece)
-                {
-                    case "P":
-                        validmoves = PawnMovement(oldpos.X, oldpos.Y, 'P', color).ToList();
-                        break;
-                    case "R":
-                        validmoves = RookMovement(oldpos.X, oldpos.Y, 'R', color).ToList();
-                        break;
-                    case "N":
-                        validmoves = KnightMovement(oldpos.X, oldpos.Y, color).ToList();
-                        break;
-                    case "B":
-                        validmoves = BishopMovement(oldpos.X, oldpos.Y, color).ToList();
-                        break;
-                    case "Q":
-                        validmoves = QueenMovement(oldpos.X, oldpos.Y, 'Q', color).ToList();
-                        break;
-                    case "K":
-                        validmoves = KingMovement(oldpos.X, oldpos.Y, color).ToList();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            //Ki kell szedni azokat a lehetőségeket ami sakkhoz vezetnek
-            Position kingpos = game.GetKingPosition(color);
-            List<Position> notcheckmoves = new List<Position>();
-            foreach (var item in validmoves)
-            {
-                var newboard = game.Simulatemove(oldpos, item);
-                var opponentmoves = GetValidMoves(game.GetOppositeColor(color), false);
-                foreach (var item in opponentmoves)
-                {
-
-                }
-            }
-            return notcheckmoves;
-
+            return validmoves;
         }
         public bool IsValidMove(Position oldpos, Position newpos, Playercolor color, bool checkifcheck)
         {
