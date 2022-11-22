@@ -85,20 +85,23 @@ namespace ChessIO.ws.Legacy
             foreach (var item in validmoves)
             {
                 var newboard = game.Simulatemove(oldpos, item);
-                var opponentmoves = GetValidMoves(game.GetOppositeColor(color), false);
-                foreach (var item in opponentmoves)
+                var opponentmoves = GetAttackedPositions(newboard, color);
+                foreach (var oppattacks in opponentmoves)
                 {
-
+                    if (oppattacks.X == kingpos.X && oppattacks.Y == kingpos.Y)
+                    { 
+                        notcheckmoves.Add(oppattacks);
+                    }
                 }
             }
             return notcheckmoves;
             
         }
-        private List<Position> GetAttackedPositions(Playercolor color)
+        private List<Position> GetAttackedPositions(List<PiecePosition> piecepositions,Playercolor color)
         {
             List<Position> validmoves = new List<Position>();
 
-            foreach (var item in game.PiecePositions)
+            foreach (var item in piecepositions)
             {
                 if (color == Playercolor.Black)
                 {
@@ -181,7 +184,7 @@ namespace ChessIO.ws.Legacy
             foreach (var item in whiteposs)
             {
                 //Megnézem az adott pozícióról az összes valid lépést
-                var valid_moves_from_pos = GetValidMovesByPiece(item.Position, color, ismyturn);
+                var valid_moves_from_pos = GetValidMovesByPiece(item.Position, color);
                 var possiblemoves = new Possiblemoves(item.Position);
                 possiblemoves.To = valid_moves_from_pos;
                 if (color == Playercolor.White)
