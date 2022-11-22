@@ -109,8 +109,6 @@ namespace ChessIO.ws.Legacy
                         case "K":
                             validmoves.AddRange(KingAttack(item.Position.X, item.Position.Y, color).ToList());
                             break;
-                        default:
-                            break;
                     }
                 }
                 if (color == Playercolor.Black)
@@ -203,16 +201,14 @@ namespace ChessIO.ws.Legacy
                     {
                         var newboard = game.Simulatemove(item.From, moveto);
                         var opponentmoves = GetAttackedPositions(newboard, Playercolor.Black);
-                        foreach (var oppattacks in opponentmoves)
+                        if (!KingIsInCheck(newboard, color))
                         {
-                            if (oppattacks.X != kingpos.X && oppattacks.Y != kingpos.Y)
-                            {
-                                game.MovesForWhite.Add(item);
-                            }
+                            game.MovesForWhite.Add(item);
                         }
                     }
                     
                 }
+                var r = game.MovesForWhite.Distinct().ToList();
                 return game.MovesForWhite.Distinct().ToList();
             }
             else
@@ -227,16 +223,14 @@ namespace ChessIO.ws.Legacy
                     {
                         var newboard = game.Simulatemove(item.From, moveto);
                         var opponentmoves = GetAttackedPositions(newboard, Playercolor.White);
-                        foreach (var oppattacks in opponentmoves)
+                        if(!KingIsInCheck(newboard, color))
                         {
-                            if (oppattacks.X != kingpos.X && oppattacks.Y != kingpos.Y)
-                            {
-                                game.MovesForBlack.Add(item);
-                            }
+                            game.MovesForBlack.Add(item);
                         }
                     }
 
                 }
+                var r = game.MovesForBlack.Distinct().ToList();
                 return game.MovesForBlack.Distinct().ToList();
             }
         }
@@ -251,6 +245,20 @@ namespace ChessIO.ws.Legacy
         {
             var kingpos = game.GetKingPosition(color);
             var enemymoves = GetAttackedPositions(game.PiecePositions,game.GetOppositeColor(color));
+            bool check = false;
+            foreach (var item in enemymoves)
+            {
+                if (item.X == kingpos.X && item.Y == kingpos.Y)
+                {
+                    check = true;
+                }
+            }
+            return check;
+        }
+        public bool KingIsInCheck(List<PiecePosition> board,Playercolor color)
+        {
+            var kingpos = game.GetKingPosition(board,color);
+            var enemymoves = GetAttackedPositions(board, game.GetOppositeColor(color));
             bool check = false;
             foreach (var item in enemymoves)
             {

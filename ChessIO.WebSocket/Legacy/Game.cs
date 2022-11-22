@@ -389,6 +389,13 @@ namespace ChessIO.ws.Legacy
             else
                 return PiecePositions.FirstOrDefault(f => f.Piece == 'K'.ToString()).Position;
         }
+        public Position GetKingPosition(List<PiecePosition> newboard,Playercolor color)
+        {
+            if (color == Playercolor.Black)
+                return newboard.FirstOrDefault(f => f.Piece == 'k'.ToString()).Position;
+            else
+                return newboard.FirstOrDefault(f => f.Piece == 'K'.ToString()).Position;
+        }
         public bool TargetIsEnemy(Position target, Playercolor mycolor)
         {
             //Ez itt teljeen rossz
