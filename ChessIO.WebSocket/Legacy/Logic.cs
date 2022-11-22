@@ -107,22 +107,22 @@ namespace ChessIO.ws.Legacy
                     switch (item.Piece)
                     {
                         case "p":
-                            validmoves = PawnAttack(item.Position.X, item.Position.Y, 'p', color).ToList();
+                            validmoves.AddRange(PawnAttack(item.Position.X, item.Position.Y, 'p', color).ToList());
                             break;
                         case "r":
-                            validmoves = RookAttack(item.Position.X, item.Position.Y, 'r', color).ToList();
+                            validmoves.AddRange(RookAttack(item.Position.X, item.Position.Y, 'r', color).ToList());
                             break;
                         case "n":
-                            validmoves = KnightAttack(item.Position.X, item.Position.Y, color).ToList();
+                            validmoves.AddRange(KnightAttack(item.Position.X, item.Position.Y, color).ToList());
                             break;
                         case "b":
-                            validmoves = BishopAttack(item.Position.X, item.Position.Y, color).ToList();
+                            validmoves.AddRange(BishopAttack(item.Position.X, item.Position.Y, color).ToList());
                             break;
                         case "q":
-                            validmoves = QueenAttack(item.Position.X, item.Position.Y, 'q', color).ToList();
+                            validmoves.AddRange(QueenAttack(item.Position.X, item.Position.Y, 'q', color).ToList());
                             break;
                         case "k":
-                            validmoves = KingAttack(item.Position.X, item.Position.Y, color).ToList();
+                            validmoves.AddRange(KingAttack(item.Position.X, item.Position.Y, color).ToList());
                             break;
                         default:
                             break;
@@ -133,29 +133,32 @@ namespace ChessIO.ws.Legacy
                     switch (item.Piece)
                     {
                         case "p":
-                            validmoves = PawnAttack(item.Position.X, item.Position.Y, 'p', color).ToList();
+                            validmoves.AddRange(PawnAttack(item.Position.X, item.Position.Y, 'p', color).ToList());
                             break;
                         case "r":
-                            validmoves = RookAttack(item.Position.X, item.Position.Y, 'r', color).ToList();
+                            validmoves.AddRange(RookAttack(item.Position.X, item.Position.Y, 'r', color).ToList());
                             break;
                         case "n":
-                            validmoves = KnightAttack(item.Position.X, item.Position.Y, color).ToList();
+                            validmoves.AddRange(KnightAttack(item.Position.X, item.Position.Y, color).ToList());
                             break;
                         case "b":
-                            validmoves = BishopAttack(item.Position.X, item.Position.Y, color).ToList();
+                            validmoves.AddRange(BishopAttack(item.Position.X, item.Position.Y, color).ToList());
                             break;
                         case "q":
-                            validmoves = QueenAttack(item.Position.X, item.Position.Y, 'q', color).ToList();
+                            validmoves.AddRange(QueenAttack(item.Position.X, item.Position.Y, 'q', color).ToList());
                             break;
                         case "k":
-                            validmoves = KingAttack(item.Position.X, item.Position.Y, color).ToList();
-                            break;
-                        default:
+                            validmoves.AddRange(KingAttack(item.Position.X, item.Position.Y, color).ToList());
                             break;
                     }
                 }
             }
-            return validmoves;
+            Console.WriteLine("Attacked positions by " + color);
+            foreach (var item in validmoves)
+            {
+                Console.WriteLine($"[{item.X},{item.Y}]");
+            }
+            return validmoves.Distinct().ToList();
         }
 
         public bool IsValidMove(Position oldpos, Position newpos, Playercolor color, bool checkifcheck)
