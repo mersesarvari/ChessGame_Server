@@ -24,7 +24,6 @@ namespace ChessIO.ws.Legacy
         private List<Position> GetValidMovesByPiece(Position oldpos, Playercolor color)
         {
             List<Position> validmoves = new List<Position>();
-
             var currentPiece = game.GetPieceByPos(oldpos);
             if (color == Playercolor.Black)
             {
@@ -88,21 +87,47 @@ namespace ChessIO.ws.Legacy
                 var opponentmoves = GetAttackedPositions(newboard, color);
                 foreach (var oppattacks in opponentmoves)
                 {
-                    if (oppattacks.X == kingpos.X && oppattacks.Y == kingpos.Y)
-                    { 
-                        notcheckmoves.Add(oppattacks);
+                    if (oppattacks.X != kingpos.X && oppattacks.Y != kingpos.Y)
+                    {
+                        notcheckmoves.Add(item);
                     }
                 }
             }
             return notcheckmoves;
-            
+
         }
-        private List<Position> GetAttackedPositions(List<PiecePosition> piecepositions,Playercolor color)
+        private List<Position> GetAttackedPositions(List<PiecePosition> piecepositions, Playercolor color)
         {
             List<Position> validmoves = new List<Position>();
 
             foreach (var item in piecepositions)
             {
+                if (color == Playercolor.White)
+                {
+                    switch (item.Piece)
+                    {
+                        case "p":
+                            validmoves = PawnAttack(item.Position.X, item.Position.Y, 'p', color).ToList();
+                            break;
+                        case "r":
+                            validmoves = RookAttack(item.Position.X, item.Position.Y, 'r', color).ToList();
+                            break;
+                        case "n":
+                            validmoves = KnightAttack(item.Position.X, item.Position.Y, color).ToList();
+                            break;
+                        case "b":
+                            validmoves = BishopAttack(item.Position.X, item.Position.Y, color).ToList();
+                            break;
+                        case "q":
+                            validmoves = QueenAttack(item.Position.X, item.Position.Y, 'q', color).ToList();
+                            break;
+                        case "k":
+                            validmoves = KingAttack(item.Position.X, item.Position.Y, color).ToList();
+                            break;
+                        default:
+                            break;
+                    }
+                }
                 if (color == Playercolor.Black)
                 {
                     switch (item.Piece)
@@ -129,35 +154,10 @@ namespace ChessIO.ws.Legacy
                             break;
                     }
                 }
-                if (color == Playercolor.White)
-                {
-                    switch (item.Piece)
-                    {
-                        case "P":
-                            validmoves = PawnMovement(item.Position.X, item.Position.Y, 'P', color).ToList();
-                            break;
-                        case "R":
-                            validmoves = RookMovement(item.Position.X, item.Position.Y, 'R', color).ToList();
-                            break;
-                        case "N":
-                            validmoves = KnightMovement(item.Position.X, item.Position.Y, color).ToList();
-                            break;
-                        case "B":
-                            validmoves = BishopMovement(item.Position.X, item.Position.Y, color).ToList();
-                            break;
-                        case "Q":
-                            validmoves = QueenMovement(item.Position.X, item.Position.Y, 'Q', color).ToList();
-                            break;
-                        case "K":
-                            validmoves = KingMovement(item.Position.X, item.Position.Y, color).ToList();
-                            break;
-                        default:
-                            break;
-                    }
-                }
             }
             return validmoves;
         }
+
         public bool IsValidMove(Position oldpos, Position newpos, Playercolor color, bool checkifcheck)
         {
             var validmoves = GetValidMoves(color, true);
@@ -174,7 +174,7 @@ namespace ChessIO.ws.Legacy
                         }
                     }
                 }
-                
+
             }
             return isvalid;
         }
@@ -224,7 +224,7 @@ namespace ChessIO.ws.Legacy
         public bool KingIsInCheck(Playercolor color)
         {
             var kingpos = game.GetKingPosition(color);
-            var enemymoves = GetValidMoves(game.GetOppositeColor(color),true);
+            var enemymoves = GetValidMoves(game.GetOppositeColor(color), true);
             foreach (var item in enemymoves)
             {
                 foreach (var moveto in item.To)
