@@ -1,4 +1,5 @@
 ﻿using ChessIO.ws.Board;
+using Chesster.Chess;
 using SuperSocket.SocketBase;
 using System;
 using System.Collections.Generic;
@@ -77,23 +78,7 @@ namespace ChessIO.ws.Legacy
                         break;
                 }
             }
-
-            //Ki kell szedni azokat a lehetőségeket ami sakkhoz vezetnek
-            Position kingpos = game.GetKingPosition(color);
-            List<Position> notcheckmoves = new List<Position>();
-            foreach (var item in validmoves)
-            {
-                var newboard = game.Simulatemove(oldpos, item);
-                var opponentmoves = GetAttackedPositions(newboard, color);
-                foreach (var oppattacks in opponentmoves)
-                {
-                    if (oppattacks.X != kingpos.X && oppattacks.Y != kingpos.Y)
-                    {
-                        notcheckmoves.Add(item);
-                    }
-                }
-            }
-            return notcheckmoves;
+            return validmoves;
 
         }
         private List<Position> GetAttackedPositions(List<PiecePosition> piecepositions, Playercolor color)
@@ -106,22 +91,22 @@ namespace ChessIO.ws.Legacy
                 {
                     switch (item.Piece)
                     {
-                        case "p":
-                            validmoves.AddRange(PawnAttack(item.Position.X, item.Position.Y, 'p', color).ToList());
+                        case "P":
+                            validmoves.AddRange(PawnAttack(item.Position.X, item.Position.Y, 'P', color).ToList());
                             break;
-                        case "r":
-                            validmoves.AddRange(RookAttack(item.Position.X, item.Position.Y, 'r', color).ToList());
+                        case "R":
+                            validmoves.AddRange(RookAttack(item.Position.X, item.Position.Y, 'R', color).ToList());
                             break;
-                        case "n":
+                        case "N":
                             validmoves.AddRange(KnightAttack(item.Position.X, item.Position.Y, color).ToList());
                             break;
-                        case "b":
+                        case "B":
                             validmoves.AddRange(BishopAttack(item.Position.X, item.Position.Y, color).ToList());
                             break;
-                        case "q":
-                            validmoves.AddRange(QueenAttack(item.Position.X, item.Position.Y, 'q', color).ToList());
+                        case "Q":
+                            validmoves.AddRange(QueenAttack(item.Position.X, item.Position.Y, 'Q', color).ToList());
                             break;
-                        case "k":
+                        case "K":
                             validmoves.AddRange(KingAttack(item.Position.X, item.Position.Y, color).ToList());
                             break;
                         default:
@@ -153,17 +138,13 @@ namespace ChessIO.ws.Legacy
                     }
                 }
             }
-            Console.WriteLine("Attacked positions by " + color);
-            foreach (var item in validmoves)
-            {
-                Console.WriteLine($"[{item.X},{item.Y}]");
-            }
+            Console.WriteLine($"there is {validmoves.Distinct().ToList().Count()} attacked positions by {color}");
             return validmoves.Distinct().ToList();
         }
 
-        public bool IsValidMove(Position oldpos, Position newpos, Playercolor color, bool checkifcheck)
+        public bool IsValidMove(Position oldpos, Position newpos, Playercolor color)
         {
-            var validmoves = GetValidMoves(color, true);
+            var validmoves = GetValidMoves(color);
             var isvalid = false;
             foreach (var item in validmoves)
             {
@@ -181,9 +162,11 @@ namespace ChessIO.ws.Legacy
             }
             return isvalid;
         }
-        public List<Possiblemoves> GetValidMoves(Playercolor color, bool ismyturn)
+        public List<Possiblemoves> GetValidMoves(Playercolor color)
         {
             List<PiecePosition> whiteposs = (game.PiecePositions.FindAll(x => x.Color == color));
+            var whitemoves = new List<Possiblemoves>();
+            var blackmoves = new List<Possiblemoves>();
             foreach (var item in whiteposs)
             {
                 //Megnézem az adott pozícióról az összes valid lépést
@@ -194,32 +177,72 @@ namespace ChessIO.ws.Legacy
                 {
                     if (possiblemoves.To.Count() > 0)
                     {
-                        game.MovesForWhite.Add(possiblemoves);
-                        game.MovesForBlack = new List<Possiblemoves>();
+                        whitemoves.Add(possiblemoves);
                     }
                 }
                 else
                 {
                     if (possiblemoves.To.Count() > 0)
                     {
-                        game.MovesForBlack.Add(possiblemoves);
-                        game.MovesForWhite = new List<Possiblemoves>();
+                        blackmoves.Add(possiblemoves);
                     }
                 }
 
             }
+            ;
+            
+            //Get the real moves for white
             if (color == Playercolor.White)
             {
-                return game.MovesForWhite;
+                game.MovesForBlack = new List<Possiblemoves>();
+                game.MovesForWhite = new List<Possiblemoves>();
+                Position kingpos = game.GetKingPosition(color);
+                foreach (var item in whitemoves.Distinct().ToList())
+                {
+                    foreach (var moveto in item.To)
+                    {
+                        var newboard = game.Simulatemove(item.From, moveto);
+                        var opponentmoves = GetAttackedPositions(newboard, Playercolor.Black);
+                        foreach (var oppattacks in opponentmoves)
+                        {
+                            if (oppattacks.X != kingpos.X && oppattacks.Y != kingpos.Y)
+                            {
+                                game.MovesForWhite.Add(item);
+                            }
+                        }
+                    }
+                    
+                }
+                return game.MovesForWhite.Distinct().ToList();
             }
             else
             {
-                return game.MovesForBlack;
+                game.MovesForBlack = new List<Possiblemoves>();
+                game.MovesForWhite = new List<Possiblemoves>();
+                Position kingpos = game.GetKingPosition(color);
+                
+                foreach (var item in blackmoves.Distinct().ToList())
+                {
+                    foreach (var moveto in item.To)
+                    {
+                        var newboard = game.Simulatemove(item.From, moveto);
+                        var opponentmoves = GetAttackedPositions(newboard, Playercolor.White);
+                        foreach (var oppattacks in opponentmoves)
+                        {
+                            if (oppattacks.X != kingpos.X && oppattacks.Y != kingpos.Y)
+                            {
+                                game.MovesForBlack.Add(item);
+                            }
+                        }
+                    }
+
+                }
+                return game.MovesForBlack.Distinct().ToList();
             }
         }
         public bool IsCheckMate(Playercolor color)
         {
-            var counter = GetValidMoves(color, true).Count();
+            var counter = GetValidMoves(color).Count();
             if (counter == 0)
                 return true;
             else return false;
@@ -227,18 +250,16 @@ namespace ChessIO.ws.Legacy
         public bool KingIsInCheck(Playercolor color)
         {
             var kingpos = game.GetKingPosition(color);
-            var enemymoves = GetValidMoves(game.GetOppositeColor(color), true);
+            var enemymoves = GetAttackedPositions(game.PiecePositions,game.GetOppositeColor(color));
+            bool check = false;
             foreach (var item in enemymoves)
             {
-                foreach (var moveto in item.To)
+                if (item.X == kingpos.X && item.Y == kingpos.Y)
                 {
-                    if (moveto.X == kingpos.X && moveto.Y == kingpos.Y)
-                    {
-                        return true;
-                    }
+                    check = true;
                 }
             }
-            return false;
+            return check;
         }
         public void ConvertToFen()
         {

@@ -45,7 +45,7 @@ namespace ChessIO.ws
                     var newpos = new Position(d.NewcoordX, d.NewcoordY);
                     //Console.Clear();
                     //var ischeck = Logic.IsMoveCheck(oldpos, newpos, currentgame.Board, currentgame.ActiveColor);
-                    if (currentgame.logic.IsValidMove(oldpos,newpos, currentgame.ActiveColor, true))
+                    if (currentgame.logic.IsValidMove(oldpos,newpos, currentgame.ActiveColor))
                     {
                         //Moving on the board
                         currentgame.MovePiece(oldpos, newpos);                        
@@ -64,7 +64,7 @@ namespace ChessIO.ws
                         {
 
                             //Sending list of possible moves to the next player
-                            var playermoves = currentgame.logic.GetValidMoves(currentgame.ActiveColor,true);
+                            var playermoves = currentgame.logic.GetValidMoves(currentgame.ActiveColor);
                             var wmovemsg = new Message() { Opcode = 6, Custom = playermoves };
                             Server.SendMessage(currentgame.ActivePlayerId, JsonConvert.SerializeObject(wmovemsg));
                         }
@@ -82,7 +82,7 @@ namespace ChessIO.ws
                     //Console.Clear();
                     //var ischeck = Logic.IsMoveCheck(oldpos, newpos, currentgame.Board, currentgame.ActiveColor);
                     //Player Movement
-                    if (currentgame.logic.IsValidMove(oldpos, newpos, currentgame.ActiveColor, true))
+                    if (currentgame.logic.IsValidMove(oldpos, newpos, currentgame.ActiveColor))
                     {
                         //Moving on the board
                         currentgame.MovePiece(oldpos, newpos);
@@ -103,7 +103,7 @@ namespace ChessIO.ws
                         {
 
                             //Sending list of possible moves to the next player
-                            var playermoves = currentgame.logic.GetValidMoves(currentgame.ActiveColor, true);
+                            var playermoves = currentgame.logic.GetValidMoves(currentgame.ActiveColor);
                             var wmovemsg = new Message() { Opcode = 6, Custom = playermoves };
                             Server.SendMessage(currentgame.ActivePlayerId, JsonConvert.SerializeObject(wmovemsg));
                         }
@@ -130,7 +130,7 @@ namespace ChessIO.ws
                     {
 
                         //Sending list of possible moves to the next player
-                        var playermoves = currentgame.logic.GetValidMoves(currentgame.ActiveColor, true);
+                        var playermoves = currentgame.logic.GetValidMoves(currentgame.ActiveColor);
                         var wmovemsg = new Message() { Opcode = 6, Custom = playermoves };
                         Server.SendMessage(currentgame.ActivePlayerId, JsonConvert.SerializeObject(wmovemsg));
                     }

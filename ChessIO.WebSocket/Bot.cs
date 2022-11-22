@@ -21,10 +21,10 @@ namespace ChessIO.ws
         }
         public void Move()
         {
-            var moves = game.logic.GetValidMoves(color,false);
+            var moves = game.logic.GetValidMoves(color);
             Random random = new Random();
-            var randommove=random.Next(moves.Count);
-            var randommoveto = random.Next(moves[randommove].To.Count);
+            var randommove=random.Next(moves.Count());
+            var randommoveto = random.Next(moves[randommove].To.Count());
             game.MovePiece(moves[randommove].From, moves[randommove].To[randommoveto]);
         }
     }

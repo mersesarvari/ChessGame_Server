@@ -65,8 +65,8 @@ namespace ChessIO.ws.Legacy
             bot = new Bot(this, Playercolor.Black);
             Id = Guid.NewGuid().ToString();
             Gametype = GameType.Singleplayer;
-            Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-            //Fenstring = "rnbqk1nr/1p1ppp1p/2p3pb/p7/2BP4/4PQ2/PPP2PPP/RNB1K1NR";
+            //Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+            Fenstring = "rnbqk1nr/1p1ppp1p/2p3pb/p7/2BP4/4PQ2/PPP2PPP/RNB1K1NR";
             White = _p1.Id;
             Black = "Bot";
             TimerBlack = timer;
@@ -91,7 +91,8 @@ namespace ChessIO.ws.Legacy
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
             Id = Guid.NewGuid().ToString();
             Gametype = GameType.Multiplayer;
-            Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+            //Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+            Fenstring= "rnbqk1nr/1p1ppp1p/2p3pb/p7/2BP4/4PQ2/PPP2PPP/RNB1K1NR";
             var whiteblack = r.Next(0, 99);
             if (whiteblack % 2 == 1)
             {
@@ -143,8 +144,8 @@ namespace ChessIO.ws.Legacy
                 Server.SendMessage(White, JsonConvert.SerializeObject(gamedataWhite));
                 Server.SendMessage(Black, JsonConvert.SerializeObject(gamedataBlack));
                 //Sending players the basic possible moves
-                var whitemoves = logic.GetValidMoves(Playercolor.White, true);
-                var blackmoves = logic.GetValidMoves(Playercolor.Black, true);
+                var whitemoves = logic.GetValidMoves(Playercolor.White);
+                var blackmoves = logic.GetValidMoves(Playercolor.Black);
                 ;
                 var wmovemsg = new Message() { Opcode = 6, Custom = whitemoves };
                 var bmovemsg = new Message() { Opcode = 6, Custom = blackmoves };
@@ -160,7 +161,7 @@ namespace ChessIO.ws.Legacy
                 {
                     var gamedataBlack = new Message() { Opcode = 4, Gameid = Id, Fen = Fenstring, Playerid = Black, Color = Playercolor.White };
                     Server.SendMessage(Black, JsonConvert.SerializeObject(gamedataBlack));
-                    var blackmoves = logic.GetValidMoves(Playercolor.Black, true);
+                    var blackmoves = logic.GetValidMoves(Playercolor.Black);
                     var bmovemsg = new Message() { Opcode = 6, Custom = blackmoves };
                     Server.SendMessage(Black, JsonConvert.SerializeObject(bmovemsg));
                 }
@@ -168,7 +169,7 @@ namespace ChessIO.ws.Legacy
                 {
                     var gamedataWhite = new Message() { Opcode = 4, Gameid = Id, Fen = Fenstring, Playerid = White, Color = Playercolor.Black };
                     Server.SendMessage(White, JsonConvert.SerializeObject(gamedataWhite));
-                    var whitemoves = logic.GetValidMoves(Playercolor.White, true);
+                    var whitemoves = logic.GetValidMoves(Playercolor.White);
                     var wmovemsg = new Message() { Opcode = 6, Custom = whitemoves };
                     Server.SendMessage(White, JsonConvert.SerializeObject(wmovemsg));
                 }
@@ -207,7 +208,7 @@ namespace ChessIO.ws.Legacy
         }
         public bool ZoneIsAttackedByEnemy(Position pos, Playercolor mycolor)
         {
-            var opponentmoves = logic.GetValidMoves(GetOppositeColor(mycolor),false);
+            var opponentmoves = logic.GetValidMoves(GetOppositeColor(mycolor));
             foreach (var moveto in opponentmoves)
             {
                 foreach (var item in moveto.To)
