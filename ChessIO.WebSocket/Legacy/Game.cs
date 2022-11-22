@@ -51,10 +51,10 @@ namespace ChessIO.ws.Legacy
         public string ActivePlayerId { get; set; }
 
         //Sáncolás változók
-        public bool whiteCastleKingSide = true;
-        public bool whiteCastleQueenSide = true;
-        public bool blackCastleKingSide = true;
-        public bool blackCastleQueenSide = true;
+        public bool whiteCastleKingSide { get; set; }
+        public bool whiteCastleQueenSide { get; set; }
+        public bool blackCastleKingSide { get; set; }
+        public bool blackCastleQueenSide { get; set; }
 
 
         #endregion
@@ -77,6 +77,11 @@ namespace ChessIO.ws.Legacy
             MovesForWhite = new List<Possiblemoves>();
             MovesForBlack = new List<Possiblemoves>();
             PiecePositions = new List<PiecePosition>();
+            
+            whiteCastleKingSide = true;
+            whiteCastleQueenSide = true;
+            blackCastleKingSide = true;
+            blackCastleQueenSide = true;
             logic = new Logic(this);
             logic.ConvertFromFen();
 
@@ -106,9 +111,13 @@ namespace ChessIO.ws.Legacy
             MovesForWhite = new List<Possiblemoves>();
             MovesForBlack = new List<Possiblemoves>();
             PiecePositions = new List<PiecePosition>();
+            
+            whiteCastleKingSide = true;
+            whiteCastleQueenSide = true;
+            blackCastleKingSide = true;
+            blackCastleQueenSide = true;
             logic = new Logic(this);
             logic.ConvertFromFen();
-
         }
         public Playercolor InactiveColor()
         {
@@ -141,6 +150,7 @@ namespace ChessIO.ws.Legacy
                 var bmovemsg = new Message() { Opcode = 6, Custom = blackmoves };
                 Server.SendMessage(White, JsonConvert.SerializeObject(wmovemsg));
                 Server.SendMessage(Black, JsonConvert.SerializeObject(bmovemsg));
+
             }
             else
             {
@@ -162,6 +172,11 @@ namespace ChessIO.ws.Legacy
                     var wmovemsg = new Message() { Opcode = 6, Custom = whitemoves };
                     Server.SendMessage(White, JsonConvert.SerializeObject(wmovemsg));
                 }
+            }
+            Console.WriteLine("Game starting:");
+            foreach (var item in logic.game.PiecePositions)
+            {
+                Console.WriteLine(item.Piece + "--" + item.Position.X + "|" + item.Position.Y);
             }
         }
         public void BroadcastMessage(Message message)
@@ -190,39 +205,89 @@ namespace ChessIO.ws.Legacy
                     Server.SendMessage(Black, JsonConvert.SerializeObject(message));
             }
         }
-        public void MovePiece(Position oldpos, Position newpos)
+        public void CastleMove(Position oldpos, Position newpos, PiecePosition oldpiece)
         {
-            var oldpiece = GetPieceByPos(oldpos);
-            if (oldpiece.Piece == 'K')
+            if (oldpiece.Piece == 'K'.ToString())
             {
-                whiteCastleKingSide = false;
+                if (oldpos.X == newpos.X && whiteCastleQueenSide)
+                {
+                    if (oldpos.Y - 2 == newpos.Y)
+                    {
+                        //removing old rook from left
+                        var rook = GetPieceByPos(new Position(7, 0));
+                        var king = GetPieceByPos(oldpos);
+                        king.ChangePosition(oldpos.X, oldpos.Y - 2);
+                        rook.ChangePosition(newpos.X, newpos.Y + 1);
+
+                    }
+                    if (oldpos.Y + 2 == newpos.Y && whiteCastleKingSide)
+                    {
+                        var rook = GetPieceByPos(new Position(7, 7));
+                        var king = GetPieceByPos(oldpos);
+                        king.ChangePosition(oldpos.X, oldpos.Y + 2);
+                        rook.ChangePosition(newpos.X, newpos.Y - 1);
+
+                    }
+                }
                 whiteCastleQueenSide = false;
+                whiteCastleKingSide = false;
+                logic.ConvertToFen();
+                return;
             }
-            if (oldpiece.Piece == 'k')
+            if (oldpiece.Piece == 'k'.ToString())
             {
+
+                if (oldpos.X == newpos.X)
+                {
+                    if (oldpos.Y - 2 == newpos.Y && blackCastleQueenSide)
+                    {
+                        //removing old rook from left
+                        var rook = GetPieceByPos(new Position(0, 0));
+                        var king = GetPieceByPos(oldpos);
+                        king.ChangePosition(oldpos.X, oldpos.Y - 2);
+                        rook.ChangePosition(newpos.X, newpos.Y + 1);
+
+                    }
+                    if (oldpos.Y + 2 == newpos.Y && blackCastleKingSide)
+                    {
+                        var rook = GetPieceByPos(new Position(0, 7));
+                        var king = GetPieceByPos(oldpos);
+                        king.ChangePosition(oldpos.X, oldpos.Y + 2);
+                        rook.ChangePosition(newpos.X, newpos.Y - 1);
+
+                    }
+                }
                 blackCastleKingSide = false;
                 blackCastleQueenSide = false;
+                logic.ConvertToFen();
+                return;
             }
             //Queenside black rook moved
-            if (oldpiece.Piece == 'r' && oldpos.X == 0 && oldpos.Y == 0)
+            if (oldpiece.Piece == 'r'.ToString() && oldpos.X == 0 && oldpos.Y == 0)
             {
                 blackCastleQueenSide = false;
             }
             //Kingside black rook moved
-            if (oldpiece.Piece == 'r' && oldpos.X == 0 && oldpos.Y == 7)
+            if (oldpiece.Piece == 'r'.ToString() && oldpos.X == 0 && oldpos.Y == 7)
             {
                 blackCastleKingSide = false;
             }
             //Queenside white rook moved
-            if (oldpiece.Piece == 'R' && oldpos.X == 7 && oldpos.Y == 0)
+            if (oldpiece.Piece == 'R'.ToString() && oldpos.X == 7 && oldpos.Y == 0)
             {
                 whiteCastleQueenSide = false;
             }
             //Kingside white rook moved
-            if (oldpiece.Piece == 'R' && oldpos.X == 7 && oldpos.Y == 7)
+            if (oldpiece.Piece == 'R'.ToString() && oldpos.X == 7 && oldpos.Y == 7)
             {
                 whiteCastleKingSide = false;
             }
+        }
+        public void MovePiece(Position oldpos, Position newpos)
+        {
+            var oldpiece = GetPieceByPos(oldpos);
+
+            CastleMove(oldpos, newpos, oldpiece);
 
             // Checking is the new position is an enemy character or not
             if (GetPieceByPos(newpos) != null)
@@ -304,9 +369,9 @@ namespace ChessIO.ws.Legacy
         public Position GetKingPosition(Playercolor color)
         {
             if (color == Playercolor.Black)
-                return PiecePositions.FirstOrDefault(f => f.Piece == 'k').Position;
+                return PiecePositions.FirstOrDefault(f => f.Piece == 'k'.ToString()).Position;
             else
-                return PiecePositions.FirstOrDefault(f => f.Piece == 'K').Position;
+                return PiecePositions.FirstOrDefault(f => f.Piece == 'K'.ToString()).Position;
         }
         public bool TargetIsEnemy(Position target, Playercolor mycolor)
         {
@@ -314,8 +379,8 @@ namespace ChessIO.ws.Legacy
             foreach (var item in PiecePositions)
             {
                 if (item.IsEquals(target))
-                { 
-                    if(mycolor== item.Color)
+                {
+                    if (mycolor == item.Color)
                     {
                         return false;
                     }

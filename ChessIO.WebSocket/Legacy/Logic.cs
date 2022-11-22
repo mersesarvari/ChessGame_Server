@@ -30,22 +30,22 @@ namespace ChessIO.ws.Legacy
             {
                 switch (currentPiece.Piece)
                 {
-                    case 'p':
+                    case "p":
                         validmoves = PawnMovement(oldpos.X, oldpos.Y, 'p', color).ToList();
                         break;
-                    case 'r':
+                    case "r":
                         validmoves = RookMovement(oldpos.X, oldpos.Y, 'r', color).ToList();
                         break;
-                    case 'n':
+                    case "n":
                         validmoves = KnightMovement(oldpos.X, oldpos.Y, color).ToList();
                         break;
-                    case 'b':
+                    case "b":
                         validmoves = BishopMovement(oldpos.X, oldpos.Y, color).ToList();
                         break;
-                    case 'q':
+                    case "q":
                         validmoves = QueenMovement(oldpos.X, oldpos.Y, 'q', color).ToList();
                         break;
-                    case 'k':
+                    case "k":
                         validmoves = KingMovement(oldpos.X, oldpos.Y, color).ToList();
                         break;
                     default:
@@ -56,22 +56,22 @@ namespace ChessIO.ws.Legacy
             {
                 switch (currentPiece.Piece)
                 {
-                    case 'P':
+                    case "P":
                         validmoves = PawnMovement(oldpos.X, oldpos.Y, 'P', color).ToList();
                         break;
-                    case 'R':
+                    case "R":
                         validmoves = RookMovement(oldpos.X, oldpos.Y, 'R', color).ToList();
                         break;
-                    case 'N':
+                    case "N":
                         validmoves = KnightMovement(oldpos.X, oldpos.Y, color).ToList();
                         break;
-                    case 'B':
+                    case "B":
                         validmoves = BishopMovement(oldpos.X, oldpos.Y, color).ToList();
                         break;
-                    case 'Q':
+                    case "Q":
                         validmoves = QueenMovement(oldpos.X, oldpos.Y, 'Q', color).ToList();
                         break;
-                    case 'K':
+                    case "K":
                         validmoves = KingMovement(oldpos.X, oldpos.Y,  color).ToList();
                         break;
                     default:
@@ -151,11 +151,11 @@ namespace ChessIO.ws.Legacy
                 for (int j = 0; j < board.GetLength(1); j++)
                 {
                     //Ha 0 jön akkor nő a változó
-                    if (board[i, j] == '0')
+                    if (board[i, j] == "0")
                     {
                         zerocounter++;
                     }
-                    else if (board[i, j] != '0')
+                    else if (board[i, j] != "0")
                     {
                         emptyrow = false;
                         if (zerocounter > 0)
@@ -187,13 +187,14 @@ namespace ChessIO.ws.Legacy
             game.PiecePositions = new List<PiecePosition>();
             DrawBoard();
             var matrix = GetMatrixFromFen(game.Fenstring);
+            ;
             for (int i = 0; i < matrix.GetLength(0); i++)
             {
                 for (int j = 0; j < matrix.GetLength(1); j++)
                 {
-                    if (matrix[i, j] != '0')
+                    if (matrix[i, j] != "0")
                     {
-                        if (Char.IsUpper(matrix[i, j]))
+                        if (Char.IsUpper(matrix[i, j][0]))
                         {
                             game.PiecePositions.Add(new PiecePosition(new Position(i, j), matrix[i, j], Playercolor.White));
                         }
@@ -204,9 +205,9 @@ namespace ChessIO.ws.Legacy
                     }
                 }
             }
+            var l =game.PiecePositions;
+            ;
         }
-
-        // Not fully working
         #region piecemovement
         public Position[] PawnMovement(int x, int y, char chartype, Playercolor color)
         {
@@ -574,7 +575,6 @@ namespace ChessIO.ws.Legacy
 
 
         }
-        //Hiányzik a rosálás logika
         public Position[] KingMovement(int x, int y, Playercolor color)
         {
             List<Position> possiblemoves = new List<Position>();
@@ -625,28 +625,50 @@ namespace ChessIO.ws.Legacy
             //Castle movement for white
             if (game.whiteCastleQueenSide)
             {
-                possiblemoves.Add(new Position(x, y - 2));
+                if (game.GetPieceByPos(new Position(x, y - 2)) == null &&
+                    game.GetPieceByPos(new Position(x, y - 1)) == null &&
+                    game.GetPieceByPos(new Position(x, y - 3)) == null)
+                {
+                    possiblemoves.Add(new Position(x, y - 2));
+                }
+                
             }
             if (game.whiteCastleKingSide)
             {
-                possiblemoves.Add(new Position(x, y + 2));
+                if (game.GetPieceByPos(new Position(x, y + 2)) == null &&
+                    game.GetPieceByPos(new Position(x, y + 1)) == null)
+                {
+                    possiblemoves.Add(new Position(x, y + 2));
+                }
+                
             }
             //Castle movement for black
             if (game.blackCastleQueenSide)
             {
-                possiblemoves.Add(new Position(x, y - 2));
+                if (game.GetPieceByPos(new Position(x, y - 2)) == null &&
+                    game.GetPieceByPos(new Position(x, y - 1)) == null &&
+                    game.GetPieceByPos(new Position(x, y - 3)) == null)
+                {
+                    possiblemoves.Add(new Position(x, y - 2));
+                }
+                
             }
-            if (game.whiteCastleKingSide)
+            if (game.blackCastleKingSide)
             {
-                possiblemoves.Add(new Position(x, y + 2));
+                if (game.GetPieceByPos(new Position(x, y + 2)) == null &&
+                    game.GetPieceByPos(new Position(x, y + 1)) == null)
+                {
+                    possiblemoves.Add(new Position(x, y + 2));
+                }
+                
             }
             #endregion
             return possiblemoves.ToArray();
         }
         #endregion
-        public char[,] DrawBoard()
+        public string[,] DrawBoard()
         {
-            char[,] board = new char[8, 8];
+            string[,] board = new string[8, 8];
             for (int i = 0; i < Game.Zones.GetLength(0); i++)
             {
                 for (int j = 0; j < Game.Zones.GetLength(1); j++)
@@ -658,40 +680,40 @@ namespace ChessIO.ws.Legacy
                     }
                     else
                     {
-                        board[i, j] = '0';
+                        board[i, j] = "0";
                     }
 
                 }
             }
             return board;
         }
-        public char[,] GetMatrixFromFen(string fen)
+        public string[,] GetMatrixFromFen(string fen)
         {
             //Többi beállítás hiányzik logic kell ide
-            char[,] baseboard = new char[8, 8];
+            string[,] baseboard = new string[8, 8];
             //Alapvető állás konverzió
-            var fenstring = fen.Split(' ')[0];
+            var fenstring = fen.Split(" ")[0];
             var _board = baseboard;
             //string[] line = new string[8];
-            for (var i = 0; i < fenstring.Split('/').Length; i++)
+            for (var i = 0; i < fenstring.Split("/").Length; i++)
             {
                 string line = "";
-                for (int chars = 0; chars < fenstring.Split('/')[i].Length; chars++)
+                for (int chars = 0; chars < fenstring.Split("/")[i].Length; chars++)
                 {
-                    var current = fenstring.Split('/')[i][chars];
+                    var current = fenstring.Split("/")[i][chars].ToString();
                     //CHARACTER IS NUMBER
                     //Checking empty row
-                    if (current == '8')
+                    if (current == "8")
                     {
                         line = "0" + "0" + "0" + "0" + "0" + "0" + "0" + "0";
                         break;
                     }
                     // Checking empty cells in the row
-                    else if (current == '1' || current == '2' || current == '3' || current == '4' || current == '5' || current == '6' || current == '7')
+                    else if (current == "1" || current == "2" || current == "3" || current == "4" || current == "5" || current == "6" || current == "7")
                     {
                         for (int szorzo = 0; szorzo < int.Parse(current.ToString()); szorzo++)
                         {
-                            line += ('0'.ToString());
+                            line += ("0".ToString());
                         }
                     }
                     //Checking valid piececodes
@@ -709,7 +731,7 @@ namespace ChessIO.ws.Legacy
                 //_board[i] = line.ToArray();
                 for (int k = 0; k < line.Length; k++)
                 {
-                    _board[i, k] = line[k];
+                    _board[i, k] = line[k].ToString();
                 }
             };
             return _board;

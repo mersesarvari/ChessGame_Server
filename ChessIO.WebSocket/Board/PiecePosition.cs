@@ -10,10 +10,10 @@ namespace ChessIO.ws.Board
     public class PiecePosition
     {
         public Position Position { get; set; }
-        public char Piece { get; set; }
+        public string Piece { get; set; }
         public Playercolor Color { get; set; }
 
-        public PiecePosition(Position position, char piece, Playercolor color)
+        public PiecePosition(Position position, string piece, Playercolor color)
         {
             Position = position;
             Piece = piece;
@@ -21,8 +21,9 @@ namespace ChessIO.ws.Board
         }
 
         public void ChangePosition(int x, int y)
-        { 
-            Position = new Position(x, y);
+        {
+            Position.X = x;
+            Position.Y = y;
         }
 
         public bool IsEquals(Position pos)
@@ -32,6 +33,8 @@ namespace ChessIO.ws.Board
             else
             return false;
         }
+
+
 
         
     }
