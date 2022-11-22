@@ -72,7 +72,7 @@ namespace ChessIO.ws.Legacy
                         validmoves = QueenMovement(oldpos.X, oldpos.Y, 'Q', color).ToList();
                         break;
                     case "K":
-                        validmoves = KingMovement(oldpos.X, oldpos.Y,  color).ToList();
+                        validmoves = KingMovement(oldpos.X, oldpos.Y, color).ToList();
                         break;
                     default:
                         break;
@@ -86,7 +86,7 @@ namespace ChessIO.ws.Legacy
                 {
                     var newboard = game.Simulatemove(oldpos, item);
                     List<Position> oppvalidmoves = new List<Position>();
-                    oppvalidmoves = GetAllMoves(Game.GetOppositeColor(color), false);
+                    oppvalidmoves = GetAllMoves(game.GetOppositeColor(color), false);
 
                     Position kingpos = game.GetKingPosition(color);
                     var feltetel = oppvalidmoves.FirstOrDefault(x => x.X == kingpos.X && x.Y == kingpos.Y);
@@ -101,11 +101,6 @@ namespace ChessIO.ws.Legacy
 
             return validmoves;
         }
-        /// <summary>
-        /// Getting all the valid moves with a specific color and with the current board standing
-        /// </summary>
-        /// <param name="game"></param>
-        /// <returns></returns>        
         public List<Position> GetAllMoves(Playercolor color, bool repeat)
         {
             var allvalidmoves = new List<Position>();
@@ -136,6 +131,15 @@ namespace ChessIO.ws.Legacy
             if (counter == 0)
                 return true;
             else return false;
+        }
+        public bool KingIsInCheck(Playercolor color)
+        {
+            var kingpos = game.GetKingPosition(color);
+            if (GetAllMoves(game.GetOppositeColor(color), false).FirstOrDefault(item => item.X == kingpos.X && item.Y == kingpos.Y) == null)
+            {
+                return false;
+            }
+            else return true;
         }
         public void ConvertToFen()
         {
@@ -181,7 +185,6 @@ namespace ChessIO.ws.Legacy
             game.Fenstring = fenstring;
 
         }
-        //Working more or less
         public void ConvertFromFen()
         {
             game.PiecePositions = new List<PiecePosition>();
@@ -205,7 +208,7 @@ namespace ChessIO.ws.Legacy
                     }
                 }
             }
-            var l =game.PiecePositions;
+            var l = game.PiecePositions;
             ;
         }
         #region piecemovement
@@ -528,7 +531,7 @@ namespace ChessIO.ws.Legacy
                 {
                     possiblemoves.Add(new Position(x - 2, y - 1));
                 }
-                if (y + 1 <= 7 && game.TargetIsEnemy(new Position(x - 2, y +1), color))
+                if (y + 1 <= 7 && game.TargetIsEnemy(new Position(x - 2, y + 1), color))
                 {
                     possiblemoves.Add(new Position(x - 2, y + 1));
                 }
@@ -540,7 +543,7 @@ namespace ChessIO.ws.Legacy
                 {
                     possiblemoves.Add(new Position(x + 2, y - 1));
                 }
-                if (y + 1 <= 7 && game.TargetIsEnemy(new Position(x+2, y +1), color))
+                if (y + 1 <= 7 && game.TargetIsEnemy(new Position(x + 2, y + 1), color))
                 {
                     possiblemoves.Add(new Position(x + 2, y + 1));
                 }
@@ -549,7 +552,7 @@ namespace ChessIO.ws.Legacy
             // Left side movement
             if (y - 2 >= 0)
             {
-                if (x - 1 >= 0 && game.TargetIsEnemy(new Position(x-1,y-2),color))
+                if (x - 1 >= 0 && game.TargetIsEnemy(new Position(x - 1, y - 2), color))
                 {
                     possiblemoves.Add(new Position(x - 1, y - 2));
                 }
@@ -566,7 +569,7 @@ namespace ChessIO.ws.Legacy
                 {
                     possiblemoves.Add(new Position(x - 1, y + 2));
                 }
-                if (x + 1 <= 7 && game.TargetIsEnemy(new Position(x + 1, y +2), color))
+                if (x + 1 <= 7 && game.TargetIsEnemy(new Position(x + 1, y + 2), color))
                 {
                     possiblemoves.Add(new Position(x + 1, y + 2));
                 }
@@ -627,40 +630,54 @@ namespace ChessIO.ws.Legacy
             {
                 if (game.GetPieceByPos(new Position(x, y - 2)) == null &&
                     game.GetPieceByPos(new Position(x, y - 1)) == null &&
-                    game.GetPieceByPos(new Position(x, y - 3)) == null)
+                    game.GetPieceByPos(new Position(x, y - 3)) == null &&
+                    !game.ZoneIsAttackedByEnemy(new Position(x, y - 1), color) &&
+                    !game.ZoneIsAttackedByEnemy(new Position(x, y - 2), color) &&
+                    !game.ZoneIsAttackedByEnemy(new Position(x, y - 3), color) &&
+                    !KingIsInCheck(color))
                 {
                     possiblemoves.Add(new Position(x, y - 2));
                 }
-                
+
             }
             if (game.whiteCastleKingSide)
             {
                 if (game.GetPieceByPos(new Position(x, y + 2)) == null &&
-                    game.GetPieceByPos(new Position(x, y + 1)) == null)
+                    game.GetPieceByPos(new Position(x, y + 1)) == null &&
+                    !game.ZoneIsAttackedByEnemy(new Position(x, y + 1), color) &&
+                    !game.ZoneIsAttackedByEnemy(new Position(x, y + 2), color) &&
+                    !KingIsInCheck(color))
                 {
                     possiblemoves.Add(new Position(x, y + 2));
                 }
-                
+
             }
             //Castle movement for black
             if (game.blackCastleQueenSide)
             {
                 if (game.GetPieceByPos(new Position(x, y - 2)) == null &&
                     game.GetPieceByPos(new Position(x, y - 1)) == null &&
-                    game.GetPieceByPos(new Position(x, y - 3)) == null)
+                    game.GetPieceByPos(new Position(x, y - 3)) == null &&
+                    !game.ZoneIsAttackedByEnemy(new Position(x, y - 1), color) &&
+                    !game.ZoneIsAttackedByEnemy(new Position(x, y - 2), color) &&
+                    !game.ZoneIsAttackedByEnemy(new Position(x, y - 3), color) &&
+                    !KingIsInCheck(color))
                 {
                     possiblemoves.Add(new Position(x, y - 2));
                 }
-                
+
             }
             if (game.blackCastleKingSide)
             {
                 if (game.GetPieceByPos(new Position(x, y + 2)) == null &&
-                    game.GetPieceByPos(new Position(x, y + 1)) == null)
+                    game.GetPieceByPos(new Position(x, y + 1)) == null &&
+                    !game.ZoneIsAttackedByEnemy(new Position(x, y + 1), color) &&
+                    !game.ZoneIsAttackedByEnemy(new Position(x, y + 2), color) &&
+                    !KingIsInCheck(color))
                 {
                     possiblemoves.Add(new Position(x, y + 2));
                 }
-                
+
             }
             #endregion
             return possiblemoves.ToArray();

@@ -126,7 +126,7 @@ namespace ChessIO.ws.Legacy
             else
                 return Playercolor.White;
         }
-        public static Playercolor GetOppositeColor(Playercolor color)
+        public Playercolor GetOppositeColor(Playercolor color)
         {
             if (color == Playercolor.White)
                 return Playercolor.Black;
@@ -204,6 +204,15 @@ namespace ChessIO.ws.Legacy
                 if (Black != "Bot")
                     Server.SendMessage(Black, JsonConvert.SerializeObject(message));
             }
+        }
+        public bool ZoneIsAttackedByEnemy(Position pos, Playercolor mycolor)
+        {
+            var opponentmoves = logic.GetAllMoves(GetOppositeColor(mycolor),false);
+            if (opponentmoves.FirstOrDefault(item => item.X == pos.X && item.Y == pos.Y) != null)
+            {
+                return true;
+            }
+            else return false;
         }
         public void CastleMove(Position oldpos, Position newpos, PiecePosition oldpiece)
         {
