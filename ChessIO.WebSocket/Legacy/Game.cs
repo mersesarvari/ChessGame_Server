@@ -143,8 +143,8 @@ namespace ChessIO.ws.Legacy
                 Server.SendMessage(White, JsonConvert.SerializeObject(gamedataWhite));
                 Server.SendMessage(Black, JsonConvert.SerializeObject(gamedataBlack));
                 //Sending players the basic possible moves
-                var whitemoves = GetPossibleMoves(Playercolor.White, true);
-                var blackmoves = GetPossibleMoves(Playercolor.Black, true);
+                var whitemoves = logic.GetValidMoves(Playercolor.White, true);
+                var blackmoves = logic.GetValidMoves(Playercolor.Black, true);
                 ;
                 var wmovemsg = new Message() { Opcode = 6, Custom = whitemoves };
                 var bmovemsg = new Message() { Opcode = 6, Custom = blackmoves };
@@ -160,7 +160,7 @@ namespace ChessIO.ws.Legacy
                 {
                     var gamedataBlack = new Message() { Opcode = 4, Gameid = Id, Fen = Fenstring, Playerid = Black, Color = Playercolor.White };
                     Server.SendMessage(Black, JsonConvert.SerializeObject(gamedataBlack));
-                    var blackmoves = GetPossibleMoves(Playercolor.Black, true);
+                    var blackmoves = logic.GetValidMoves(Playercolor.Black, true);
                     var bmovemsg = new Message() { Opcode = 6, Custom = blackmoves };
                     Server.SendMessage(Black, JsonConvert.SerializeObject(bmovemsg));
                 }
@@ -168,7 +168,7 @@ namespace ChessIO.ws.Legacy
                 {
                     var gamedataWhite = new Message() { Opcode = 4, Gameid = Id, Fen = Fenstring, Playerid = White, Color = Playercolor.Black };
                     Server.SendMessage(White, JsonConvert.SerializeObject(gamedataWhite));
-                    var whitemoves = GetPossibleMoves(Playercolor.White, true);
+                    var whitemoves = logic.GetValidMoves(Playercolor.White, true);
                     var wmovemsg = new Message() { Opcode = 6, Custom = whitemoves };
                     Server.SendMessage(White, JsonConvert.SerializeObject(wmovemsg));
                 }
@@ -207,12 +207,18 @@ namespace ChessIO.ws.Legacy
         }
         public bool ZoneIsAttackedByEnemy(Position pos, Playercolor mycolor)
         {
-            var opponentmoves = logic.GetAllMoves(GetOppositeColor(mycolor),false);
-            if (opponentmoves.FirstOrDefault(item => item.X == pos.X && item.Y == pos.Y) != null)
+            var opponentmoves = logic.GetValidMoves(GetOppositeColor(mycolor),false);
+            foreach (var moveto in opponentmoves)
             {
-                return true;
+                foreach (var item in moveto.To)
+                {
+                    if (item.X == pos.X && item.Y == pos.Y)
+                    {
+                        return true;
+                    }
+                }
             }
-            else return false;
+            return false;
         }
         public void CastleMove(Position oldpos, Position newpos, PiecePosition oldpiece)
         {
@@ -401,43 +407,7 @@ namespace ChessIO.ws.Legacy
             }
             return true;
         }
-        public List<Possiblemoves> GetPossibleMoves(Playercolor color, bool ismyturn)
-        {
-            List<PiecePosition> whiteposs = (PiecePositions.FindAll(x => x.Color == color));
-            foreach (var item in whiteposs)
-            {
-                //Megnézem az adott pozícióról az összes valid lépést
-                var valid_moves_from_pos = logic.GetValidMoves(item.Position, color, ismyturn);
-                var possiblemoves = new Possiblemoves(item.Position);
-                possiblemoves.To = valid_moves_from_pos;
-                if (color == Playercolor.White)
-                {
-                    if (possiblemoves.To.Count() > 0)
-                    {
-                        MovesForWhite.Add(possiblemoves);
-                        MovesForBlack = new List<Possiblemoves>();
-                    }
-                }
-                else
-                {
-                    if (possiblemoves.To.Count() > 0)
-                    {
-                        MovesForBlack.Add(possiblemoves);
-                        MovesForWhite = new List<Possiblemoves>();
-                    }
-                }
-
-            }
-            if (color == Playercolor.White)
-            {
-                return MovesForWhite;
-            }
-            else
-            {
-                return MovesForBlack;
-            }
-
-        }
+        
         public PiecePosition GetPieceByPos(Position pos)
         {
             return PiecePositions.FirstOrDefault(x => x.Position.X == pos.X && x.Position.Y == pos.Y);
