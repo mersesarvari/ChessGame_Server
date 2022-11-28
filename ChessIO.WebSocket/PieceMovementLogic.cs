@@ -492,6 +492,15 @@ namespace ChessIO.ws
             return possiblemoves.ToArray();
         }
         #endregion
+        /// <summary>
+        /// Az ELSŐ FRIENDLY TARGETET IS ATTACKOLNI KELL
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="chartype"></param>
+        /// <param name="color"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         #region PieceAttacks
         public Position[] PawnAttack(int x, int y, char chartype, Playercolor color)
         {
@@ -502,12 +511,12 @@ namespace ChessIO.ws
                 attack = new List<Position>();
 
                 //Ha Balra lehet ütni ellenséges babút
-                if (y != 0 && x != 0 && game.GetPieceByPos(new Position(x - 1, y - 1)) != null && game.TargetIsEnemy(new Position(x - 1, y - 1), color))
+                if (y != 0 && x != 0 && game.GetPieceByPos(new Position(x - 1, y - 1)) != null)
                 {
                     attack.Add(new Position(x - 1, y - 1));
                 }
                 //Ha Jobbra lehet ütni
-                if (y != 7 && x != 0 && game.GetPieceByPos(new Position(x - 1, y + 1)) != null && game.TargetIsEnemy(new Position(x - 1, y + 1), color))
+                if (y != 7 && x != 0 && game.GetPieceByPos(new Position(x - 1, y + 1)) != null)
                 {
                     attack.Add(new Position(x - 1, y + 1));
                 }
@@ -521,12 +530,12 @@ namespace ChessIO.ws
             {
 
                 //Ha Balra lehet ütni ellenséges babút
-                if (x != 7 && y != 0 && game.GetPieceByPos(new Position(x + 1, y - 1)) != null && game.TargetIsEnemy(new Position(x + 1, y - 1), color))
+                if (x != 7 && y != 0 && game.GetPieceByPos(new Position(x + 1, y - 1)) != null)
                 {
                     attack.Add(new Position(x + 1, y - 1));
                 }
                 //Ha Jobbra lehet ütni
-                if (y != 7 && x != 7 && game.GetPieceByPos(new Position(x + 1, y + 1)) != null && game.TargetIsEnemy(new Position(x + 1, y + 1), color))
+                if (y != 7 && x != 7 && game.GetPieceByPos(new Position(x + 1, y + 1)) != null)
                 {
                     attack.Add(new Position(x + 1, y + 1));
                 }
@@ -562,8 +571,9 @@ namespace ChessIO.ws
                 }
                 else if (
                 //Ha mindkét karakter azonos színű
-                    !game.TargetIsEnemy(new Position(x, y), color))
+                    game.TargetIsFriendly(new Position(x, y), color))
                 {
+                    possiblemoves.Add(new Position(x, y));
                     break;
                 }
                 else if (
@@ -588,8 +598,9 @@ namespace ChessIO.ws
                 }
                 else if (
                 //Ha mindkét karakter azonos színű
-                    !game.TargetIsEnemy(new Position(x, y), color))
+                    game.TargetIsFriendly(new Position(x, y), color))
                 {
+                    possiblemoves.Add(new Position(x, y));
                     break;
                 }
                 else if (
@@ -613,8 +624,9 @@ namespace ChessIO.ws
                 }
                 else if (
                 //Ha mindkét karakter azonos színű
-                    !game.TargetIsEnemy(new Position(x, y), color))
+                    game.TargetIsFriendly(new Position(x, y), color))
                 {
+                    possiblemoves.Add(new Position(x, y));
                     break;
                 }
                 else if (
@@ -638,7 +650,7 @@ namespace ChessIO.ws
                 }
                 else if (
                 //Ha mindkét karakter azonos színű
-                    !game.TargetIsEnemy(new Position(x, y), color))
+                    game.TargetIsFriendly(new Position(x, y), color))
                 {
                     break;
                 }
@@ -672,6 +684,7 @@ namespace ChessIO.ws
                     //Ha mindkét karakter azonos színű
                     !game.TargetIsEnemy(new Position(x, y), color))
                 {
+                    possiblemoves.Add(new Position(x, y));
                     break;
                 }
                 else if (
@@ -697,6 +710,7 @@ namespace ChessIO.ws
                     //Ha mindkét karakter azonos színű
                     !game.TargetIsEnemy(new Position(x, y), color))
                 {
+                    possiblemoves.Add(new Position(x, y));
                     break;
                 }
                 else if (
@@ -721,6 +735,7 @@ namespace ChessIO.ws
                     //Ha mindkét karakter azonos színű
                     !game.TargetIsEnemy(new Position(x, y), color))
                 {
+                    possiblemoves.Add(new Position(x, y));
                     break;
                 }
                 else if (
@@ -746,6 +761,7 @@ namespace ChessIO.ws
                     //Ha mindkét karakter azonos színű
                     !game.TargetIsEnemy(new Position(x, y), color))
                 {
+                    possiblemoves.Add(new Position(x, y));
                     break;
                 }
                 else if (
@@ -786,11 +802,11 @@ namespace ChessIO.ws
             //Felfele mozgás
             if (x - 2 >= 0)
             {
-                if (y - 1 >= 0 && game.TargetIsEnemy(new Position(x - 2, y - 1), color))
+                if (y - 1 >= 0 && game.TargetIsPiece(new Position(x - 2, y - 1), color))
                 {
                     possiblemoves.Add(new Position(x - 2, y - 1));
                 }
-                if (y + 1 <= 7 && game.TargetIsEnemy(new Position(x - 2, y + 1), color))
+                if (y + 1 <= 7 && game.TargetIsPiece(new Position(x - 2, y + 1), color))
                 {
                     possiblemoves.Add(new Position(x - 2, y + 1));
                 }
@@ -798,11 +814,11 @@ namespace ChessIO.ws
             // Lefele
             if (x + 2 <= 7)
             {
-                if (y - 1 >= 0 && game.TargetIsEnemy(new Position(x + 2, y - 1), color))
+                if (y - 1 >= 0 && game.TargetIsPiece(new Position(x + 2, y - 1), color))
                 {
                     possiblemoves.Add(new Position(x + 2, y - 1));
                 }
-                if (y + 1 <= 7 && game.TargetIsEnemy(new Position(x + 2, y + 1), color))
+                if (y + 1 <= 7 && game.TargetIsPiece(new Position(x + 2, y + 1), color))
                 {
                     possiblemoves.Add(new Position(x + 2, y + 1));
                 }
@@ -811,11 +827,11 @@ namespace ChessIO.ws
             // Left side movement
             if (y - 2 >= 0)
             {
-                if (x - 1 >= 0 && game.TargetIsEnemy(new Position(x - 1, y - 2), color))
+                if (x - 1 >= 0 && game.TargetIsPiece(new Position(x - 1, y - 2), color))
                 {
                     possiblemoves.Add(new Position(x - 1, y - 2));
                 }
-                if (x + 1 <= 7 && game.TargetIsEnemy(new Position(x + 1, y - 2), color))
+                if (x + 1 <= 7 && game.TargetIsPiece(new Position(x + 1, y - 2), color))
                 {
                     possiblemoves.Add(new Position(x + 1, y - 2));
                 }
@@ -824,11 +840,11 @@ namespace ChessIO.ws
             // Jobbra mozgás
             if (y + 2 <= 7)
             {
-                if (x - 1 >= 0 && game.TargetIsEnemy(new Position(x - 1, y + 2), color))
+                if (x - 1 >= 0 && game.TargetIsPiece(new Position(x - 1, y + 2), color))
                 {
                     possiblemoves.Add(new Position(x - 1, y + 2));
                 }
-                if (x + 1 <= 7 && game.TargetIsEnemy(new Position(x + 1, y + 2), color))
+                if (x + 1 <= 7 && game.TargetIsPiece(new Position(x + 1, y + 2), color))
                 {
                     possiblemoves.Add(new Position(x + 1, y + 2));
                 }
@@ -844,42 +860,42 @@ namespace ChessIO.ws
             var originalX = x;
             var originalY = y;
             //-x, -y
-            if (x - 1 >= 0 && y - 1 >= 0 && game.TargetIsEnemy(new Position(x - 1, y - 1), color))
+            if (x - 1 >= 0 && y - 1 >= 0 && game.TargetIsPiece(new Position(x - 1, y - 1), color))
             {
                 possiblemoves.Add(new Position(x - 1, y - 1));
             }
             //-x, y
-            if (x - 1 >= 0 && game.TargetIsEnemy(new Position(x - 1, y), color))
+            if (x - 1 >= 0 && game.TargetIsPiece(new Position(x - 1, y), color))
             {
                 possiblemoves.Add(new Position(x - 1, y));
             }
             // -x, +y
-            if (x - 1 >= 0 && y + 1 <= 7 && game.TargetIsEnemy(new Position(x - 1, y + 1), color))
+            if (x - 1 >= 0 && y + 1 <= 7 && game.TargetIsPiece(new Position(x - 1, y + 1), color))
             {
                 possiblemoves.Add(new Position(x - 1, y + 1));
             }
             //x, y-
-            if (y - 1 >= 0 && game.TargetIsEnemy(new Position(x, y - 1), color))
+            if (y - 1 >= 0 && game.TargetIsPiece(new Position(x, y - 1), color))
             {
                 possiblemoves.Add(new Position(x, y - 1));
             }
             //x, +y
-            if (y + 1 <= 7 && game.TargetIsEnemy(new Position(x, y + 1), color))
+            if (y + 1 <= 7 && game.TargetIsPiece(new Position(x, y + 1), color))
             {
                 possiblemoves.Add(new Position(x, y + 1));
             }
             //x+ y-
-            if (x + 1 <= 7 && y - 1 >= 0 && game.TargetIsEnemy(new Position(x + 1, y - 1), color))
+            if (x + 1 <= 7 && y - 1 >= 0 && game.TargetIsPiece(new Position(x + 1, y - 1), color))
             {
                 possiblemoves.Add(new Position(x + 1, y - 1));
             }
             //x+, y
-            if (x + 1 <= 7 && game.TargetIsEnemy(new Position(x + 1, y), color))
+            if (x + 1 <= 7 && game.TargetIsPiece(new Position(x + 1, y), color))
             {
                 possiblemoves.Add(new Position(x + 1, y));
             }
             //x+ , y+
-            if (x + 1 <= 7 && y + 1 <= 7 && game.TargetIsEnemy(new Position(x + 1, y + 1), color))
+            if (x + 1 <= 7 && y + 1 <= 7 && game.TargetIsPiece(new Position(x + 1, y + 1), color))
             {
                 possiblemoves.Add(new Position(x + 1, y + 1));
             }

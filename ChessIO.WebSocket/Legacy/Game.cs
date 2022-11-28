@@ -355,6 +355,32 @@ namespace ChessIO.ws.Legacy
                 Console.WriteLine();
             }
         }
+
+        public void DrawAttackedBoard(List<Position> attackedpos)
+        {
+            char[,] _Board = new char[8, 8];
+            for (int i = 0; i < _Board.GetLength(0); i++)
+            {
+                for (int j = 0; j < _Board.GetLength(0); j++)
+                {
+                    _Board[i, j] = 'o';
+                }
+            }
+            Console.WriteLine("------------------ AtackedPositions ------------------");
+            foreach (var item in attackedpos)
+            {
+                _Board[item.X, item.Y] = 'X';
+            }
+            for (int i = 0; i < _Board.GetLength(0); i++)
+            {
+                for (int j = 0; j < _Board.GetLength(1); j++)
+                {
+                    Console.Write(_Board[i, j] + " ");
+
+                }
+                Console.WriteLine();
+            }
+        }
         public void TurnChanger()
         {
             if (ActiveColor == Playercolor.White)
@@ -409,6 +435,34 @@ namespace ChessIO.ws.Legacy
                 }
             }
             return true;
+        }
+        public bool TargetIsFriendly(Position target, Playercolor mycolor)
+        {
+            //Ez itt teljeen rossz
+            foreach (var item in PiecePositions)
+            {
+                if (item.IsEquals(target))
+                {
+                    if (mycolor == item.Color)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            return false;
+        }
+        public bool TargetIsPiece(Position target, Playercolor mycolor)
+        {
+            //Ez itt teljeen rossz
+            foreach (var item in PiecePositions)
+            {
+                return true;
+            }
+            return false;
         }
         public PiecePosition GetPieceByPos(Position pos)
         {

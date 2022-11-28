@@ -244,6 +244,8 @@ namespace ChessIO.ws.Legacy
                     {
                         var newboard = game.Simulatemove(item.From, moveto);
                         var opponentmoves = GetAttackedPositions(newboard, Playercolor.White);
+                        Console.WriteLine("King position:"+kingpos.X+kingpos.Y);
+                        game.DrawAttackedBoard(opponentmoves);
                         kingpos = game.GetKingPosition(newboard, color);
                         if (!KingIsInCheck(newboard, color))
                         {
