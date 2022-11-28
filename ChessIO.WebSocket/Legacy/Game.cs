@@ -65,8 +65,8 @@ namespace ChessIO.ws.Legacy
             bot = new Bot(this, Playercolor.Black);
             Id = Guid.NewGuid().ToString();
             Gametype = GameType.Singleplayer;
-            //Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-            Fenstring = "rnbqk1nr/1p1ppp1p/2p3pb/p7/2BP4/4PQ2/PPP2PPP/RNB1K1NR";
+            Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+            //Fenstring = "rnbqk1nr/1p1ppp1p/2p3pb/p7/2BP4/4PQ2/PPP2PPP/RNB1K1NR";
             White = _p1.Id;
             Black = "Bot";
             TimerBlack = timer;
@@ -91,8 +91,8 @@ namespace ChessIO.ws.Legacy
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
             Id = Guid.NewGuid().ToString();
             Gametype = GameType.Multiplayer;
-            //Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-            Fenstring = "rnbqk1nr/1p1ppp1p/2p3pb/p7/2BP4/4PQ2/PPP2PPP/RNB1K1NR";
+            Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+            //Fenstring = "rnbqk1nr/1p1ppp1p/2p3pb/p7/2BP4/4PQ2/PPP2PPP/RNB1K1NR";
             var whiteblack = r.Next(0, 99);
             if (whiteblack % 2 == 1)
             {
@@ -435,25 +435,6 @@ namespace ChessIO.ws.Legacy
                 }
             }
             return true;
-        }
-        public bool TargetIsFriendly(Position target, Playercolor mycolor)
-        {
-            //Ez itt teljeen rossz
-            foreach (var item in PiecePositions)
-            {
-                if (item.IsEquals(target))
-                {
-                    if (mycolor == item.Color)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-            }
-            return false;
         }
         public bool TargetIsPiece(Position target, Playercolor mycolor)
         {
