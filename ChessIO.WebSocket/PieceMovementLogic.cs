@@ -571,14 +571,7 @@ namespace ChessIO.ws
                 }
                 else if (
                 //Ha mindkét karakter azonos színű
-                    game.TargetIsFriendly(new Position(x, y), color))
-                {
-                    possiblemoves.Add(new Position(x, y));
-                    break;
-                }
-                else if (
-                //Ha Mindkét karakter különböző színű
-                    game.TargetIsEnemy(new Position(x, y), color))
+                    game.TargetIsPiece(new Position(x, y), color))
                 {
                     possiblemoves.Add(new Position(x, y));
                     break;
@@ -598,14 +591,7 @@ namespace ChessIO.ws
                 }
                 else if (
                 //Ha mindkét karakter azonos színű
-                    game.TargetIsFriendly(new Position(x, y), color))
-                {
-                    possiblemoves.Add(new Position(x, y));
-                    break;
-                }
-                else if (
-                //Ha Mindkét karakter különböző színű
-                    game.TargetIsEnemy(new Position(x, y), color))
+                    game.TargetIsPiece(new Position(x, y), color))
                 {
                     possiblemoves.Add(new Position(x, y));
                     break;
@@ -624,14 +610,7 @@ namespace ChessIO.ws
                 }
                 else if (
                 //Ha mindkét karakter azonos színű
-                    game.TargetIsFriendly(new Position(x, y), color))
-                {
-                    possiblemoves.Add(new Position(x, y));
-                    break;
-                }
-                else if (
-                //Ha Mindkét karakter különböző színű
-                    game.TargetIsEnemy(new Position(x, y), color))
+                    game.TargetIsPiece(new Position(x, y), color))
                 {
                     possiblemoves.Add(new Position(x, y));
                     break;
@@ -650,15 +629,8 @@ namespace ChessIO.ws
                 }
                 else if (
                 //Ha mindkét karakter azonos színű
-                    game.TargetIsFriendly(new Position(x, y), color))
+                    game.TargetIsPiece(new Position(x, y), color))
                 {
-                    break;
-                }
-                else if (
-                //Ha Mindkét karakter különböző színű
-                    game.TargetIsEnemy(new Position(x, y), color))
-                {
-                    possiblemoves.Add(new Position(x, y));
                     break;
                 }
             }
@@ -682,14 +654,7 @@ namespace ChessIO.ws
                 }
                 else if (
                     //Ha mindkét karakter azonos színű
-                    !game.TargetIsEnemy(new Position(x, y), color))
-                {
-                    possiblemoves.Add(new Position(x, y));
-                    break;
-                }
-                else if (
-                    //Ha Mindkét karakter különböző színű
-                    game.TargetIsEnemy(new Position(x, y), color))
+                    game.TargetIsPiece(new Position(x, y), color))
                 {
                     possiblemoves.Add(new Position(x, y));
                     break;
@@ -708,14 +673,7 @@ namespace ChessIO.ws
                 }
                 else if (
                     //Ha mindkét karakter azonos színű
-                    !game.TargetIsEnemy(new Position(x, y), color))
-                {
-                    possiblemoves.Add(new Position(x, y));
-                    break;
-                }
-                else if (
-                    //Ha Mindkét karakter különböző színű
-                    game.TargetIsEnemy(new Position(x, y), color))
+                    game.TargetIsPiece(new Position(x, y), color))
                 {
                     possiblemoves.Add(new Position(x, y));
                     break;
@@ -733,14 +691,7 @@ namespace ChessIO.ws
                 }
                 else if (
                     //Ha mindkét karakter azonos színű
-                    !game.TargetIsEnemy(new Position(x, y), color))
-                {
-                    possiblemoves.Add(new Position(x, y));
-                    break;
-                }
-                else if (
-                    //Ha Mindkét karakter különböző színű
-                    game.TargetIsEnemy(new Position(x, y), color))
+                    game.TargetIsPiece(new Position(x, y), color))
                 {
                     possiblemoves.Add(new Position(x, y));
                     break;
@@ -759,14 +710,7 @@ namespace ChessIO.ws
                 }
                 else if (
                     //Ha mindkét karakter azonos színű
-                    !game.TargetIsEnemy(new Position(x, y), color))
-                {
-                    possiblemoves.Add(new Position(x, y));
-                    break;
-                }
-                else if (
-                    //Ha Mindkét karakter különböző színű
-                    game.TargetIsEnemy(new Position(x, y), color))
+                    game.TargetIsPiece(new Position(x, y), color))
                 {
                     possiblemoves.Add(new Position(x, y));
                     break;
