@@ -250,18 +250,20 @@ namespace ChessIO.ws.Legacy
                             //Itt ha egy lépés valid akkor az TO-ból az összeset hozzáadom ami hiba . Csak az adott To-t kéne hozzáadni és nem az összeset
                             //game.MovesForWhite.Add(item);
                             possiblemovesfromPosition.Add(moveto);
+                            ;
                         }
                     }
                     //Ha van possible move akko fel kell tölteni a MovesFor XY-t
                     if (possiblemovesfromPosition.Count > 0)
                     {
-                        game.MovesForWhite.Add(new Possiblemoves(item.From, item.FromChar, possiblemovesfromPosition));
+                        game.MovesForBlack.Add(new Possiblemoves(item.From, item.FromChar, possiblemovesfromPosition));
                     }
                     var a = item;
                     ;
 
                 }
                 var r = game.MovesForBlack.Distinct().ToList();
+                ;
                 Console.WriteLine("Valid moves for Black:"+color);
                 foreach (var item in r)
                 {
@@ -297,10 +299,10 @@ namespace ChessIO.ws.Legacy
             }
             return check;
         }
-        public bool KingIsInCheck(List<PiecePosition> board,Playercolor color)
+        public bool KingIsInCheck(List<PiecePosition> _board,Playercolor color)
         {
-            var kingpos = game.GetKingPosition(board,color);
-            var enemymoves = GetAttackedPositions(board, game.GetOppositeColor(color));
+            var kingpos = game.GetKingPosition(_board,color);
+            var enemymoves = GetAttackedPositions(_board, game.GetOppositeColor(color));
             bool check = false;
             foreach (var item in enemymoves)
             {
