@@ -77,7 +77,7 @@ namespace ChessIO.ws.Legacy
             MovesForWhite = new List<Possiblemoves>();
             MovesForBlack = new List<Possiblemoves>();
             PiecePositions = new List<PiecePosition>();
-            
+
             whiteCastleKingSide = true;
             whiteCastleQueenSide = true;
             blackCastleKingSide = true;
@@ -92,7 +92,7 @@ namespace ChessIO.ws.Legacy
             Id = Guid.NewGuid().ToString();
             Gametype = GameType.Multiplayer;
             //Fenstring = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-            Fenstring= "rnbqk1nr/1p1ppp1p/2p3pb/p7/2BP4/4PQ2/PPP2PPP/RNB1K1NR";
+            Fenstring = "rnbqk1nr/1p1ppp1p/2p3pb/p7/2BP4/4PQ2/PPP2PPP/RNB1K1NR";
             var whiteblack = r.Next(0, 99);
             if (whiteblack % 2 == 1)
             {
@@ -112,7 +112,7 @@ namespace ChessIO.ws.Legacy
             MovesForWhite = new List<Possiblemoves>();
             MovesForBlack = new List<Possiblemoves>();
             PiecePositions = new List<PiecePosition>();
-            
+
             whiteCastleKingSide = true;
             whiteCastleQueenSide = true;
             blackCastleKingSide = true;
@@ -173,11 +173,6 @@ namespace ChessIO.ws.Legacy
                     var wmovemsg = new Message() { Opcode = 6, Custom = whitemoves };
                     Server.SendMessage(White, JsonConvert.SerializeObject(wmovemsg));
                 }
-            }
-            Console.WriteLine("Game starting:");
-            foreach (var item in logic.game.PiecePositions)
-            {
-                Console.WriteLine(item.Piece + "--" + item.Position.X + "|" + item.Position.Y);
             }
         }
         public void BroadcastMessage(Message message)
@@ -389,7 +384,7 @@ namespace ChessIO.ws.Legacy
             else
                 return PiecePositions.FirstOrDefault(f => f.Piece == 'K'.ToString()).Position;
         }
-        public Position GetKingPosition(List<PiecePosition> newboard,Playercolor color)
+        public Position GetKingPosition(List<PiecePosition> newboard, Playercolor color)
         {
             if (color == Playercolor.Black)
                 return newboard.FirstOrDefault(f => f.Piece == 'k'.ToString()).Position;

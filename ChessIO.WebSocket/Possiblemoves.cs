@@ -10,17 +10,22 @@ namespace ChessIO.ws
 {
     public class Possiblemoves
     {
+        public string FromChar { get; set; }
         public Position From { get; set; }
         public List<Position> To{ get; set; }
 
-        public Possiblemoves(Position from)
+        public Possiblemoves(Position from, string fromChar)
         {
             From = from;
             To = new List<Position>();
+            FromChar = fromChar;
         }
-        public void AddMove(Position to)
+
+        public Possiblemoves(Position from, string fromChar,List<Position> To)
         {
-            To.Add(to);
+            From = from;
+            this.To = To;
+            FromChar = fromChar;
         }
     }
 }
