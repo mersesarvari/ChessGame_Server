@@ -30,6 +30,8 @@ namespace ChessIO.ws
     public class Game
     {
         #region fields
+
+        public Bot bot { get; set; }
         Random r = new Random();
         public string Id { get; set; }
         public GameState State { get; set; }
@@ -58,11 +60,15 @@ namespace ChessIO.ws
         public Playercolor ActiveColor { get; set; }
         public string ActivePlayerId { get; set; }
 
+        public List<string> moveList { get; set; }
+        public Game()
+        {
+            moveList= new List<string>();   
+        }
         #endregion
-        
         public Game(Player _p1, int timer)
         {
-
+            moveList= new List<string>();
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
             Board = new char[8, 8];
             Id = Guid.NewGuid().ToString();
@@ -93,7 +99,7 @@ namespace ChessIO.ws
         [JsonConstructor]
         public Game(Player _p1, Player _p2, int timer)
         {
-            
+            moveList    = new List<string>();
             //Real Fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
             Board = new char[8,8]; 
             Id = Guid.NewGuid().ToString() ;
@@ -164,6 +170,7 @@ namespace ChessIO.ws
             }
             else
             {
+                bot = new Bot(this);
                 Console.WriteLine("Player1:"+White);
                 Console.WriteLine("Player2:" + Black);
                 if (White == "Bot")
@@ -173,6 +180,13 @@ namespace ChessIO.ws
                     var blackmoves = GetPlayerMoves(Playercolor.Black, true);
                     var bmovemsg = new Message() { Opcode = 6, Custom = blackmoves };
                     Server.SendMessage(Black, JsonConvert.SerializeObject(bmovemsg));
+                    var botmove = bot.testgame();
+                    var a = this.moveList;
+
+                    var move = Logic.ConvertPositionToMatrix(botmove);
+                    this.MovePiece(move.Item1, move.Item2);
+                    this.TurnChanger();
+                    this.BroadcastMessage(new Message() { Opcode = 5, Gameid = Id, Playerid = Black, Fen = this.Fenstring });
                 }
                 else
                 {                    

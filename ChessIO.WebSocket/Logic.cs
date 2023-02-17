@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
@@ -253,6 +254,29 @@ namespace ChessIO.ws
             };
             return _board;
 
+        }
+
+        public static (Position from, Position to) ConvertPositionToMatrix(string position)
+        {
+            Position oldpos= new Position(-1,-1);
+            Position newpos= new Position(-1,-1);
+            var oldzone = (position[0] +""+ position[1]).ToString().ToUpper();
+            var newzone = (position[2] + "" + position[3]).ToString().ToUpper();
+            for (int i = 0; i < Game.Zones.GetLength(0); i++)
+            {
+                for (int j = 0; j < Game.Zones.GetLength(1); j++)
+                {
+                    if (oldzone == Game.Zones[i, j])
+                    {
+                        oldpos = new Position(i, j);
+                    }
+                    if (newzone == Game.Zones[i, j])
+                    {
+                        newpos = new Position(i, j);
+                    }
+                }
+            }
+            return (from: oldpos, to: newpos);
         }
         // Not fully working
         #region piecemovement

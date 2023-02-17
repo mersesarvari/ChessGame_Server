@@ -74,6 +74,7 @@ namespace ChessIO.ws
                 }
                 if (d.Playerid == currentgame.ActivePlayerId && currentgame.Gametype == GameType.Singleplayer)
                 {
+                    Console.WriteLine("Server recieved a move command");
                     //Logic.IsCheck();
                     var oldpos = new Position(d.OldcoordX, d.OldcoordY);
                     var newpos = new Position(d.NewcoordX, d.NewcoordY);
@@ -83,12 +84,25 @@ namespace ChessIO.ws
                     if (isvalid)
                     {
                         //Moving on the board
+                        Bot b = new Bot(currentgame);
+                        b.AddMoveToList(oldpos, newpos);
                         currentgame.MovePiece(oldpos, newpos);
                         //Adding Bot logic to here
                         currentgame.TurnChanger();
-                        Bot.BotMovePiece(oldpos,newpos,currentgame);
                         currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
+
+                        if (currentgame.ActivePlayerId == "Bot")
+                        {
+                            var botmove = b.testgame();
+                            var a = currentgame.moveList;
+
+                            var move = Logic.ConvertPositionToMatrix(botmove);
+                            currentgame.MovePiece(move.Item1, move.Item2);
+                            currentgame.TurnChanger();
+                            currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
+                        }
                         
+
                         //Checking checkmates
                         var cm = Logic.IsCheckMate(currentgame.Board, currentgame.ActiveColor, true);
                         if (cm)

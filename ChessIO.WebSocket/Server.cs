@@ -57,9 +57,9 @@ namespace ChessIO.ws
                 Thread.Sleep(3000);
             }
         }
-        public static void CreateBotGame()
+        public static Game CreateBotGame()
         {
-            Console.WriteLine("Create Bog Game method is running");
+            Console.WriteLine("Create Bot Game method is running");
             while (true)
             {
                 var playersinlobby = Server.Players.FindAll(x => x.PlayerState == PlayerState.Lobby);
