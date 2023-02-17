@@ -49,7 +49,15 @@ namespace ChessIO.ws
         //    game.MovePiece(from, to);
         //    stockfish.SetPosition(oldzonecode.ToLower() + "" + newzonecode.ToLower(), bestMove);
         //}
+        public void MoveBot()
+        {
+            var a = testgame();
 
+            var move = Logic.ConvertPositionToMatrix(a);
+            currentGame.MovePiece(move.Item1, move.Item2);
+            currentGame.TurnChanger();
+            currentGame.BroadcastMessage(new Message() { Opcode = 5, Gameid = currentGame.Id, Playerid = currentGame.ActivePlayerId, Fen = currentGame.Fenstring });
+        }
         public async static void GetBot()
         {
             string currentDirName = System.IO.Directory.GetCurrentDirectory();

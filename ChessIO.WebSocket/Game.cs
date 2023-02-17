@@ -180,13 +180,7 @@ namespace ChessIO.ws
                     var blackmoves = GetPlayerMoves(Playercolor.Black, true);
                     var bmovemsg = new Message() { Opcode = 6, Custom = blackmoves };
                     Server.SendMessage(Black, JsonConvert.SerializeObject(bmovemsg));
-                    var botmove = bot.testgame();
-                    var a = this.moveList;
-
-                    var move = Logic.ConvertPositionToMatrix(botmove);
-                    this.MovePiece(move.Item1, move.Item2);
-                    this.TurnChanger();
-                    this.BroadcastMessage(new Message() { Opcode = 5, Gameid = Id, Playerid = Black, Fen = this.Fenstring });
+                    bot.MoveBot();
                 }
                 else
                 {                    

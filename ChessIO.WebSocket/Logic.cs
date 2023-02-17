@@ -660,7 +660,7 @@ namespace ChessIO.ws
                 {
                     //Console.WriteLine(item.X+"|"+item.Y);
                     if (
-                        Game.TargetIsEnemy(board, x, y, color))
+                        Game.TargetIsEnemy(board, item.X, item.Y, color))
                     {
                         filteredpossiblemoves.Add(item);
                     }                    

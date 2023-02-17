@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using SuperSocket.Common;
 using System.Collections;
 using System.ComponentModel;
+using System.Security;
 
 namespace ChessIO.ws
 {
@@ -84,22 +85,25 @@ namespace ChessIO.ws
                     if (isvalid)
                     {
                         //Moving on the board
-                        Bot b = new Bot(currentgame);
-                        b.AddMoveToList(oldpos, newpos);
+                        currentgame.bot.AddMoveToList(oldpos, newpos);
                         currentgame.MovePiece(oldpos, newpos);
                         //Adding Bot logic to here
                         currentgame.TurnChanger();
                         currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
+                        Console.Clear();
+                        Game.DrawBoard(currentgame.Board);
 
                         if (currentgame.ActivePlayerId == "Bot")
                         {
-                            var botmove = b.testgame();
+                            var botmove = currentgame.bot.testgame();
                             var a = currentgame.moveList;
 
                             var move = Logic.ConvertPositionToMatrix(botmove);
                             currentgame.MovePiece(move.Item1, move.Item2);
                             currentgame.TurnChanger();
                             currentgame.BroadcastMessage(new Message() { Opcode = 5, Gameid = d.Gameid, Playerid = d.Playerid, Fen = currentgame.Fenstring });
+                            Console.Clear();
+                            Game.DrawBoard(currentgame.Board);
                         }
                         
 
